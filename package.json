@@ -65,17 +65,18 @@
       "/^https?://([^.]+\\.)*atlassian.net/?.*$/"
     ]
   },
+  "dependencies": {
+    "@deskproapps/deskproapps-sdk-react": "1.0.0-beta.9"
+  },
   "devDependencies": {
-    "file-loader": "^0.11.2",
-    "react-test-renderer": "^15.6.1",
-    "url-loader": "^0.5.9",
+    "@deskproapps/dpat": "0.8.0",
+    "error-wrapper": "2.1.0",
     "react": "15.5.3",
     "react-custom-scrollbars": "4.1.1",
     "react-dom": "15.5.3",
-    "prop-types": "^15.5.10"
-  },
-  "dependencies": {
-    "@deskproapps/deskproapps-sdk-react": "1.0.0-beta.9"
+    "semantic-ui-react": "0.67.2",
+    "superagent": "3.5.2",
+    "superagent-promise": "1.1.0"
   },
   "optionalDependencies": {
     "fsevents": "^1",
