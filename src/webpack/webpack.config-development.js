@@ -13,7 +13,7 @@ module.exports = function (env)
   );
 
   const resources = dpat.Resources.copyDescriptors(buildManifest, PROJECT_ROOT_PATH);
-  const bundlePackages = dpat.BuildUtils.bundlePackages(PROJECT_ROOT_PATH, 'devDependencies');
+  const bundlePackages = ['prop-types', 'deskpro-components', '@deskproapps/deskproapps-sdk-react'];
   const babelOptions = dpat.Babel.resolveOptions(PROJECT_ROOT_PATH, { babelrc: false });
 
   // emulate the Files API path which is used by deskpro to fetch the app files

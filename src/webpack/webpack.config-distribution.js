@@ -12,7 +12,8 @@ module.exports = function (env) {
   );
 
   const resources = dpat.Resources.copyDescriptors(buildManifest, PROJECT_ROOT_PATH);
-  const bundlePackages = dpat.BuildUtils.bundlePackages(PROJECT_ROOT_PATH, 'devDependencies');
+  // const bundlePackages = dpat.BuildUtils.bundlePackages(PROJECT_ROOT_PATH, 'devDependencies');
+  const bundlePackages = ['prop-types', 'deskpro-components', '@deskproapps/deskproapps-sdk-react'];
   const babelOptions = dpat.Babel.resolveOptions(PROJECT_ROOT_PATH, { babelrc: false });
   // the relative path of the assets inside the distribution bundle
   const ASSET_PATH = 'assets';
