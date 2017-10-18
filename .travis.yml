@@ -2,7 +2,7 @@ language: node_js
 node_js:
 - '6'
 install:
-  - npm install --no-optional && npm install @deskproapps/dpat@^0.7
+  - npm install --no-optional && npm install --no-optional @deskproapps/dpat@^0.8
 script:
   - npm test && npm run package
 deploy:

@@ -90,6 +90,7 @@
     "react-dom": "^15.6.1"
   },
   "optionalDependencies": {
+    "fsevents": "^1",
     "changelog-verify": "1.0.4",
     "version-changelog": "2.1.0"
   }
