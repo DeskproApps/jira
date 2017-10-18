@@ -5,7 +5,7 @@ install:
   - npm update -g && npm -v
   - npm install --no-optional --no-save && npm install --no-save @deskproapps/dpat@0.8.0
 script:
-  - npm test && npm run package
+  - npm run package
 deploy:
   skip_cleanup: true
   provider: releases
