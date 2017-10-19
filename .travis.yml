@@ -3,7 +3,7 @@ node_js:
 - '6'
 install:
   - npm install -g npm@5.3.0 && npm -v
-  - npm install --no-optional --no-save && npm install --no-save @deskproapps/dpat@0.8.0
+  - npm install --no-optional --no-save && npm install --no-optional --no-save @deskproapps/dpat@0.8.0
 script:
   - npm test && npm run package
 deploy:
