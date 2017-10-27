@@ -1,9 +1,10 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 
 export default class App extends React.Component
 {
-  static propTypes = { dpapp: React.PropTypes.object.isRequired };
+  static propTypes = { dpapp: PropTypes.object.isRequired };
 
   shouldComponentUpdate() { return false; }
 

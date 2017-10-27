@@ -1,5 +1,5 @@
 const path = require('path');
-const dpat = require('@deskproapps/dpat');
+const dpat = require('@deskpro/apps-dpat');
 
 module.exports = function (env) {
 
@@ -23,6 +23,7 @@ module.exports = function (env) {
     devtool: DEBUG ? 'source-map' : false,
     entry: {
       main: [ path.resolve(PROJECT_ROOT_PATH, 'src/webpack/entrypoint.js') ]
+      //vendor bundle created by CommonsChunkPlugin
     },
     externals: {
       'react': 'React',
@@ -35,8 +36,6 @@ module.exports = function (env) {
           loader: 'babel-loader',
           include: [
             path.resolve(PROJECT_ROOT_PATH, 'src/main/javascript'),
-            path.resolve(PROJECT_ROOT_PATH, 'node_modules', '@deskproapps', 'deskproapps-sdk-core'),
-            path.resolve(PROJECT_ROOT_PATH, 'node_modules', '@deskproapps', 'deskproapps-sdk-react')
           ],
           options: babelOptions
         },
@@ -66,7 +65,10 @@ module.exports = function (env) {
     plugins: [
       extractCssPlugin,
 
-      new dpat.Webpack.DefinePlugin({ DEBUG: DEBUG }),
+      new dpat.Webpack.DefinePlugin({
+        DEBUG: DEBUG,
+        DPAPP_MANIFEST: JSON.stringify(buildManifest.getContent())
+      }),
 
       // for stable builds, in production we replace the default module index with the module's content hashe
       new dpat.Webpack.HashedModuleIdsPlugin(),
@@ -77,6 +79,7 @@ module.exports = function (env) {
 
       // replace a standard webpack chunk hashing with custom (md5) one
       new dpat.Webpack.WebpackChunkHash(),
+
       // vendor libs + extracted manifest
       new dpat.Webpack.optimize.CommonsChunkPlugin({
         name: ['vendor'],

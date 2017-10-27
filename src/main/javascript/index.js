@@ -1,10 +1,14 @@
 import ReactDOM from 'react-dom';
-import { DeskproAppContainer } from '@deskproapps/deskproapps-sdk-react';
+import { DeskproSDK, configureStore } from '@deskpro/apps-sdk-react';
 import App from './App';
 
 export function runApp(app) {
+  const store = configureStore(app);
+
   ReactDOM.render(
-    <DeskproAppContainer app={app} name={'JIRA'} mainComponent={App} />,
+    <DeskproSDK dpapp={app} store={store}>
+      <App />
+    </DeskproSDK>,
     document.getElementById('deskpro-app')
   );
 }

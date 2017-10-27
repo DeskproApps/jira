@@ -1,7 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 
-const dpat = require('@deskproapps/dpat');
+const dpat = require('@deskpro/apps-dpat');
 
 module.exports = function (env)
 {
@@ -52,6 +52,7 @@ module.exports = function (env)
         `webpack-dev-server/client?http://localhost:31080`,
         path.resolve(PROJECT_ROOT_PATH, 'src/webpack/entrypoint.js')
       ]
+      // 'install-vendor' bundle is create by CommonsChunkPlugin
     },
     module: {
       loaders: [
@@ -60,8 +61,6 @@ module.exports = function (env)
           loader: 'babel-loader',
           include: [
             path.resolve(PROJECT_ROOT_PATH, 'src/main/javascript'),
-            path.resolve(PROJECT_ROOT_PATH, 'node_modules', '@deskproapps', 'deskproapps-sdk-core'),
-            path.resolve(PROJECT_ROOT_PATH, 'node_modules', '@deskproapps', 'deskproapps-sdk-react')
           ],
           options: babelOptions
         },
@@ -74,11 +73,11 @@ module.exports = function (env)
           loader: extractCssPlugin.extract({use: ['css-loader', 'sass-loader']}),
           test: /\.scss$/
         },
-        { test: /\.(png|jpg)$/, loader: 'url-loader', options: { limit: 15000 } },
-        { test: /\.eot(\?v=\d+.\d+.\d+)?$/, loader: 'file-loader' },
-        { test: /\.[ot]tf(\?v=\d+.\d+.\d+)?$/, loader: 'url-loader', options: { limit: 10000, mimetype: 'application/octet-stream' } },
-        { test: /\.svg(\?v=\d+\.\d+\.\d+)?$/, loader: 'url-loader', options: { limit: 10000, mimetype: 'image/svg+xml' } },
-        { test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/, loader: 'url-loader', options: { limit: 10000, mimetype: 'application/font-woff' } }
+        { test: /\.(png|jpg)$/, use: 'url-loader?limit=15000' },
+        { test: /\.eot(\?v=\d+.\d+.\d+)?$/, use: 'file-loader' },
+        { test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/, use: 'url-loader?limit=10000&mimetype=application/font-woff' },
+        { test: /\.[ot]tf(\?v=\d+.\d+.\d+)?$/, use: 'url-loader?limit=10000&mimetype=application/octet-stream' },
+        { test: /\.svg(\?v=\d+\.\d+\.\d+)?$/, use: 'url-loader?limit=10000&mimetype=image/svg+xml' }
       ],
     },
     output: {
@@ -90,6 +89,11 @@ module.exports = function (env)
     plugins: [
       extractCssPlugin,
 
+      new dpat.Webpack.DefinePlugin({
+        DPAPP_MANIFEST: JSON.stringify(buildManifest.getContent())
+      }),
+
+      // vendor libs
       new dpat.Webpack.optimize.CommonsChunkPlugin({
         name: ['vendor'],
         minChunks: function (module) {
@@ -97,6 +101,7 @@ module.exports = function (env)
           return module.context && module.context.indexOf("node_modules") !== -1;
         }
       }),
+
       new dpat.Webpack.NamedModulesPlugin(),
 
       new dpat.Webpack.CopyWebpackPlugin(resources, { debug: true, copyUnmodified: true }),
