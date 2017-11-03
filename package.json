@@ -83,7 +83,7 @@
       {
         "type": "dataList",
         "attachedTo": "ticket",
-        "alias": "trelloCards",
+        "alias": "jiraCards",
         "title": "Jira linked issues"
       }
     ],
