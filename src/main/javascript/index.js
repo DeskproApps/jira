@@ -1,6 +1,6 @@
 import ReactDOM from 'react-dom';
 import { DeskproSDK, configureStore } from '@deskpro/apps-sdk-react';
-import App from './App';
+import { App } from './App';
 
 export function runApp(app) {
   const store = configureStore(app);
