@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 
-import { Tabs, TabLink, Section } from '@deskpro/react-components';
+import { Tabs, TabLink, Section, Container } from '@deskpro/react-components';
 
 import { TabCreateIssue } from '../CreateIssue';
 import { TabBrowseIssues } from '../BrowseIssues';
@@ -46,16 +46,17 @@ export class PageIndex extends React.Component
             Browse
           </TabLink>
         </Tabs>
-        <Section hidden={activePane !== Routes.createIssue}>
-          <TabCreateIssue navigate={navigate} />
-        </Section>
-        <Section hidden={activePane !== Routes.linkedIssues}>
-          <TabLinkIssues navigate={navigate} linkedIssues={linkedIssues} />
-        </Section>
-        <Section hidden={activePane !== Routes.browseIssue}>
-          <TabBrowseIssues navigate={navigate} linkedIssues={linkedIssues} />
-        </Section>
-
+        <Container className="dp-jira-container">
+          <Section hidden={activePane !== Routes.createIssue}>
+            <TabCreateIssue navigate={navigate} />
+          </Section>
+          <Section hidden={activePane !== Routes.linkedIssues}>
+            <TabLinkIssues navigate={navigate} linkedIssues={linkedIssues} />
+          </Section>
+          <Section hidden={activePane !== Routes.browseIssue}>
+            <TabBrowseIssues navigate={navigate} linkedIssues={linkedIssues} />
+          </Section>
+        </Container>
       </div>
     );
   }

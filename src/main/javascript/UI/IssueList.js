@@ -18,7 +18,7 @@ export class IssueList extends React.Component
     const { issues, actions } = this.props;
 
     return (
-      <Scrollbar>
+      <Scrollbar autoHeightMin={500}>
         <List>
           {
             issues.map(issue => {

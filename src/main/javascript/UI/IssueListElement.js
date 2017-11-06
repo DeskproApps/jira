@@ -17,16 +17,27 @@ export class IssueListElement extends React.Component
     const { issue, action } = this.props;
     const { key, fields } = issue;
 
-    const actionLabel = action.type === 'link' ? 'Link' : 'Unlink';
+    const actionModifier = action.type === 'link' ? 'issue-card__action--inactive' : '';
+    const actionTitle = action.type === 'link' ? 'Link' : 'Unlink';
 
     return (
       <ListElement>
-        <div>
-          <img src={ fields.issuetype.iconUrl } title={ fields.issuetype.name }/>
-          <h6> { key } </h6>
-          <a href="#" onClick={() => action.dispatch(issue) }>{actionLabel}</a>
+        <div className={"issue-card"}>
+          <div className={"issue-card__header"}>
+            <h1 className={"issue-card__title"}> { key } </h1>
+            <img className={"issue-card__type"} src={ fields.issuetype.iconUrl } title={ fields.issuetype.name }/>
+
+            <a className={`issue-card__action ${actionModifier}`} href="#" onClick={() => action.dispatch(issue) } title={actionTitle}>
+              <i className={`fa fa-link fa-fw`} aria-hidden="true" ></i>
+            </a>
+          </div>
+
+          <p className="issue-card__body">
+            { fields.summary }
+          </p>
+
         </div>
-        <p>{ fields.summary }</p>
+
       </ListElement>
     );
   }

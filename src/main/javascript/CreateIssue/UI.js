@@ -91,45 +91,45 @@ export class UI  extends React.Component
     const { project, issueType } = this.state;
 
     return (
-      <Container>
-        <Form name="create_issue" onSubmit={this.handleSubmit.bind(this)}>
 
-          <Group label="Project" >
-            <SelectProjects
-              id="project"
-              name="project"
-              value={project}
-              options={ projects }
-              onChange={this.onProjectChanged.bind(this)}
-            />
-          </Group>
+      <Form name="create_issue" onSubmit={this.handleSubmit.bind(this)}>
 
-          <Group label="Issue Type" >
-            <SelectIssueTypes
-              id="issuetype"
-              name="issuetype"
-              value={issueType}
-              options={ issueTypes }
-              onChange={this.onIssueTypeChanged.bind(this)}
-            />
-          </Group>
+        <Group label="Project" >
+          <SelectProjects
+            id="project"
+            name="project"
+            value={project}
+            options={ projects }
+            onChange={this.onProjectChanged.bind(this)}
+          />
+        </Group>
 
+        <Group label="Issue Type" >
+          <SelectIssueTypes
+            id="issuetype"
+            name="issuetype"
+            value={issueType}
+            options={ issueTypes }
+            onChange={this.onIssueTypeChanged.bind(this)}
+          />
+        </Group>
+
+        {
+          primaryFields.filter(({ key }) => -1 === ['project', 'issuetype'].indexOf(key))
+            .map(field => this.renderField(field))
+        }
+
+        <HiddenFields opened={false} labelShow={"Show all fields"} labelHide={"Show only required fields"}>
           {
-            primaryFields.filter(({ key }) => -1 === ['project', 'issuetype'].indexOf(key))
+            secondaryFields.filter(({ key }) => -1 === ['project', 'issuetype'].indexOf(key))
               .map(field => this.renderField(field))
           }
+        </HiddenFields>
+        <br/>
+        { this.renderCreateButton() }
 
-          <HiddenFields opened={false} labelShow={"Show all fields"} labelHide={"Show only required fields"}>
-            {
-              secondaryFields.filter(({ key }) => -1 === ['project', 'issuetype'].indexOf(key))
-                .map(field => this.renderField(field))
-            }
-          </HiddenFields>
-          <br/>
-          { this.renderCreateButton() }
+      </Form>
 
-        </Form>
-      </Container>
     );
   }
 

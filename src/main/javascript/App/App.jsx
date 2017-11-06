@@ -7,7 +7,11 @@ import { JiraService } from '../Jira';
 
 export class App extends React.Component
 {
-  static propTypes = { dpapp: PropTypes.object.isRequired };
+  static propTypes = {
+    dpapp: PropTypes.object.isRequired,
+
+    ui: PropTypes.object.isRequired
+  };
 
   static childContextTypes = {
 
@@ -68,7 +72,7 @@ export class App extends React.Component
   componentDidMount()
   {
     // load state, initialize services
-    const { dpapp } = this.props ;
+    const { dpapp, ui } = this.props ;
     this.loadState()
       .then(state => {
         this.setState(state);
@@ -78,7 +82,7 @@ export class App extends React.Component
       .then(state => {
         this.setState({ ...state, appReady: true });
       })
-      .catch(console.log)
+      .catch(ui.error)
     ;
   }
 
@@ -164,9 +168,10 @@ export class App extends React.Component
     linkedIssues.push(issue);
 
     return jiraService.createLink(issue, ticket())
-      .then(issue => context.customFields.setAppField('jiraCards', linkedIssues.map(issue => issue.key)))
+      .then(link => context.customFields.setAppField('jiraCards', linkedIssues.map(issue => issue.key)))
       .then(() => {
         this.setState({ linkedIssues });
+        return issue;
       })
     ;
   }
@@ -184,9 +189,10 @@ export class App extends React.Component
     const { context } = this.props.dpapp;
 
     return jiraService.deleteLink(issue, ticket())
-      .then(issue => context.customFields.setAppField('jiraCards', linkedIssues.map(issue => issue.key)))
+      .then(link => context.customFields.setAppField('jiraCards', linkedIssues.map(issue => issue.key)))
       .then(() => {
         this.setState({ linkedIssues });
+        return issue;
       })
     ;
   }

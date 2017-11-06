@@ -1,16 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Section, Input, SelectableList, List, ListElement, Scrollbar } from '@deskpro/react-components';
+import { Section, Input, Loader } from '@deskpro/react-components';
 import { IssueList } from '../UI';
 
-export class UI  extends React.Component
+export class UI  extends React.PureComponent
 {
   static propTypes = {
 
+    state: PropTypes.string.isRequired,
+
     issues: PropTypes.array.isRequired,
 
-    issueActions: PropTypes.object.isRequired,
+    issueActions: PropTypes.array.isRequired,
 
     onSearch: PropTypes.func.isRequired
   };
@@ -20,15 +22,20 @@ export class UI  extends React.Component
     const { onSearch, issues, issueActions } = this.props;
 
     return (
-      <div style={{
-      padding: '5px'
-    }}>
-      <Input icon="search" onChange={onSearch} onKeyDown={onSearch} />
+      <div>
+        <Input icon="search" onChange={onSearch} onKeyDown={onSearch} />
 
-      <Section>
-        <IssueList issues={issues} actions={issueActions}/>
-      </Section>
+        { this.props.state === 'normal' &&
+        <Section>
+          <IssueList issues={issues} actions={issueActions}/>
+        </Section>
+        }
 
-    </div>);
+        { this.props.state === 'loading' &&
+          <Loader size="small" />
+        }
+
+      </div>
+    );
   }
 }

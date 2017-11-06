@@ -1,2 +1,77 @@
 $dp-styles-font-path: "~@deskpro/react-components/src/styles/fonts/";
-@import "~@deskpro/react-components/src/styles/main.scss";
+@import "~@deskpro/react-components/src/styles/main_no_apps.scss";
+
+/** normalize **/
+$viewport-width: 240px;
+
+html.deskpro-sidebar
+{
+  height: auto;
+  margin: 0;
+  padding: 0;
+}
+
+/** globals **/
+.deskpro-sidebar {
+  body {
+    height: inherit; // must be overwritten to allow for autoresize in xcomponent
+    width: $viewport-width;
+    min-width: $viewport-width;
+    max-width: $viewport-width;
+    margin: 0;
+  }
+}
+
+.dp-jira-container {
+
+  ul.dp-list {
+    padding: 0;
+  }
+}
+
+.issue-card {
+
+  display: flex;
+
+  margin-bottom: 5px;
+
+  margin-right: 20px;
+
+  &__header {
+    vertical-align: top;
+    width: 60px;
+  }
+
+  &__body {
+    flex: 1;
+    word-break: normal;
+    vertical-align: top;
+    margin: 0;
+  }
+
+  &__type {
+    height: 20px;
+    width: 20px;
+  }
+
+  &__title {
+    margin:0;
+  }
+
+  &__action {
+    display: inline-block;
+    vertical-align: top;
+    margin: 0;
+    padding: 0;
+    height: 20px;
+    font-size: 20px;
+    line-height: 20px;
+  }
+
+  &__action--inactive {
+    color: #dddddd;
+  }
+
+}
+
+
