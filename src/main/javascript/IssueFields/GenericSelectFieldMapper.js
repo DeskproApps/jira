@@ -10,6 +10,10 @@ export class GenericSelectFieldMapper
   {
     const { schema } = field;
 
+    if (schema && typeof schema === 'object' && schema.type === 'priority' ) {
+      return true;
+    }
+
     if (schema && typeof schema === 'object' && schema.type === 'array' && field.allowedValues) {
       // exception: can not handle attachements
       return !(schema.items && schema.items === 'attachement');

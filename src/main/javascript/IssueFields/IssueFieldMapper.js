@@ -6,7 +6,7 @@ import { FieldMapperSpecificityCalculator } from './FieldMapperSpecificityCalcul
 const registeredMappers = [
   new GenericSelectFieldMapper(),
   new GenericInputFieldMapper(),
-  new GenericTextareaFieldMapper({ fieldNames: ['summary'] })
+  new GenericTextareaFieldMapper({ fieldNames: ['summary', 'description'] })
 ];
 
 const compareSpecificity = (mapperA, mapperB, field) =>

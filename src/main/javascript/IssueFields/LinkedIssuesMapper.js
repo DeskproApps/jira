@@ -1,7 +1,13 @@
-import { Input } from '@deskpro/react-components';
-
-export class GenericInputFieldMapper
+export class LinkedIssuesMapper
 {
+  /**
+   * @param {Array<String>} fieldNames
+   */
+  constructor({ fieldNames })
+  {
+    this.props = { fieldNames };
+  }
+
   /**
    * @param {object} field
    * @return {*|boolean}
@@ -9,11 +15,11 @@ export class GenericInputFieldMapper
   canMap(field)
   {
     const { schema } = field;
-    return schema && typeof schema === 'object' && -1 !== ['string', 'any'].indexOf(schema.type);
+    return schema && typeof schema === 'object' && schema.type === 'array' && schema.items === 'issuelinks';
   }
 
   /**
-   * @param {{}} field
+   * @param {{ key:string }} field
    * @param {FieldMapperSpecificityCalculator} calculator
    * @return {FieldMapperSpecificityCalculator}
    */
@@ -23,7 +29,7 @@ export class GenericInputFieldMapper
       return calculator;
     }
 
-    return calculator.matchedByType();
+    calculator.matchedByType();
   }
 
   /**
@@ -40,3 +46,4 @@ export class GenericInputFieldMapper
       />);
   }
 }
+
