@@ -1,29 +1,36 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import ReactDOM from 'react-dom';
-
+import { CreateMetadataFinder } from '../Jira'
+import { createThrottle, createReducerChain } from '../Infrastructure'
 import { PageIndex } from '../UI';
 import { JiraService } from '../Jira';
+import { Routes } from './Routes';
+
+
+const reduce = createReducerChain([
+  require('../BrowseIssues').reducer,
+  require('../LinkIssues').reducer
+]);
 
 export class App extends React.Component
 {
   static propTypes = {
     dpapp: PropTypes.object.isRequired,
 
-    ui: PropTypes.object.isRequired
+    ui: PropTypes.object.isRequired,
+
+    /**
+     * Instance of sdk route.
+     * @see https://deskpro.gitbooks.io/deskpro-apps/content/api/props/route.html
+     */
+    route:   PropTypes.object
   };
 
   static childContextTypes = {
 
-    linkJiraIssue: PropTypes.func,
-
-    unlinkJiraIssue: PropTypes.func,
-
     createJiraIssue: PropTypes.func,
 
     loadJiraCreateMeta: PropTypes.func,
-
-    searchJiraIssues: PropTypes.func,
 
     createIssueAction: PropTypes.func,
 
@@ -39,27 +46,30 @@ export class App extends React.Component
   init()
   {
     this.state = {
+
       appReady: false,
+
       jiraInstanceUrl: '',
+
       jiraCards: [],
+
       linkedIssues: [],
+
+      foundIssues: [],
+
+      handleReply: {
+        reply: false,
+        strategy: 'none'
+      }
     };
 
     const { dpapp, tabData } = this.props ;
 
     this.childContext = {
 
-      linkJiraIssue: this.linkJiraIssue.bind(this),
-
-      unlinkJiraIssue: this.unlinkJiraIssue.bind(this),
-
       createJiraIssue: this.createJiraIssue.bind(this),
 
       loadJiraCreateMeta: this.loadJiraCreateMeta.bind(this),
-
-      searchJiraIssues: this.searchJiraIssues.bind(this),
-
-      createIssueAction: this.createIssueAction.bind(this),
 
       ticket:  () => ({
         url: dpapp.context.tabUrl,
@@ -72,7 +82,7 @@ export class App extends React.Component
   componentDidMount()
   {
     // load state, initialize services
-    const { dpapp, ui } = this.props ;
+    const { ui } = this.props ;
     this.loadState()
       .then(state => {
         this.setState(state);
@@ -80,11 +90,39 @@ export class App extends React.Component
       })
       .then(this.synchronizeState.bind(this))
       .then(state => {
+        this.subscribedToHelpdeskEvents();
+        this.renderHelpdeskUI();
         this.setState({ ...state, appReady: true });
+
+        this.props.route.to('linkedIssues');
       })
       .catch(ui.error)
     ;
   }
+
+  componentDidUpdate(prevProps, prevState)
+  {
+    const { context } = this.props.dpapp;
+
+    if (prevState.linkedIssues !== this.state.linkedIssues) {
+      context.customFields.setAppField('jiraCards', this.state.linkedIssues.map(issue => issue.key))
+    }
+  }
+
+  dispatch = action =>
+  {
+    if (typeof action === 'function') {
+      const jiraService = this.createJiraService();
+      return action({ dispatch: this.dispatch, jiraService, dpapp: this.props.dpapp });
+    }
+
+    if (typeof action === 'object') {
+      const state = reduce(this.state, action);
+      if (state !== this.state) {
+        this.setState(state);
+      }
+    }
+  };
 
   synchronizeState(state)
   {
@@ -94,14 +132,97 @@ export class App extends React.Component
       return jiraCards;
     }
 
-    const jiraService = this.createJiraService();
+    const jiraService = this.createJiraService( state.jiraInstanceUrl );
     const { context } = this.props.dpapp;
 
     return jiraService.readAllIssues(jiraCards).then(issues => {
       const jiraCards = issues.map(x => x.key);
-      //context.customFields.setAppField('jiraCards', jiraCards)
+      context.customFields.setAppField('jiraCards', jiraCards);
       return {...state, linkedIssues: issues};
     });
+  }
+
+  subscribedToHelpdeskEvents()
+  {
+    this.props.dpapp.subscribe('context.ticket.update-success', createThrottle(this.renderHelpdeskUI.bind(this), 500));
+    this.props.dpapp.subscribe('context.ticket.reply', this.onTicketReply.bind(this));
+    this.props.dpapp.subscribe('context.ticket.reply-success', this.onTicketReplySuccess.bind(this));
+  }
+
+  renderHelpdeskUI()
+  {
+
+    const { deskproWindow } = this.props.dpapp ;
+    const { entityId: ticketId } = this.props.dpapp.context;
+    const domRootId = `app-jira-${ticketId}`;
+
+    const insertQuery = {
+      parent: `#ticket${ticketId}-reply-controls`,
+      markup: `<div class="cell" id="${domRootId}">
+                  <div class="inner-cell" style="padding-left: 11px;">
+                    <input type="checkbox" id="ticket${ticketId}-reply-with-jira" />
+                  </div>
+                  <div class="inner-cell" style="position: relative;">
+                      <select id="ticket${ticketId}-reply-with-jira-strategy" style="min-width: 170px;" data-style-type="icons">
+                      <option value="add-comment" selected="selected">Send comment to JIRA</option>
+                      <option value="new-issue">Send to JIRA as new issue</option>
+                    </select>
+                  </div>
+              </div>`
+    };
+
+    deskproWindow.domQuery({ type: 'exists', selector: `#${domRootId}`})
+      .then(value => {
+        if (false === value.exists) {
+          deskproWindow.domInsert(insertQuery);
+        }
+    });
+  }
+
+  onTicketReply(response, data)
+  {
+    const { deskproWindow } = this.props.dpapp ;
+    const { entityId: ticketId } = this.props.dpapp.context;
+
+    const queries = [{
+      name: 'reply',
+      type: 'valueOf',
+      selector: `#ticket${ticketId}-reply-with-jira`
+    },
+      {
+        name: 'strategy',
+        type: 'valueOf',
+        selector: `#ticket${ticketId}-reply-with-jira-strategy`
+      },
+    ];
+
+    const reduceQueryResults = (o, {name, value}) => {
+      o[name] = value;
+      return o;
+    };
+
+    deskproWindow.domQuery(queries)
+      .then(results => {
+        const handleReply = results.reduce(reduceQueryResults, { reply: false });
+        const onAfterSetState = () => { response({ allowReply: true }); };
+        this.setState({ handleReply }, onAfterSetState);
+    });
+  }
+
+  onTicketReplySuccess(data)
+  {
+    const { message } = data;
+    const { reply, strategy } = this.state.handleReply;
+
+    if (reply && strategy === 'add-comment') {
+      const { ui } = this.props;
+      return this.addComment(message).catch(ui.error);
+    }
+
+    if (reply && strategy === 'new-issue') {
+      const { route } = this.props;
+      route.to(Routes.createIssue, { comment: message });
+    }
   }
 
   loadState()
@@ -122,6 +243,8 @@ export class App extends React.Component
       })
       .then(() => {
         return state;
+      }).catch(e => {
+        console.error(e);
       })
     ;
   }
@@ -129,14 +252,14 @@ export class App extends React.Component
   /**
    * @return {JiraService}
    */
-  createJiraService()
+  createJiraService( jiraInstanceUrl )
   {
     const { dpapp } = this.props ;
-    const { jiraInstanceUrl } = this.state;
+    const instanceUrl = jiraInstanceUrl || this.state.jiraInstanceUrl;
 
     return new JiraService({
       httpClient: dpapp.restApi.fetchCORS.bind(dpapp.restApi),
-      instanceUrl: jiraInstanceUrl
+      instanceUrl
     });
   }
 
@@ -155,97 +278,44 @@ export class App extends React.Component
   }
 
   /**
-   * @param issue
-   * @return {*}
-   */
-  linkJiraIssue(issue)
-  {
-    const jiraService = this.createJiraService();
-    const { /** @type {function} */ ticket } = this.childContext;
-    const { context } = this.props.dpapp;
-
-    const { linkedIssues } = this.state;
-    linkedIssues.push(issue);
-
-    return jiraService.createLink(issue, ticket())
-      .then(link => context.customFields.setAppField('jiraCards', linkedIssues.map(issue => issue.key)))
-      .then(() => {
-        this.setState({ linkedIssues });
-        return issue;
-      })
-    ;
-  }
-
-  /**
-   * @param issue
-   * @return {Promise.<TResult>}
-   */
-  unlinkJiraIssue(issue)
-  {
-    const jiraService = this.createJiraService();
-    const { /** @type {function} */ ticket } = this.childContext;
-
-    const linkedIssues = this.state.linkedIssues.filter(x => x.key !== issue.key);
-    const { context } = this.props.dpapp;
-
-    return jiraService.deleteLink(issue, ticket())
-      .then(link => context.customFields.setAppField('jiraCards', linkedIssues.map(issue => issue.key)))
-      .then(() => {
-        this.setState({ linkedIssues });
-        return issue;
-      })
-    ;
-  }
-
-  /**
-   * @return {*}
+   * @return {Promise.<CreateMetadataFinder>}
    */
   loadJiraCreateMeta()
   {
-    return this.createJiraService().loadCreateMeta();
+    const meta = window.sessionStorage.getItem('createMeta');
+    if (meta) {
+      return Promise.resolve(
+        new CreateMetadataFinder(JSON.parse(meta))
+      );
+    }
+
+    return this.createJiraService().loadCreateMeta().then(meta => {
+      window.sessionStorage.setItem('createMeta', JSON.stringify(meta));
+      return new CreateMetadataFinder(meta);
+    });
   }
 
   /**
-   * @param query
+   * @param {string} comment
    * @return {*}
    */
-  searchJiraIssues(query)
+  addComment(comment)
   {
-    return this.createJiraService().searchIssue(query);
-  }
-
-  /**
-   * @param issue
-   * @param options
-   * @return {*}
-   */
-  createIssueAction(issue, options)
-  {
-    const { linkJiraIssue, unlinkJiraIssue } = this.childContext;
-
-    let action;
-    if (this.state.linkedIssues.filter(x => x.key === issue.key).length) {
-      action = { type: 'unlink', dispatch: unlinkJiraIssue };
-    } else {
-      action = { type: 'link', dispatch: linkJiraIssue };
+    const { linkedIssues } = this.state;
+    if (linkedIssues.length === 0) {
+      return Promise.reject(new Error('there are no linked issues'));
     }
+    const jiraService = this.createJiraService();
 
-    if (! options || typeof options.interceptor !== 'function') {
-      return action;
-    }
+    const promises = linkedIssues.map(issue => jiraService.createComment(issue, comment).then(
+      result => ({ status:'success', result }),
+      err => ({ status:'success', result: err })
+    ));
 
-    const { interceptor } = options;
-
-    return {
-      type: action.type,
-      dispatch: issue => interceptor(action, issue)
-    }
-
+    return Promise.all(promises).then(results => results.filter(x => x.status === 'success').map(x => x.result));
   }
 
   getChildContext() { return this.childContext; }
-
-  // shouldComponentUpdate() { return false; }
 
   render() {
 
@@ -253,14 +323,13 @@ export class App extends React.Component
       return null;
     }
 
-    const { linkedIssues } = this.state;
+    const { linkedIssues, foundIssues } = this.state;
+    const { route } = this.props;
 
     return (
       <div>
-        <PageIndex linkedIssues={ linkedIssues }/>
+        <PageIndex dispatch={this.dispatch} route={route} linkedIssues={ linkedIssues } foundIssues={foundIssues}/>
       </div>
     );
-
-
   }
 }

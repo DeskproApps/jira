@@ -53,8 +53,8 @@ export class CreateMetadataFinder
       const projectKey = parseProjectKey(project);
       const { projects } = this.state;
 
-      return projects
-        .filter(({ key }) => key === projectKey)
+      return  projects
+        .filter(({ key, id }) => key === projectKey || "" + id === "" + projectKey )
         .reduce((acc, { issuetypes }) => acc.concat(issuetypes), [])
         .map(({id, name}) => ({id, name}))
       ;
@@ -75,7 +75,7 @@ export class CreateMetadataFinder
       const { projects } = this.state;
 
       return projects
-        .filter(({ key }) => key === projectKey)
+        .filter(({ key, id }) => key === projectKey || "" + id === "" + projectKey )
         .reduce((acc, { issuetypes }) => acc.concat(issuetypes), [])
         .filter(({ id }) => id === issueId)
         .reduce((acc, { fields }) => {

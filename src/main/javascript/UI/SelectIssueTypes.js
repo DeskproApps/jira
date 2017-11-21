@@ -52,6 +52,13 @@ export class SelectIssueTypes  extends React.Component
     return values.map(({ id, name }) => ({ label: name, value: id }))
   }
 
+  onChange = ({value}, name) =>
+  {
+    if (this.props.onChange) {
+      this.props.onChange(value, name);
+    }
+  };
+
   render()
   {
     const { name, options, onChange, id, value } = this.props;
@@ -64,7 +71,7 @@ export class SelectIssueTypes  extends React.Component
         value={ selectValue }
         validate={false}
         options={ this.convertOptions(options) }
-        onChange={ onChange }
+        onChange={ this.onChange }
       />
     );
 

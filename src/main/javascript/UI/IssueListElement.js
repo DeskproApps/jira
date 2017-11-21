@@ -9,7 +9,10 @@ export class IssueListElement extends React.Component
 
     issue: PropTypes.object.isRequired,
 
-    action: PropTypes.object.isRequired
+    action: PropTypes.shape({
+      name: PropTypes.string.isRequired,
+      dispatch: PropTypes.func.isRequired
+    }).isRequired
   };
 
   render()
@@ -17,8 +20,8 @@ export class IssueListElement extends React.Component
     const { issue, action } = this.props;
     const { key, fields } = issue;
 
-    const actionModifier = action.type === 'link' ? 'issue-card__action--inactive' : '';
-    const actionTitle = action.type === 'link' ? 'Link' : 'Unlink';
+    const actionModifier = action.name === 'link' ? 'issue-card__action--inactive' : '';
+    const actionTitle = action.name === 'link' ? 'Link' : 'Unlink';
 
     return (
       <ListElement>

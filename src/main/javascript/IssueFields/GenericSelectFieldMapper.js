@@ -1,4 +1,6 @@
 import { StatefulSelect } from '../UI';
+import { Select } from '@deskpro/react-components';
+
 
 export class GenericSelectFieldMapper
 {
@@ -45,7 +47,7 @@ export class GenericSelectFieldMapper
   {
     const allowedValues = field.allowedValues instanceof Array ? field.allowedValues : [];
     return (
-      <StatefulSelect
+      <Select
         name={ field.key }
         //validate={false}
         options={ allowedValues.map(({ id, name }) => ({ label: name, value: id })) }

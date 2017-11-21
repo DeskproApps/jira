@@ -3,47 +3,38 @@ import PropTypes from 'prop-types';
 
 import { UI } from './UI'
 import { Routes } from '../App'
+import { createUnlinkJiraIssueAction } from './Services'
 
-export class TabLinkIssues  extends React.Component
+export class TabLinkIssues  extends React.PureComponent
 {
   static get className() {  return TabLinkIssues.prototype.constructor.name }
 
   static propTypes = {
-    navigate: PropTypes.func.isRequired,
+
+    dispatch:   PropTypes.func.isRequired,
+
     linkedIssues: PropTypes.array.isRequired
   };
 
   static contextTypes = {
-    unlinkJiraIssue: PropTypes.func.isRequired
+    ticket: PropTypes.func.isRequired
   };
-
-  onUnlinkIssue(issue)
-  {
-    const {
-      /** @type {function} */ unlinkJiraIssue,
-    } = this.context;
-
-    unlinkJiraIssue(issue).then(issue => {
-      //update the local state of the linked issue
-    });
-  }
 
   render()
   {
-    const { navigate, linkedIssues } = this.props;
-    const { unlinkJiraIssue } = this.context;
+    const { linkedIssues, dispatch } = this.props;
+    const { ticket } = this.context;
 
     const issueActions = linkedIssues.reduce((acc, issue) => {
       acc[issue.key] = {
-        dispatch: unlinkJiraIssue,
-        type: 'unlink'
+        dispatch: () => dispatch(createUnlinkJiraIssueAction(issue, ticket())),
+        name: 'unlink'
       };
       return acc;
     }, {});
     return (<UI
       issues={ linkedIssues }
       issueActions={issueActions}
-      navigateToCreate={() => navigate(Routes.createIssue)}
     />);
   }
 }

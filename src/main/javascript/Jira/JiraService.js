@@ -1,5 +1,4 @@
 import { JiraApi } from './JiraApi'
-import { CreateMetadataFinder } from './CreateMetadataFinder'
 
 const parseIssueIdentifier = issue => {
   "use strict";
@@ -25,16 +24,10 @@ export class JiraService
   constructor({ httpClient, instanceUrl })
   {
     this.props = { httpClient, instanceUrl };
-    this.state = { createMeta: null };
   }
 
-  loadCreateMeta(force)
+  loadCreateMeta()
   {
-    if (!force && this.state.createMeta) {
-      return Promise.resolve(
-        new CreateMetadataFinder(this.state.createMeta)
-      );
-    }
 
     const {
       /** @type {function} **/ httpClient,
@@ -47,10 +40,6 @@ export class JiraService
     return httpClient(endpoint.url, endpoint.initRequest(initRequest))
       .catch(err => Promise.reject(err))
       .then(response => { return response.body; })
-      .then(createMeta => {
-        this.state.createMeta = createMeta;
-        return new CreateMetadataFinder(createMeta);
-      })
     ;
   }
 
@@ -230,6 +219,44 @@ export class JiraService
         return issues;
       })
     ;
+  }
+
+  /**
+   * @param {{ key:String } | String}  issue
+   * @param comment
+   * @return {*}
+   */
+  createComment(issue, comment)
+  {
+    let issueId;
+    try {
+      issueId = parseIssueIdentifier(issue);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+
+    const {
+      /** @type {function} **/ httpClient,
+      /** @type {string} **/ instanceUrl
+    } = this.props;
+
+    const jiraApi = new JiraApi({ instanceUrl });
+    const endpoint = jiraApi.endpoint(`issue/${issueId}/comment`);
+
+    const body = { body: comment };
+    return httpClient(endpoint.url, endpoint.initRequest({
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json' ,
+        'Accept': 'application/json' ,
+        'Content-Length': JSON.stringify(body).length
+      },
+      body: JSON.stringify(body)
+    }))
+      .catch(err => Promise.reject(err))
+      .then(response => { return response.body; })
+    ;
+
   }
 
 }

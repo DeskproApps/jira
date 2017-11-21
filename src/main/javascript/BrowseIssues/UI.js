@@ -12,7 +12,7 @@ export class UI  extends React.PureComponent
 
     issues: PropTypes.array.isRequired,
 
-    issueActions: PropTypes.array.isRequired,
+    issueActions: PropTypes.object.isRequired,
 
     onSearch: PropTypes.func.isRequired
   };

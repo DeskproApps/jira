@@ -6,9 +6,7 @@ export function runApp(app) {
   const store = configureStore(app);
 
   ReactDOM.render(
-    <DeskproSDK dpapp={app} store={store}>
-      <App />
-    </DeskproSDK>,
+    <DeskproSDK dpapp={app} store={store} component={App} />,
     document.getElementById('deskpro-app')
   );
 }

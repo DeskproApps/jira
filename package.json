@@ -98,10 +98,13 @@
     "@deskpro/apps-dpat": "^0.9.3",
     "@deskpro/apps-installer": "github:deskpro/apps-installer#v0.3.3",
     "@deskpro/apps-sdk-react": "0.1.2",
-    "@deskpro/react-components": "^1.1.0",
+    "@deskpro/react-components": "1.2.3",
     "file-loader": "1.1.5",
     "jsdom": "11.2.0",
+    "react-redux": "5.0.6",
     "react-test-renderer": "15.6.1",
+    "redux": "3.7.2",
+    "redux-form": "7.1.2",
     "url-loader": "0.6.2"
   },
   "dependencies": {

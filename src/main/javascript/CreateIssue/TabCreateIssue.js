@@ -2,23 +2,29 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { UI } from './UI';
-import { Routes} from '../App';
+import { Routes } from '../App';
+import { createLinkJiraIssueAction } from '../LinkIssues';
 
 export class TabCreateIssue  extends React.Component
 {
   static get className() {  return TabCreateIssue.prototype.constructor.name }
 
   static propTypes = {
-    navigate: PropTypes.func.isRequired
+
+    comment: PropTypes.string,
+
+    route:   PropTypes.object.isRequired,
+
+    dispatch:   PropTypes.func.isRequired
   };
 
   static contextTypes = {
 
     createJiraIssue: PropTypes.func.isRequired,
 
-    linkJiraIssue: PropTypes.func.isRequired,
+    loadJiraCreateMeta: PropTypes.func.isRequired,
 
-    loadJiraCreateMeta: PropTypes.func.isRequired
+    ticket: PropTypes.func.isRequired
   };
 
   constructor(props)
@@ -33,7 +39,8 @@ export class TabCreateIssue  extends React.Component
       projects: [],
       issueTypes: [],
       primaryFields: [],
-      secondaryFields: []
+      secondaryFields: [],
+      values: {}
     }
   }
 
@@ -45,42 +52,54 @@ export class TabCreateIssue  extends React.Component
 
     loadJiraCreateMeta()
       .then(createMeta => {
+
         const projects = createMeta.getProjectList();
         const issueTypes = createMeta.getIssueTypeList(projects[0]);
-        const fields = createMeta.getFieldLists(projects[0], issueTypes[0]);
+        const values = { project: projects[0].id, issuetype: issueTypes[0].id, summary: this.props.comment || "" };
 
-        const primaryFields = fields.filter(({ required, key }) => required );
-        const secondaryFields = fields.filter(({ required }) => !required );
-
-        return { projects, issueTypes, fields, primaryFields, secondaryFields };
+        return { projects, issueTypes, values };
+      })
+      .then(state => {
+        const { project, issueType } = state.values;
+        return this.loadFieldDefinitions(project, issueType).then(fields => ({ ...state, ...fields }));
       })
       .then(this.setState.bind(this))
+      .catch(e => { console.log('error loading jira createMeta ', e); })
     ;
   }
 
-  onSubmit(model)
+  onFieldChange(value, fieldId)
   {
-    const {
-      /** @type {function} */ linkJiraIssue,
-      /** @type {function({}):Promise} */ createJiraIssue,
-    } = this.context;
+    let setStatePromise;
 
-    const { /** @type {function(String)} */ navigate } = this.props;
+    if ('project' === fieldId) {
+      setStatePromise = this.loadFieldDefinitions(value).then(state => {
+        const values = { project: value, issuetype: state.issueTypes.length ? state.issueTypes[0] : null };
+        return { ...state, values };
+      });
+    } else if ('issuetype' === fieldId) {
+      const { project } = this.state.values;
+      setStatePromise = this.loadFieldDefinitions(project, value).then(state => {
+        const values = { project, issuetype: value };
+        return { ...state, values };
+      });
+    } else {
+      const values = { ...this.state.values, [fieldId]: value };
+      setStatePromise = Promise.resolve({ values })
+    }
 
-    createJiraIssue(model)
-      .then(issue => {
-        return linkJiraIssue(issue)
-      })
-      .then(() => navigate(Routes.linkedIssues));
+    setStatePromise.then(state => {
+      this.setState({...this.state, ...state })
+    });
   }
 
-  onChangeSchema({ project, issueType })
+  loadFieldDefinitions(project, issueType)
   {
     const {
       /** @type {function():Promise} */ loadJiraCreateMeta
     } = this.context;
 
-    loadJiraCreateMeta()
+    return loadJiraCreateMeta()
       .then(createMeta => {
         const issueTypes = issueType ? null : createMeta.getIssueTypeList(project);
         const nextIssueType = issueType || issueTypes[0];
@@ -89,26 +108,42 @@ export class TabCreateIssue  extends React.Component
         const primaryFields = fields.filter(({ required }) => required );
         const secondaryFields = fields.filter(({ required }) => !required );
 
-        if (issueTypes) {
-          return { issueTypes, primaryFields, secondaryFields };
-        }
         return { primaryFields, secondaryFields };
       })
-      .then(this.setState.bind(this))
     ;
+  }
+
+  onSubmit()
+  {
+    const { values } = this.state;
+    let model = JSON.parse(JSON.stringify(values));
+    model = { ...model, project: { id: values.project }, issuetype : { id: values.issuetype } };
+
+    const {
+      /** @type {function} */ ticket,
+      /** @type {function({}):Promise} */ createJiraIssue,
+    } = this.context;
+
+    const { /** @type {{to:function}} */ route, dispatch } = this.props;
+
+    createJiraIssue(model)
+      .then(issue => dispatch(createLinkJiraIssueAction(issue, ticket())))
+      .then(() => route.to(Routes.linkedIssues));
   }
 
   render()
   {
-    const { projects, issueTypes, primaryFields, secondaryFields } = this.state;
+    const { projects, issueTypes, primaryFields, secondaryFields, values } = this.state;
 
     return (<UI
-      onChangeSchema = { TabCreateIssue.prototype.onChangeSchema.bind(this) }
+      onChange = { TabCreateIssue.prototype.onFieldChange.bind(this) }
       onSubmit = { TabCreateIssue.prototype.onSubmit.bind(this) }
+
       projects = { projects }
       issueTypes = { issueTypes }
       primaryFields = { primaryFields }
       secondaryFields = { secondaryFields }
+      values = {values}
     />);
   }
 }

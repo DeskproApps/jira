@@ -4,8 +4,10 @@ import PropTypes from 'prop-types';
 export class ScreenSettings extends React.Component
 {
   static propTypes = {
-    install: PropTypes.func.isRequired,
+    finishInstall: PropTypes.func.isRequired,
+    installType: PropTypes.string.isRequired,
     settings: PropTypes.array.isRequired,
+    values: PropTypes.array.isRequired,
     settingsForm: PropTypes.func.isRequired,
     dpapp: PropTypes.object.isRequired
   };
@@ -13,7 +15,7 @@ export class ScreenSettings extends React.Component
   onSettings(settings)
   {
     const { oauth } = this.props.dpapp;
-    const { install } = this.props;
+    const { finishInstall } = this.props;
     const providerName = 'jira';
 
     // retrieve the oauth proxy settings for jira
@@ -43,7 +45,7 @@ export class ScreenSettings extends React.Component
         return oauth.register('jira', connectionProps);
       })
       .then(() => {
-        return install(settings).then(({ onStatus }) => onStatus());
+        return finishInstall(settings).then(({ onStatus }) => onStatus());
       })
       .catch(err => {}) // TODO display errors
   ;
@@ -51,24 +53,20 @@ export class ScreenSettings extends React.Component
 
   render()
   {
-    const { settings, install, settingsForm: SettingsForm } = this.props;
+    const { settings, values, finishInstall, settingsForm: SettingsForm } = this.props;
 
     if (settings.length) {
       let formRef;
       return (
         <div className={'settings'}>
-          <SettingsForm settings={settings} ref={ref => formRef = ref} onSubmit={this.onSettings.bind(this)} />
-          <button className={'btn-install'} onClick={() => formRef.submit()}>Install App</button>
+          <SettingsForm settings={settings} values={values} ref={ref => formRef = ref} onSubmit={this.onSettings.bind(this)} />
+          <button className={'btn-action'} onClick={() => formRef.submit()}>Update Settings</button>
         </div>
       );
     }
 
-    return (
-      <div className={'no-settings'}>
-        <p>Click the Install button below to begin the installation.</p>
-        <button className={'btn-install'} onClick={install.bind(null, [])}>Install App</button>
-      </div>
-    );
+    finishInstall(null).then(({ onStatus }) => onStatus());
+    return null;
   }
 }
 

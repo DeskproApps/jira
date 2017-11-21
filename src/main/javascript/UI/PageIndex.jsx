@@ -1,61 +1,58 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import ReactDOM from 'react-dom';
+import { Routes, Route } from '@deskpro/apps-sdk-react';
 
-import { Tabs, TabLink, Section, Container } from '@deskpro/react-components';
+import { Tabs, TabLink, Container } from '@deskpro/react-components';
 
 import { TabCreateIssue } from '../CreateIssue';
 import { TabBrowseIssues } from '../BrowseIssues';
 import { TabLinkIssues } from '../LinkIssues';
-import {Routes} from '../App'
+import { Routes as AppRoutes } from '../App'
 
-export class PageIndex extends React.Component
+export class PageIndex extends React.PureComponent
 {
   static propTypes = {
-    linkedIssues: PropTypes.array.isRequired
+
+    dispatch: PropTypes.func.isRequired,
+
+    linkedIssues: PropTypes.array.isRequired,
+
+    foundIssues: PropTypes.array.isRequired,
+
+    route:   PropTypes.object.isRequired
   };
 
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      activePane: Routes.linkedIssues
-    };
-  }
-
-  navigate(route)
-  {
-    this.setState({ activePane: route })
-  }
-
   render() {
-    const { activePane } = this.state;
-    const navigate = this.navigate.bind(this);
-    const { linkedIssues } = this.props;
+    const { route, linkedIssues, dispatch, foundIssues } = this.props;
 
     return (
       <div>
-        <Tabs active={activePane} onChange={navigate}>
-          <TabLink name={Routes.linkedIssues}>
+        <Tabs active={route.location} onChange={tab => route.to(tab)}>
+          <TabLink name={AppRoutes.linkedIssues}>
             Link
           </TabLink>
-          <TabLink name={Routes.createIssue}>
+          <TabLink name={AppRoutes.createIssue}>
              Create
           </TabLink>
-          <TabLink name={Routes.browseIssue}>
+          <TabLink name={AppRoutes.browseIssue}>
             Browse
           </TabLink>
         </Tabs>
         <Container className="dp-jira-container">
-          <Section hidden={activePane !== Routes.createIssue}>
-            <TabCreateIssue navigate={navigate} />
-          </Section>
-          <Section hidden={activePane !== Routes.linkedIssues}>
-            <TabLinkIssues navigate={navigate} linkedIssues={linkedIssues} />
-          </Section>
-          <Section hidden={activePane !== Routes.browseIssue}>
-            <TabBrowseIssues navigate={navigate} linkedIssues={linkedIssues} />
-          </Section>
+          <Routes>
+            <Route location={AppRoutes.createIssue} >
+              <TabCreateIssue dispatch={dispatch} route={route} comment={route.params.comment} />
+            </Route>
+            <Route defaultRoute location={AppRoutes.linkedIssues}  >
+              <TabLinkIssues dispatch={dispatch} linkedIssues={linkedIssues} />
+            </Route>
+            <Route location={AppRoutes.browseIssue}>
+              <TabBrowseIssues dispatch={dispatch} route={route} linkedIssues={linkedIssues} foundIssues={foundIssues}/>
+            </Route>
+            <Route defaultRoute>
+              <div/>
+            </Route>
+          </Routes>
         </Container>
       </div>
     );

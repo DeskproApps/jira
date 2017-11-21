@@ -35,8 +35,15 @@ export class SelectProjects  extends React.Component
 
   convertOptions(values)
   {
-    return values.map(({ key, name }) => ({ label: name, value: key }));
+    return values.map(({ id, name }) => ({ label: name, value: id }));
   }
+
+  onChange = ({value}, name) =>
+  {
+    if (this.props.onChange) {
+      this.props.onChange(value, name);
+    }
+  };
 
   render()
   {
@@ -49,7 +56,7 @@ export class SelectProjects  extends React.Component
         value={ value }
         validate={false}
         options={ this.convertOptions(options) }
-        onChange={ onChange }
+        onChange={ this.onChange }
       />
     );
 
