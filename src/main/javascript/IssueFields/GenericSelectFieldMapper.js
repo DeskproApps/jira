@@ -1,4 +1,3 @@
-import { StatefulSelect } from '../UI';
 import { Select } from '@deskpro/react-components';
 
 

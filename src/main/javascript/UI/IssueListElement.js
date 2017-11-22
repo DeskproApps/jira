@@ -9,19 +9,18 @@ export class IssueListElement extends React.Component
 
     issue: PropTypes.object.isRequired,
 
-    action: PropTypes.shape({
-      name: PropTypes.string.isRequired,
-      dispatch: PropTypes.func.isRequired
-    }).isRequired
+    actions: PropTypes.arrayOf(
+      PropTypes.shape({
+        name: PropTypes.string.isRequired,
+        dispatch: PropTypes.func.isRequired
+      })
+    ).isRequired
   };
 
   render()
   {
-    const { issue, action } = this.props;
+    const { issue, actions } = this.props;
     const { key, fields } = issue;
-
-    const actionModifier = action.name === 'link' ? 'issue-card__action--inactive' : '';
-    const actionTitle = action.name === 'link' ? 'Link' : 'Unlink';
 
     return (
       <ListElement>
@@ -30,9 +29,8 @@ export class IssueListElement extends React.Component
             <h1 className={"issue-card__title"}> { key } </h1>
             <img className={"issue-card__type"} src={ fields.issuetype.iconUrl } title={ fields.issuetype.name }/>
 
-            <a className={`issue-card__action ${actionModifier}`} href="#" onClick={() => action.dispatch(issue) } title={actionTitle}>
-              <i className={`fa fa-link fa-fw`} aria-hidden="true" ></i>
-            </a>
+            { actions.map(action => this.renderAction(issue, action)) }
+
           </div>
 
           <p className="issue-card__body">
@@ -44,4 +42,28 @@ export class IssueListElement extends React.Component
       </ListElement>
     );
   }
+
+  renderAction(issue, action)
+  {
+    const { name, dispatch } = action;
+
+    const actionModifier = action.name === 'link' ? 'issue-card__action--inactive' : '';
+
+    let actionTitle = 'edit';
+    let actionIcon = 'fa-pencil';
+    if (name === 'link') {
+      actionTitle = 'Link';
+      actionIcon = 'fa-link';
+    } else if (name === 'unlink') {
+      actionTitle = 'Unlink';
+      actionIcon = 'fa-link';
+    }
+
+    return (
+      <a key={`${issue.id}__${name}`} className={`issue-card__action ${actionModifier}`} href="#" onClick={() => dispatch(issue) } title={actionTitle}>
+        <i className={`fa fa-fw ${actionIcon}`} aria-hidden="true" />
+      </a>
+    );
+  }
+
 }

@@ -9,13 +9,18 @@ export function reducer(state, action)
     const { issue } = action;
     const { linkedIssues } = state;
 
-    return { ...state, linkedIssues: linkedIssues.concat([issue]) };
+    const add = state.linkedIssues.filter(x => x.key === issue.key).length === 0;
+    if (add) {
+      return { ...state, linkedIssues: linkedIssues.concat([issue]) };
+    }
   }
 
   if (type === ACTION_UNLINK_ISSUE) {
     const { issue } = action;
     const linkedIssues = state.linkedIssues.filter(x => x.key !== issue.key);
-    return { ...state, linkedIssues };
+    if (linkedIssues.length !== state.linkedIssues.length) {
+      return { ...state, linkedIssues };
+    }
   }
 
   return state;

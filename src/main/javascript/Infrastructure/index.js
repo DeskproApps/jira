@@ -1,3 +1,5 @@
+export { RouteWithFactory } from './RouteWithFactory'
+export { RoutesContainer } from './RoutesContainer'
 
 export function createThrottle (callback, delay)
 {
@@ -24,8 +26,7 @@ export function createThrottle (callback, delay)
   }
 
   return throttle;
-};
-
+}
 
 export const createReducerChain = reducers => (state, action) =>
 {

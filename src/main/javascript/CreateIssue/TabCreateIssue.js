@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { UI } from './UI';
+import { IssueForm } from '../UI';
 import { Routes } from '../App';
 import { createLinkJiraIssueAction } from '../LinkIssues';
 
@@ -135,7 +135,7 @@ export class TabCreateIssue  extends React.Component
   {
     const { projects, issueTypes, primaryFields, secondaryFields, values } = this.state;
 
-    return (<UI
+    return (<IssueForm
       onChange = { TabCreateIssue.prototype.onFieldChange.bind(this) }
       onSubmit = { TabCreateIssue.prototype.onSubmit.bind(this) }
 

@@ -22,8 +22,7 @@ export class IssueList extends React.Component
         <List>
           {
             issues.map(issue => {
-              const action = actions[issue.key];
-              return (<IssueListElement key={issue.key} issue={issue} action={action} />)
+              return (<IssueListElement key={issue.key} issue={issue} actions={actions[issue.key] || []} />)
             })
           }
         </List>

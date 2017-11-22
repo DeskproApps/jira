@@ -5,4 +5,6 @@ export class Routes
   static createIssue = 'createIssue';
 
   static browseIssue = 'browseIssues';
+
+  static editIssue = 'editIssue';
 }

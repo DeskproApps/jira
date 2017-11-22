@@ -11,6 +11,8 @@ export class TabLinkIssues  extends React.PureComponent
 
   static propTypes = {
 
+    route:   PropTypes.object.isRequired,
+
     dispatch:   PropTypes.func.isRequired,
 
     linkedIssues: PropTypes.array.isRequired
@@ -22,14 +24,20 @@ export class TabLinkIssues  extends React.PureComponent
 
   render()
   {
-    const { linkedIssues, dispatch } = this.props;
+    const { linkedIssues, dispatch, route } = this.props;
     const { ticket } = this.context;
 
     const issueActions = linkedIssues.reduce((acc, issue) => {
-      acc[issue.key] = {
-        dispatch: () => dispatch(createUnlinkJiraIssueAction(issue, ticket())),
-        name: 'unlink'
-      };
+      acc[issue.key] = [
+        {
+          name: 'unlink',
+          dispatch: () => dispatch(createUnlinkJiraIssueAction(issue, ticket()))
+        },
+        {
+          name: 'edit',
+          dispatch: issue => route.to(Routes.editIssue, { issue })
+        }
+      ];
       return acc;
     }, {});
     return (<UI

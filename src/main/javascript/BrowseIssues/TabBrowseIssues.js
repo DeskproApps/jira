@@ -5,6 +5,7 @@ import { UI } from './UI'
 import { createThrottle } from '../Infrastructure'
 import { createSearchIssuesAction } from './Services'
 import { createLinkJiraIssueAction, createUnlinkJiraIssueAction} from '../LinkIssues';
+import { Routes } from '../App';
 
 export class TabBrowseIssues  extends React.Component
 {
@@ -66,22 +67,27 @@ export class TabBrowseIssues  extends React.Component
     } = this.context;
 
     const { ui } = this.state;
-    const { foundIssues, linkedIssues, dispatch } = this.props;
+    const { foundIssues, linkedIssues, dispatch, route } = this.props;
     const issueActions = foundIssues.reduce((acc, issue) => {
-      let action;
+      const actions = [];
       if (linkedIssues.filter(x => x.key === issue.key).length) {
-        action = {
+        actions.push({
           name: 'unlink',
           dispatch: () => dispatch(createUnlinkJiraIssueAction(issue, ticket()))
-        };
+        });
       } else {
-        action = {
+        actions.push({
           name: 'link',
           dispatch: () => dispatch(createLinkJiraIssueAction(issue, ticket()))
-        };
+        });
       }
 
-      acc[issue.key] = action;
+      actions.push({
+        name: 'edit',
+        dispatch: issue => route.to(Routes.editIssue, { issue })
+      });
+
+      acc[issue.key] = actions;
       return acc;
     }, {});
 

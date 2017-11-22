@@ -26,6 +26,34 @@ export class JiraService
     this.props = { httpClient, instanceUrl };
   }
 
+  /**
+   * @param {*} issue
+   * @return {Promise}
+   */
+  loadEditMeta(issue)
+  {
+    let issueId;
+    try {
+      issueId = parseIssueIdentifier(issue);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+
+    const {
+      /** @type {function} **/ httpClient,
+      /** @type {string} **/ instanceUrl
+    } = this.props;
+
+    const jiraApi = new JiraApi({ instanceUrl });
+    const endpoint = jiraApi.endpoint(`issue/${issueId}/editmeta`);
+    const initRequest = { method: "GET" };
+
+    return httpClient(endpoint.url, endpoint.initRequest(initRequest))
+      .catch(err => Promise.reject(err))
+      .then(response => { return response.body; })
+      ;
+  }
+
   loadCreateMeta()
   {
 
@@ -256,7 +284,5 @@ export class JiraService
       .catch(err => Promise.reject(err))
       .then(response => { return response.body; })
     ;
-
   }
-
 }

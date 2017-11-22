@@ -6,7 +6,7 @@ import { Form, Container, Group, Label, Input, HiddenFields  } from '@deskpro/re
 import { SelectProjects, SelectIssueTypes, SubmitButton } from '../UI';
 import { IssueFieldMapper } from '../IssueFields';
 
-export class UI  extends React.Component
+export class IssueForm  extends React.Component
 {
   static propTypes = {
     onSubmit: PropTypes.func.isRequired,

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { CreateMetadataFinder } from '../Jira'
 import { createThrottle, createReducerChain } from '../Infrastructure'
-import { PageIndex } from '../UI';
+import { UI } from '../UI';
 import { JiraService } from '../Jira';
 import { Routes } from './Routes';
 
@@ -15,6 +15,7 @@ const reduce = createReducerChain([
 export class App extends React.Component
 {
   static propTypes = {
+
     dpapp: PropTypes.object.isRequired,
 
     ui: PropTypes.object.isRequired,
@@ -32,9 +33,13 @@ export class App extends React.Component
 
     loadJiraCreateMeta: PropTypes.func,
 
+    loadJiraEditMeta: PropTypes.func,
+
     createIssueAction: PropTypes.func,
 
-    ticket: PropTypes.func
+    ticket: PropTypes.func,
+
+    dispatch: PropTypes.func,
   };
 
   constructor(props)
@@ -67,9 +72,13 @@ export class App extends React.Component
 
     this.childContext = {
 
+      dispatch: this.dispatch,
+
       createJiraIssue: this.createJiraIssue.bind(this),
 
       loadJiraCreateMeta: this.loadJiraCreateMeta.bind(this),
+
+      loadJiraEditMeta: this.loadJiraEditMeta.bind(this),
 
       ticket:  () => ({
         url: dpapp.context.tabUrl,
@@ -92,9 +101,10 @@ export class App extends React.Component
       .then(state => {
         this.subscribedToHelpdeskEvents();
         this.renderHelpdeskUI();
-        this.setState({ ...state, appReady: true });
+        // navigate to the default route
+        this.props.route.to(Routes.linkedIssues);
 
-        this.props.route.to('linkedIssues');
+        this.setState({ ...state, appReady: true });
       })
       .catch(ui.error)
     ;
@@ -296,6 +306,16 @@ export class App extends React.Component
   }
 
   /**
+   * @return {Promise.<{}>}
+   */
+  loadJiraEditMeta(issue)
+  {
+    return this.createJiraService().loadEditMeta(issue).then(meta => {
+      return meta;
+    });
+  }
+
+  /**
    * @param {string} comment
    * @return {*}
    */
@@ -317,8 +337,8 @@ export class App extends React.Component
 
   getChildContext() { return this.childContext; }
 
-  render() {
-
+  render()
+  {
     if (this.state.appReady === false) {
       return null;
     }
@@ -326,10 +346,6 @@ export class App extends React.Component
     const { linkedIssues, foundIssues } = this.state;
     const { route } = this.props;
 
-    return (
-      <div>
-        <PageIndex dispatch={this.dispatch} route={route} linkedIssues={ linkedIssues } foundIssues={foundIssues}/>
-      </div>
-    );
+    return (<UI route={route} dispatch={this.dispatch} linkedIssues={ linkedIssues } foundIssues={foundIssues}/>);
   }
 }
