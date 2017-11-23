@@ -1,6 +1,6 @@
 {
   "name": "@deskproapps/jira",
-  "version": "0.1.0",
+  "version": "0.1.0-beta",
   "description": "Enables agents to link Deskpro tickets and Jira issues. Allows creating, searching and listing Jira issues from within Deskpro.",
   "main": "lib/main/javascript/index.js",
   "scripts": {
@@ -32,7 +32,7 @@
   "homepage": "https://github.com/DeskproApps/jira#readme",
   "deskpro": {
     "version": "2.3.0",
-    "title": "Jira",
+    "title": "Jira BETA",
     "isSingle": true,
     "scope": "agent",
     "storage": [
