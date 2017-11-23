@@ -2,7 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from '@deskpro/apps-sdk-react'
 import { Routes } from '../App/Routes'
-import { IssueList } from '../UI'
+import { IssueList, IssueListElement } from '../UI'
+import { Container, Heading, List, Scrollbar } from '@deskpro/react-components';
 
 export class UI  extends React.PureComponent
 {
@@ -26,7 +27,16 @@ export class UI  extends React.PureComponent
   renderList()
   {
     const { issues, issueActions } = this.props;
-    return (<IssueList issues={issues} actions={issueActions}/>);
+
+    return (
+      <List>
+        {
+          issues.map(issue => {
+            return (<IssueListElement key={issue.key} issue={issue} actions={issueActions[issue.key] || []} />)
+          })
+        }
+      </List>
+    );
   }
 
   render()

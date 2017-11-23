@@ -1,8 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Section, Input, Loader } from '@deskpro/react-components';
-import { IssueList } from '../UI';
+import { Input, Loader, Scrollbar } from '@deskpro/react-components';
+import { IssueListElement } from '../UI';
+import { List } from '@deskpro/react-components';
+
 
 export class UI  extends React.PureComponent
 {
@@ -25,11 +27,7 @@ export class UI  extends React.PureComponent
       <div>
         <Input icon="search" onChange={onSearch} onKeyDown={onSearch} />
 
-        { this.props.state === 'normal' &&
-        <Section>
-          <IssueList issues={issues} actions={issueActions}/>
-        </Section>
-        }
+        { this.props.state === 'normal' && this.renderList() }
 
         { this.props.state === 'loading' &&
           <Loader size="small" />
@@ -38,4 +36,20 @@ export class UI  extends React.PureComponent
       </div>
     );
   }
+
+  renderList()
+  {
+    const { issues, issueActions } = this.props;
+
+    return (
+      <List>
+        {
+          issues.map(issue => {
+            return (<IssueListElement key={issue.key} issue={issue} actions={issueActions[issue.key] || []} />)
+          })
+        }
+      </List>
+    );
+  }
+
 }

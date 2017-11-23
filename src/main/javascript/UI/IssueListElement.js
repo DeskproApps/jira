@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { ListElement } from '@deskpro/react-components';
+import { ListElement, Icon, Heading } from '@deskpro/react-components';
 
 export class IssueListElement extends React.Component
 {
@@ -23,21 +23,21 @@ export class IssueListElement extends React.Component
     const { key, fields } = issue;
 
     return (
-      <ListElement>
-        <div className={"issue-card"}>
-          <div className={"issue-card__header"}>
-            <h1 className={"issue-card__title"}> { key } </h1>
-            <img className={"issue-card__type"} src={ fields.issuetype.iconUrl } title={ fields.issuetype.name }/>
+      <ListElement className="dp-issue-card">
 
+        <Heading size={3}>
+          <span>
+            <img className={"dp-issue-card__issue-type"} src={ fields.issuetype.iconUrl } title={ fields.issuetype.name }/>
+            { key }
+          </span>
+          <span>
             { actions.map(action => this.renderAction(issue, action)) }
+          </span>
+        </Heading>
 
-          </div>
-
-          <p className="issue-card__body">
-            { fields.summary }
-          </p>
-
-        </div>
+        <p className="dp-issue-card__summary">
+          { fields.summary }
+        </p>
 
       </ListElement>
     );

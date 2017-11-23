@@ -29,6 +29,23 @@ html.deskpro-sidebar
   }
 }
 
+.dp-issue-card {
+
+  &__summary {
+    word-break: normal;
+    vertical-align: top;
+    margin: 0;
+  }
+
+  &__issue-type {
+    vertical-align: middle;
+    height: 20px;
+    width: 20px;
+    margin-right: 5px;
+  }
+
+}
+
 .issue-card {
 
   display: flex;
