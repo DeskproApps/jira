@@ -46,6 +46,10 @@ export class IssueListElement extends React.Component
   renderAction(issue, action)
   {
     const { name, dispatch } = action;
+    // do not display edit fields
+    if (name === 'edit') {
+      return null;
+    }
 
     const actionModifier = action.name === 'link' ? 'issue-card__action--inactive' : '';
 
