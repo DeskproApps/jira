@@ -95,8 +95,8 @@
     ]
   },
   "devDependencies": {
-    "@deskpro/apps-dpat": "^0.9.5",
-    "@deskpro/apps-installer": "github:deskpro/apps-installer#v0.4.1",
+    "@deskpro/apps-dpat": "0.9.6",
+    "@deskpro/apps-installer": "github:deskpro/apps-installer#v0.4.2",
     "@deskpro/apps-sdk-react": "0.2.2",
     "@deskpro/react-components": "1.2.3",
     "file-loader": "1.1.5",
