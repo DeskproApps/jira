@@ -1,6 +1,6 @@
 {
   "name": "@deskproapps/jira",
-  "version": "0.1.0-beta.1",
+  "version": "0.1.0-beta.2",
   "description": "Enables agents to link Deskpro tickets and Jira issues. Allows creating, searching and listing Jira issues from within Deskpro.",
   "main": "lib/main/javascript/index.js",
   "scripts": {
@@ -10,7 +10,6 @@
     "package": "dpat clean . && dpat compile . && dpat bundle-installer . && dpat verify ./dist && dpat package .",
     "test": "dpat test .",
     "version": "version-changelog CHANGELOG.md && changelog-verify CHANGELOG.md && git add CHANGELOG.md"
-
   },
   "repository": {
     "type": "git",
