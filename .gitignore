@@ -45,3 +45,7 @@ lib
 # Misc
 docs
 .cache
+
+# Secrets folder
+secrets/*
+!secrets/.gitkeep
