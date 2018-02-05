@@ -4,6 +4,8 @@ This project is following [Semantic Versioning](http://semver.org)
 
 ## [Unreleased][]
 
+ - ignore errors when syncing jira issue state with actual jira issues
+
 ## [0.1.0-beta.4][] - 2017-12-19
 
 ### Added

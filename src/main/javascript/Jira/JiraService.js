@@ -160,7 +160,7 @@ export class JiraService
         return { status:'success', result };
       },
       err => {
-        return { status:'success', result: err };
+        return { status:'error', result: err };
       }
     ));
 

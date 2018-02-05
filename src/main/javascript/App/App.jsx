@@ -112,7 +112,13 @@ export class App extends React.Component
     const { context } = this.props.dpapp;
 
     if (prevState.linkedIssues !== this.state.linkedIssues) {
-      context.customFields.setAppField('jiraCards', this.state.linkedIssues.map(issue => issue.key))
+      const allJiraCards = [].concat(state.jiraCards).concat(this.state.linkedIssues.map(issue => issue.key));
+
+      const uniqueCards = allJiraCards.filter(function(elem, pos, arr) {
+        return arr.indexOf(elem) == pos;
+      });
+
+      context.customFields.setAppField('jiraCards', uniqueCards);
     }
   }
 
@@ -143,8 +149,6 @@ export class App extends React.Component
     const { context } = this.props.dpapp;
 
     return jiraService.readAllIssues(jiraCards).then(issues => {
-      const jiraCards = issues.map(x => x.key);
-      //context.customFields.setAppField('jiraCards', jiraCards);
       return {...state, linkedIssues: issues};
     });
   }
