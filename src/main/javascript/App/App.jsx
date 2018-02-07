@@ -8,6 +8,7 @@ import { Routes } from './Routes';
 
 
 const reduce = createReducerChain([
+  require('./Services').reducer,
   require('../BrowseIssues').reducer,
   require('../LinkIssues').reducer,
   require('../CreateIssue').reducer
@@ -33,8 +34,6 @@ export class App extends React.Component
     loadJiraCreateMeta: PropTypes.func,
 
     loadJiraEditMeta: PropTypes.func,
-
-    createIssueAction: PropTypes.func,
 
     ticket: PropTypes.func,
 
@@ -96,11 +95,24 @@ export class App extends React.Component
       })
       .then(this.synchronizeState.bind(this))
       .then(state => {
-        this.subscribedToHelpdeskEvents();
+        this.subscribeToHelpdeskEvents();
         this.renderHelpdeskUI();
-        // navigate to the default route
-        this.props.route.to(Routes.linkedIssues);
-
+        return state;
+      })
+      .then(state => {
+        const jiraService = this.createJiraService();
+        return jiraService.verifyAccess()
+          .then(() => {
+            this.props.route.to(Routes.linkedIssues);
+            return state;
+          })
+          .catch(err => {
+            this.props.route.to(Routes.signIn);
+            return state;
+          })
+        ;
+      })
+      .then((state) => {
         this.setState({ ...state, appReady: true });
       })
       .catch(ui.error)
@@ -112,12 +124,10 @@ export class App extends React.Component
     const { context } = this.props.dpapp;
 
     if (prevState.linkedIssues !== this.state.linkedIssues) {
-      const allJiraCards = [].concat(state.jiraCards).concat(this.state.linkedIssues.map(issue => issue.key));
-
+      const allJiraCards = [].concat(this.state.jiraCards).concat(this.state.linkedIssues.map(issue => issue.key));
       const uniqueCards = allJiraCards.filter(function(elem, pos, arr) {
         return arr.indexOf(elem) == pos;
       });
-
       context.customFields.setAppField('jiraCards', uniqueCards);
     }
   }
@@ -153,7 +163,7 @@ export class App extends React.Component
     });
   }
 
-  subscribedToHelpdeskEvents()
+  subscribeToHelpdeskEvents()
   {
     this.props.dpapp.subscribe('context.ticket.update-success', createThrottle(this.renderHelpdeskUI.bind(this), 500));
     this.props.dpapp.subscribe('context.ticket.reply', this.onTicketReply.bind(this));
@@ -162,7 +172,6 @@ export class App extends React.Component
 
   renderHelpdeskUI()
   {
-
     const { deskproWindow } = this.props.dpapp ;
     const { entityId: ticketId } = this.props.dpapp.context;
     const domRootId = `app-jira-${ticketId}`;
@@ -333,6 +342,6 @@ export class App extends React.Component
     const { linkedIssues, foundIssues } = this.state;
     const { route } = this.props;
 
-    return (<UI route={route} dispatch={this.dispatch} linkedIssues={ linkedIssues } foundIssues={foundIssues}/>);
+    return (<UI route={route} dispatch={this.dispatch} linkedIssues={linkedIssues} foundIssues={foundIssues}/>);
   }
 }

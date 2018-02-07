@@ -4,6 +4,8 @@ This project is following [Semantic Versioning](http://semver.org)
 
 ## [Unreleased][]
 
+- allow agents to sign in using their own credentials
+
 ## [0.1.0-beta.5][] - 2018-02-05
 
  - ignore errors when syncing jira issue state with actual jira issues

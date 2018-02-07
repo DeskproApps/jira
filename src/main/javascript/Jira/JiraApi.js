@@ -18,7 +18,7 @@ export class JiraApi
     const headers = {
       'Content-Type': 'application/json' ,
       'Accept': 'application/json' ,
-      'X-Proxy-SignWith':  'oauth1 oauth:jira'
+      'X-Proxy-SignWith':  'oauth1 oauth:jira oauth:jira:tokens'
     };
 
     return new JiraEndpoint({ url: `${apiRoot}/${path}`, headers })

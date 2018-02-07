@@ -14,15 +14,14 @@ export class ScreenSettings extends React.Component
 
   onSettings(settings)
   {
-    const { oauth } = this.props.dpapp;
+    const { oauth, storage } = this.props.dpapp;
     const { finishInstall } = this.props;
-    const providerName = 'jira';
 
     // retrieve the oauth proxy settings for jira
-    oauth.settings(providerName, { protocolVersion: '1.0' })
+    oauth.settings('jira', { protocolVersion: '1.0' })
       .then(oauthSettings => {
-        const connectionProps = {
-          providerName,
+        return {
+          providerName: 'jira',
           urlRedirect: oauthSettings.urlRedirect,
           urlAuthorize: `${settings.jiraInstanceUrl}/plugins/servlet/oauth/authorize`,
           urlAccessToken: `${settings.jiraInstanceUrl}/plugins/servlet/oauth/access-token`,
@@ -31,22 +30,14 @@ export class ScreenSettings extends React.Component
           clientId: `${settings.jiraClientId}`,
           clientSecret: '',
           rsaPrivateKey: settings.rsaPrivateKey,
-          rsaPublicKey: settings.rsaPublicKey
+          rsaPublicKey: settings.rsaPublicKey,
+          token: '',
+          tokenSecret: ''
         };
-        return oauth.register(providerName, connectionProps).then(() => connectionProps);
       })
-      .then((connectionProps) => {
-        return oauth.access(providerName, { protocolVersion: '1.0' })
-          .then(({oauth_token, oauth_token_secret}) => ({ ...connectionProps, token: oauth_token, tokenSecret: oauth_token_secret}))
-        ;
-      })
-      .then(connectionProps => {
-        // register again the connection, this time with the token
-        return oauth.register('jira', connectionProps);
-      })
-      .then(() => {
-        return finishInstall(settings).then(({ onStatus }) => onStatus());
-      })
+      .then(connectionProps => oauth.register('jira', connectionProps))
+      .then(() => oauth.access('jira', { protocolVersion: '1.0' }).then(({oauth_token: token, oauth_token_secret: tokenSecret}) => storage.setAppStorage('oauth:jira:tokens', {token, tokenSecret})))
+      .then(() => finishInstall(settings).then(({ onStatus }) => onStatus()))
       .catch(err => {}) // TODO display errors
   ;
   }

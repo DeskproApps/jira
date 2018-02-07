@@ -8,6 +8,7 @@ import { Tabs, TabLink, Container,Button } from '@deskpro/react-components';
 import { TabCreateIssue, ScreenEditIssue } from '../CreateIssue';
 import { TabBrowseIssues } from '../BrowseIssues';
 import { TabLinkIssues } from '../LinkIssues';
+import { ScreenAuth } from '../Security';
 import { Routes as AppRoutes } from '../App'
 
 export class UI extends React.PureComponent
@@ -24,6 +25,7 @@ export class UI extends React.PureComponent
   render() {
     return (
       <RoutesContainer>
+        <RouteWithFactory location={AppRoutes.signIn} factory={this.renderSignIn} />
         <RouteWithFactory location={AppRoutes.createIssue} factory={this.renderTabCreateIssue} />
         <RouteWithFactory location={AppRoutes.linkedIssues}  factory={this.renderTabLinkIssues} />
         <RouteWithFactory location={AppRoutes.browseIssue} factory={this.renderTabBrowseIssues} />
@@ -34,6 +36,12 @@ export class UI extends React.PureComponent
       </RoutesContainer>
     );
   }
+
+  renderSignIn = (route) =>
+  {
+    const { dispatch } = this.props;
+    return <ScreenAuth route={route} dispatch={dispatch} />
+  };
 
   renderTabs = (route) =>
   {

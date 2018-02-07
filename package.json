@@ -42,6 +42,12 @@
         "isBackendOnly": true,
         "permRead": "EVERYBODY",
         "permWrite": "OWNER"
+      },
+      {
+        "name": "oauth:jira:tokens",
+        "isBackendOnly": true,
+        "permRead": "OWNER",
+        "permWrite": "OWNER"
       }
     ],
     "targets": [

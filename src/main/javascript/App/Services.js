@@ -1,27 +1,25 @@
-/**
- * @param issue
- * @param options
- * @return {*}
- */
-export function createIssueAction(issue, options)
+const ACTION_SIGN_IN = 'sign-in';
+
+export function reducer(state, action)
 {
-  // const { linkJiraIssue, unlinkJiraIssue } = this.childContext;
-  //
-  // let action;
-  // if (this.state.linkedIssues.filter(x => x.key === issue.key).length) {
-  //   action = { type: 'unlink', dispatch: unlinkJiraIssue };
-  // } else {
-  //   action = { type: 'link', dispatch: linkJiraIssue };
-  // }
-  //
-  // if (! options || typeof options.interceptor !== 'function') {
-  //   return action;
-  // }
-  //
-  // const { interceptor } = options;
-  //
-  // return {
-  //   type: action.type,
-  //   dispatch: issue => interceptor(action, issue)
-  // }
+  return state;
+}
+
+export function createSignInAction()
+{
+  /**
+   * @param {function} dispatch
+   * @param dpapp
+   * @return {*}
+   */
+  const action = ({ dispatch, dpapp }) => {
+
+    const { oauth, storage } = dpapp;
+
+    return oauth.access('jira', { protocolVersion: '1.0' })
+      .then(({oauth_token: token, oauth_token_secret: tokenSecret}) => storage.setAppStorage('oauth:jira:tokens', {token, tokenSecret}))
+      ;
+  };
+
+  return action;
 }

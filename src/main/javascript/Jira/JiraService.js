@@ -26,6 +26,23 @@ export class JiraService
     this.props = { httpClient, instanceUrl };
   }
 
+  verifyAccess()
+  {
+    const {
+      /** @type {function} **/ httpClient,
+      /** @type {string} **/ instanceUrl
+    } = this.props;
+
+    const jiraApi = new JiraApi({ instanceUrl });
+    const endpoint = jiraApi.endpoint(`myself`);
+    const initRequest = { method: "GET" };
+
+    return httpClient(endpoint.url, endpoint.initRequest(initRequest))
+      .catch(err => Promise.reject(err))
+      .then(response => { return response.body; })
+      ;
+  }
+
   /**
    * @param {*} issue
    * @return {Promise}

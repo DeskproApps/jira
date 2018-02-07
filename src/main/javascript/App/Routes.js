@@ -7,4 +7,6 @@ export class Routes
   static browseIssue = 'browseIssues';
 
   static editIssue = 'editIssue';
+
+  static signIn = 'signIn';
 }

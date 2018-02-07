@@ -1,3 +1,3 @@
 export {Routes} from './Routes';
 export {App} from './App';
-export {createLinkJiraIssueAction, createUnlinkJiraIssueAction} from './Services';
+export {reducer, createSignInAction} from './Services';
