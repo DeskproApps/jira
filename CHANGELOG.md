@@ -4,6 +4,8 @@ This project is following [Semantic Versioning](http://semver.org)
 
 ## [Unreleased][]
 
+## [0.1.0-beta.6][] - 2018-02-07
+
 - allow agents to sign in using their own credentials
 
 ## [0.1.0-beta.5][] - 2018-02-05
@@ -40,7 +42,8 @@ This project is following [Semantic Versioning](http://semver.org)
 
  - initial release
  
-[Unreleased]: https://github.com/DeskproApps/jira/compare/v0.1.0-beta.5...HEAD
+[Unreleased]: https://github.com/DeskproApps/jira/compare/v0.1.0-beta.6...HEAD
+[0.1.0-beta.6]: https://github.com/DeskproApps/jira/compare/v0.1.0-beta.5...v0.1.0-beta.6
 [0.1.0-beta.5]: https://github.com/DeskproApps/jira/compare/v0.1.0-beta.4...v0.1.0-beta.5
 [0.1.0-beta.4]: https://github.com/DeskproApps/jira/compare/v0.1.0-beta.3...v0.1.0-beta.4
 [0.1.0-beta.3]: https://github.com/DeskproApps/jira/compare/v0.1.0-beta.2...v0.1.0-beta.3
