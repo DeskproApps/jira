@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { CreateMetadataFinder } from '../Jira'
 import { createThrottle, createReducerChain } from '../Infrastructure'
 import { UI } from '../UI';
 import { JiraService } from '../Jira';
@@ -30,10 +29,6 @@ export class App extends React.Component
   };
 
   static childContextTypes = {
-
-    loadJiraCreateMeta: PropTypes.func,
-
-    loadJiraEditMeta: PropTypes.func,
 
     ticket: PropTypes.func,
 
@@ -71,10 +66,6 @@ export class App extends React.Component
     this.childContext = {
 
       dispatch: this.dispatch,
-
-      loadJiraCreateMeta: this.loadJiraCreateMeta.bind(this),
-
-      loadJiraEditMeta: this.loadJiraEditMeta.bind(this),
 
       ticket:  () => ({
         url: dpapp.context.tabUrl,
@@ -156,8 +147,6 @@ export class App extends React.Component
     }
 
     const jiraService = this.createJiraService( state.jiraInstanceUrl );
-    const { context } = this.props.dpapp;
-
     return jiraService.readAllIssues(jiraCards).then(issues => {
       return {...state, linkedIssues: issues};
     });
@@ -280,34 +269,6 @@ export class App extends React.Component
     return new JiraService({
       httpClient: dpapp.restApi.fetchCORS.bind(dpapp.restApi),
       instanceUrl
-    });
-  }
-
-  /**
-   * @return {Promise.<CreateMetadataFinder>}
-   */
-  loadJiraCreateMeta()
-  {
-    const meta = window.sessionStorage.getItem('createMeta');
-    if (meta) {
-      return Promise.resolve(
-        new CreateMetadataFinder(JSON.parse(meta))
-      );
-    }
-
-    return this.createJiraService().loadCreateMeta().then(meta => {
-      window.sessionStorage.setItem('createMeta', JSON.stringify(meta));
-      return new CreateMetadataFinder(meta);
-    });
-  }
-
-  /**
-   * @return {Promise.<{}>}
-   */
-  loadJiraEditMeta(issue)
-  {
-    return this.createJiraService().loadEditMeta(issue).then(meta => {
-      return meta;
     });
   }
 

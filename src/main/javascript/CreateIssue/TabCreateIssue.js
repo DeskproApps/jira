@@ -6,6 +6,7 @@ import { Routes } from '../App';
 import { createLinkJiraIssueAction } from '../LinkIssues';
 import { createCreateJiraIssueAction } from '../CreateIssue';
 import { createThrottle } from '../Infrastructure';
+import { createLoadCreateMetaAction } from './Services'
 
 export class TabCreateIssue  extends React.Component
 {
@@ -21,9 +22,6 @@ export class TabCreateIssue  extends React.Component
   };
 
   static contextTypes = {
-
-    loadJiraCreateMeta: PropTypes.func.isRequired,
-
     ticket: PropTypes.func.isRequired
   };
 
@@ -47,13 +45,9 @@ export class TabCreateIssue  extends React.Component
 
   componentDidMount()
   {
-    const {
-      /** @type {function():Promise} */ loadJiraCreateMeta
-    } = this.context;
+    const { dispatch } = this.props;
 
-    loadJiraCreateMeta()
-      .then(createMeta => {
-
+    dispatch(createLoadCreateMetaAction()).then(createMeta => {
         const projects = createMeta.getProjectList();
         const issueTypes = createMeta.getIssueTypeList(projects[0]);
         const values = { project: projects[0], issuetype: issueTypes[0], summary: this.props.comment || "" };
@@ -101,13 +95,9 @@ export class TabCreateIssue  extends React.Component
 
   loadFieldDefinitions(project, issueType)
   {
-    const {
-      /** @type {function():Promise} */ loadJiraCreateMeta
-    } = this.context;
+    const { dispatch } = this.props;
 
-    return loadJiraCreateMeta()
-      .then(createMeta => {
-
+    return dispatch(createLoadCreateMetaAction()).then(createMeta => {
         const issueTypes = issueType ? null : createMeta.getIssueTypeList(project);
         const nextIssueType = issueType || issueTypes[0];
         const fields = createMeta.getFieldLists(project, nextIssueType);

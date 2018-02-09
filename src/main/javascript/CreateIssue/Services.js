@@ -1,5 +1,8 @@
 const ACTION_UPDATE_ISSUE = 'update-issues';
 const ACTION_CREATE_ISSUE = 'create-issues';
+const ACTION_LOAD_CREATE_META = 'load-create-meta';
+
+import { CreateMetadataFinder } from '../Jira'
 
 export function reducer(state, action)
 {
@@ -61,6 +64,53 @@ export function createUpdateJiraIssueAction(issue, fields)
           issue: issue,
         })
       });
+  };
+
+  return action;
+}
+
+export function createLoadCreateMetaAction()
+{
+  /**
+   * @param {function} dispatch
+   * @param {JiraService} jiraService
+   * @return {*}
+   */
+  const action = ({ dispatch, jiraService }) => {
+
+    const meta = window.sessionStorage.getItem('createMeta');
+    if (meta) {
+      return Promise.resolve(
+        new CreateMetadataFinder(JSON.parse(meta))
+      );
+    }
+
+    return jiraService.loadCreateMeta().then(meta => {
+      window.sessionStorage.setItem('createMeta', JSON.stringify(meta));
+      return new CreateMetadataFinder(meta);
+    });
+
+  };
+
+  return action;
+}
+
+/**
+ * @param issue
+ * @return {function({dispatch: Function, jiraService: JiraService})}
+ */
+export function createLoadEditMetaAction(issue)
+{
+  /**
+   * @param {function} dispatch
+   * @param {JiraService} jiraService
+   * @return {*}
+   */
+  const action = ({ dispatch, jiraService }) => {
+
+    return jiraService.loadEditMeta(issue).then(meta => {
+      return meta;
+    });
   };
 
   return action;

@@ -6,6 +6,7 @@ import { Routes } from '../App';
 
 import { createUpdateJiraIssueAction } from '../CreateIssue';
 import { createThrottle } from '../Infrastructure';
+import { createLoadEditMetaAction } from './Services'
 
 
 const emptyObject = {};
@@ -24,8 +25,6 @@ export class ScreenEditIssue  extends React.Component
   };
 
   static contextTypes = {
-
-    loadJiraEditMeta: PropTypes.func.isRequired,
 
     ticket: PropTypes.func.isRequired
   };
@@ -49,13 +48,8 @@ export class ScreenEditIssue  extends React.Component
 
   componentDidMount()
   {
-    const {
-      /** @type {function():Promise} */ loadJiraEditMeta
-    } = this.context;
-
-    loadJiraEditMeta(this.props.issue)
-      .then(meta => {
-
+    const { dispatch } = this.props;
+    dispatch(createLoadEditMetaAction(this.props.issue)).then(meta => {
         const fields = Object.keys(meta.fields).map(key => meta.fields[key]);
         const values = JSON.parse(JSON.stringify(this.props.issue.fields));
 
