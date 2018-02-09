@@ -4,6 +4,10 @@ This project is following [Semantic Versioning](http://semver.org)
 
 ## [Unreleased][]
 
+ - default `process.env.NODE_ENV` to `production` when packaging the app for distribution with webpack
+   
+ - complete refactoring to a redux model   
+
 ## [0.1.0-beta.6][] - 2018-02-07
 
 - allow agents to sign in using their own credentials
