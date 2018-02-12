@@ -4,6 +4,8 @@ This project is following [Semantic Versioning](http://semver.org)
 
 ## [Unreleased][]
 
+## [0.1.0-beta.7][] - 2018-02-12
+
  - default `process.env.NODE_ENV` to `production` when packaging the app for distribution with webpack
    
  - complete refactoring to a redux model   
@@ -46,7 +48,8 @@ This project is following [Semantic Versioning](http://semver.org)
 
  - initial release
  
-[Unreleased]: https://github.com/DeskproApps/jira/compare/v0.1.0-beta.6...HEAD
+[Unreleased]: https://github.com/DeskproApps/jira/compare/v0.1.0-beta.7...HEAD
+[0.1.0-beta.7]: https://github.com/DeskproApps/jira/compare/v0.1.0-beta.6...v0.1.0-beta.7
 [0.1.0-beta.6]: https://github.com/DeskproApps/jira/compare/v0.1.0-beta.5...v0.1.0-beta.6
 [0.1.0-beta.5]: https://github.com/DeskproApps/jira/compare/v0.1.0-beta.4...v0.1.0-beta.5
 [0.1.0-beta.4]: https://github.com/DeskproApps/jira/compare/v0.1.0-beta.3...v0.1.0-beta.4
