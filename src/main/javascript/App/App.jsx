@@ -4,13 +4,15 @@ import { createThrottle, createReducerChain } from '../Infrastructure'
 import { UI } from '../UI';
 import { JiraService } from '../Jira';
 import { Routes } from './Routes';
+import { createActionCommentCreate } from '../Comments'
 
 
 const reduce = createReducerChain([
   require('./Services').reducer,
   require('../BrowseIssues').reducer,
   require('../LinkIssues').reducer,
-  require('../CreateIssue').reducer
+  require('../CreateIssue').reducer,
+  require('../Comments').reducer
 ]);
 
 export class App extends React.Component
@@ -225,7 +227,8 @@ export class App extends React.Component
 
     if (reply && strategy === 'add-comment') {
       const { ui } = this.props;
-      return this.addComment(message).catch(ui.error);
+      const { linkedIssues } = this.state;
+      return this.dispatch(createActionCommentCreate(message, linkedIssues)).catch(ui.error);
     }
 
     if (reply && strategy === 'new-issue') {
@@ -270,26 +273,6 @@ export class App extends React.Component
       httpClient: dpapp.restApi.fetchCORS.bind(dpapp.restApi),
       instanceUrl
     });
-  }
-
-  /**
-   * @param {string} comment
-   * @return {*}
-   */
-  addComment(comment)
-  {
-    const { linkedIssues } = this.state;
-    if (linkedIssues.length === 0) {
-      return Promise.reject(new Error('there are no linked issues'));
-    }
-    const jiraService = this.createJiraService();
-
-    const promises = linkedIssues.map(issue => jiraService.createComment(issue, comment).then(
-      result => ({ status:'success', result }),
-      err => ({ status:'success', result: err })
-    ));
-
-    return Promise.all(promises).then(results => results.filter(x => x.status === 'success').map(x => x.result));
   }
 
   getChildContext() { return this.childContext; }
