@@ -4,6 +4,7 @@
   "description": "Enables agents to link Deskpro tickets and Jira issues. Allows creating, searching and listing Jira issues from within Deskpro.",
   "main": "lib/main/javascript/index.js",
   "scripts": {
+    "dpat": "dpat",
     "dev": "dpat server .",
     "lint": "eslint src/main/javascript/* --ext .js,.jsx --cache --cache-location=.cache/eslint",
     "lint:fix": "npm run lint -- --fix",
