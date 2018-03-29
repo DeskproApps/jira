@@ -70,8 +70,8 @@ export class App extends React.Component
       dispatch: this.dispatch,
 
       ticket:  () => ({
-        url: dpapp.context.tabUrl,
-        id: dpapp.context.entityId,
+        url: dpapp.context.hostUI.tabUrl,
+        id: dpapp.context.object.id,
         title: tabData.original_subject
       })
     };
@@ -193,7 +193,7 @@ export class App extends React.Component
   onTicketReply(response, data)
   {
     const { deskproWindow } = this.props.dpapp ;
-    const { entityId: ticketId } = this.props.dpapp.context;
+    const { id: ticketId } = this.props.dpapp.context.object;
 
     const queries = [{
       name: 'reply',

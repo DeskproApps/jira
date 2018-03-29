@@ -1,6 +1,6 @@
 {
   "name": "@deskproapps/jira",
-  "version": "0.1.0-beta.7",
+  "version": "0.1.0-beta.8",
   "description": "Enables agents to link Deskpro tickets and Jira issues. Allows creating, searching and listing Jira issues from within Deskpro.",
   "main": "lib/main/javascript/index.js",
   "scripts": {
@@ -46,6 +46,18 @@
       {
         "name": "oauth:jira:tokens",
         "isBackendOnly": true,
+        "permRead": "OWNER",
+        "permWrite": "OWNER"
+      },
+      {
+        "name": "rsaPrivateKey",
+        "isBackendOnly": false,
+        "permRead": "OWNER",
+        "permWrite": "OWNER"
+      },
+      {
+        "name": "rsaPublicKey",
+        "isBackendOnly": false,
         "permRead": "OWNER",
         "permWrite": "OWNER"
       }
@@ -102,9 +114,9 @@
     ]
   },
   "devDependencies": {
-    "@deskpro/apps-dpat": "0.9.6",
+    "@deskpro/apps-dpat": "0.10.3",
     "@deskpro/apps-installer": "github:deskpro/apps-installer#v0.4.2",
-    "@deskpro/apps-sdk-react": "0.2.4",
+    "@deskpro/apps-sdk-react": "0.2.13",
     "@deskpro/react-components": "1.2.4",
     "file-loader": "1.1.5",
     "jsdom": "11.2.0",

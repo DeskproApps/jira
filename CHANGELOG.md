@@ -4,6 +4,21 @@ This project is following [Semantic Versioning](http://semver.org)
 
 ## [Unreleased][]
 
+## [0.1.0-beta.8][] - 2018-03-28
+
+### Fixed
+
+ - oauth1 private and public keys readable only be owner
+
+### Added
+
+    - travis will atttach builds to Github PR's when enabled via s3 environment variables
+
+### Changed
+
+    - upgrade to @deskpro/apps-sdk-react version 0.2.13
+    - upgrade to @deskpro/apps-dpat version 0.10.3
+
 ## [0.1.0-beta.7][] - 2018-02-12
 
  - default `process.env.NODE_ENV` to `production` when packaging the app for distribution with webpack
@@ -48,7 +63,8 @@ This project is following [Semantic Versioning](http://semver.org)
 
  - initial release
  
-[Unreleased]: https://github.com/DeskproApps/jira/compare/v0.1.0-beta.7...HEAD
+[Unreleased]: https://github.com/DeskproApps/jira/compare/v0.1.0-beta.8...HEAD
+[0.1.0-beta.8]: https://github.com/DeskproApps/jira/compare/v0.1.0-beta.7...v0.1.0-beta.8
 [0.1.0-beta.7]: https://github.com/DeskproApps/jira/compare/v0.1.0-beta.6...v0.1.0-beta.7
 [0.1.0-beta.6]: https://github.com/DeskproApps/jira/compare/v0.1.0-beta.5...v0.1.0-beta.6
 [0.1.0-beta.5]: https://github.com/DeskproApps/jira/compare/v0.1.0-beta.4...v0.1.0-beta.5
