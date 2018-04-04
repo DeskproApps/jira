@@ -4,6 +4,15 @@ This project is following [Semantic Versioning](http://semver.org)
 
 ## [Unreleased][]
 
+### Changed
+
+    - upgrade to `@deskpro/apps-installer` version `0.4.5`
+    - upgrade to `@deskpro/apps-dpat` version `0.10.4`
+
+### Fixed
+
+ - `send to Jira` menu options failed to render
+
 ## [0.1.0-beta.8][] - 2018-03-28
 
 ### Fixed

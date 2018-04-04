@@ -164,7 +164,7 @@ export class App extends React.Component
   renderHelpdeskUI()
   {
     const { deskproWindow } = this.props.dpapp ;
-    const { entityId: ticketId } = this.props.dpapp.context;
+    const { id: ticketId } = this.props.dpapp.context.object;
     const domRootId = `app-jira-${ticketId}`;
 
     const insertQuery = {
