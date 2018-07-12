@@ -4,6 +4,12 @@ This project is following [Semantic Versioning](http://semver.org)
 
 ## [Unreleased][]
 
+## [0.1.0-beta.10][] - 2018-07-12
+
+### Changed
+
+    - upgrade to `@deskpro/apps-sdk-react` version `1.0.0`
+
 ## [0.1.0-beta.9][] - 2018-04-04
 
 ### Changed
@@ -74,7 +80,10 @@ This project is following [Semantic Versioning](http://semver.org)
 
  - initial release
  
-[Unreleased]: https://github.com/DeskproApps/jira/compare/v0.1.0-beta.9...HEAD
+[Unreleased]: https://github.com/DeskproApps/jira/compare/v0.1.0-beta.10...HEAD
+[0.1.0-beta.10]: https://github.com/DeskproApps/jira/compare/v0.1.1...v0.1.0-beta.10
+[0.1.1]: https://github.com/DeskproApps/jira/compare/v0.1.0...v0.1.1
+[0.1.0]: https://github.com/DeskproApps/jira/compare/v0.1.0-beta.9...v0.1.0
 [0.1.0-beta.9]: https://github.com/DeskproApps/jira/compare/v0.1.0-beta.8...v0.1.0-beta.9
 [0.1.0-beta.8]: https://github.com/DeskproApps/jira/compare/v0.1.0-beta.7...v0.1.0-beta.8
 [0.1.0-beta.7]: https://github.com/DeskproApps/jira/compare/v0.1.0-beta.6...v0.1.0-beta.7

@@ -41,6 +41,7 @@ export class App extends React.Component
   {
     super(props);
     this.init();
+    this.initChildContext("");
   }
 
   init()
@@ -62,8 +63,11 @@ export class App extends React.Component
         strategy: 'none'
       }
     };
+  }
 
-    const { dpapp, tabData } = this.props ;
+  initChildContext(title)
+  {
+    const { dpapp } = this.props ;
 
     this.childContext = {
 
@@ -71,8 +75,8 @@ export class App extends React.Component
 
       ticket:  () => ({
         url: dpapp.context.hostUI.tabUrl,
-        id: dpapp.context.object.id,
-        title: tabData.original_subject
+        id: dpapp.context.get('ticket').id,
+        title
       })
     };
   }
@@ -80,8 +84,12 @@ export class App extends React.Component
   componentDidMount()
   {
     // load state, initialize services
-    const { ui } = this.props ;
-    this.loadState()
+    const { ui, dpapp } = this.props ;
+    dpapp.context.get('ticket').get('data.original_subject')
+      .then(title => {
+        this.initChildContext(title);
+        return this.loadState();
+      })
       .then(state => {
         this.setState(state);
         return state;
@@ -121,7 +129,7 @@ export class App extends React.Component
       const uniqueCards = allJiraCards.filter(function(elem, pos, arr) {
         return arr.indexOf(elem) == pos;
       });
-      context.customFields.setAppField('jiraCards', uniqueCards);
+      context.get('ticket').customFields.setAppField('jiraCards', uniqueCards);
     }
   }
 
@@ -156,30 +164,31 @@ export class App extends React.Component
 
   subscribeToHelpdeskEvents()
   {
-    this.props.dpapp.subscribe('context.ticket.update-success', createThrottle(this.renderHelpdeskUI.bind(this), 500));
-    this.props.dpapp.subscribe('context.ticket.reply', this.onTicketReply.bind(this));
-    this.props.dpapp.subscribe('context.ticket.reply-success', this.onTicketReplySuccess.bind(this));
+    this.props.dpapp.subscribe('ticket.update-success', createThrottle(this.renderHelpdeskUI.bind(this), 500));
+    this.props.dpapp.subscribe('ticket.reply', this.onTicketReply.bind(this));
+    this.props.dpapp.subscribe('ticket.reply-success', this.onTicketReplySuccess.bind(this));
   }
 
   renderHelpdeskUI()
   {
-    const { deskproWindow } = this.props.dpapp ;
-    const { id: ticketId } = this.props.dpapp.context.object;
+
+    const { deskproWindow, context } = this.props.dpapp ;
+    const ticketId = context.get('ticket').id;
     const domRootId = `app-jira-${ticketId}`;
 
     const insertQuery = {
       parent: `#ticket${ticketId}-reply-controls`,
       markup: `<div class="cell" id="${domRootId}">
-                  <div class="inner-cell" style="padding-left: 11px;">
-                    <input type="checkbox" id="ticket${ticketId}-reply-with-jira" />
-                  </div>
-                  <div class="inner-cell" style="position: relative;">
-                      <select id="ticket${ticketId}-reply-with-jira-strategy" style="min-width: 170px;" data-style-type="icons">
-                      <option value="add-comment" selected="selected">Send comment to JIRA</option>
-                      <option value="new-issue">Send to JIRA as new issue</option>
-                    </select>
-                  </div>
-              </div>`
+                <div class="inner-cell" style="padding-left: 11px;">
+                  <input type="checkbox" id="ticket${ticketId}-reply-with-jira" />
+                </div>
+                <div class="inner-cell" style="position: relative;">
+                    <select id="ticket${ticketId}-reply-with-jira-strategy" style="min-width: 170px;" data-style-type="icons">
+                    <option value="add-comment" selected="selected">Send comment to JIRA</option>
+                    <option value="new-issue">Send to JIRA as new issue</option>
+                  </select>
+                </div>
+            </div>`
     };
 
     deskproWindow.domQuery({ type: 'exists', selector: `#${domRootId}`})
@@ -187,13 +196,14 @@ export class App extends React.Component
         if (false === value.exists) {
           deskproWindow.domInsert(insertQuery);
         }
-    });
+      })
+    ;
   }
 
-  onTicketReply(response, data)
+  onTicketReply(data)
   {
     const { deskproWindow } = this.props.dpapp ;
-    const { id: ticketId } = this.props.dpapp.context.object;
+    const ticketId = this.props.dpapp.context.get('ticket').id;
 
     const queries = [{
       name: 'reply',
@@ -212,17 +222,23 @@ export class App extends React.Component
       return o;
     };
 
-    deskproWindow.domQuery(queries)
+    return deskproWindow.domQuery(queries)
       .then(results => {
         const handleReply = results.reduce(reduceQueryResults, { reply: false });
-        const onAfterSetState = () => { response({ allowReply: true }); };
-        this.setState({ handleReply }, onAfterSetState);
-    });
+
+        this.setState({ handleReply });
+        return data;
+      })
+      .catch(e => {
+        console.error('failed to set the ticket reply strategy', e);
+
+      })
+    ;
   }
 
   onTicketReplySuccess(data)
   {
-    const { message } = data;
+    const message = data.message.replace(/<(?:.|\n)*?>/gm, '');
     const { reply, strategy } = this.state.handleReply;
 
     if (reply && strategy === 'add-comment') {
@@ -248,7 +264,7 @@ export class App extends React.Component
     return dpapp.storage.getAppStorage('jiraInstanceUrl')
       .then(value => {
         state.jiraInstanceUrl = value;
-        return dpapp.context.customFields.getAppField('jiraCards', [])
+        return dpapp.context.get('ticket').customFields.getAppField('jiraCards', [])
       })
       .then(cards => {
         state.jiraCards = cards
