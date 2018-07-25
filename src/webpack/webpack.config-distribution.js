@@ -42,7 +42,10 @@ module.exports = function (env) {
         },
         {
           test: /\.css$/,
-          use: extractCssPlugin.extract({ use: ['style-loader', 'css-loader'] })
+          use: extractCssPlugin.extract({
+            fallback: "style-loader",
+            use: "css-loader"
+          })
         },
         {
           include: [ path.resolve(PROJECT_ROOT_PATH, 'src/main/sass') ],
