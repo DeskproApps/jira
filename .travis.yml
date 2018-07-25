@@ -1,10 +1,9 @@
 language: node_js
 node_js:
-- '6'
+- '8'
 before_install:
 - if [ ! -z "$ARTIFACTS_BUCKET" ] && [ ! -z "ARTIFACTS_KEY" ] && [ ! -z "ARTIFACTS_SECRET" ] ; then export UPLOAD_ARTIFACT=yes ; else echo artifact uploading is disabled; fi
 install:
-  - npm install -g npm@5.3.0 && npm -v
   - npm install --no-optional --no-save
   - if [ ! -z "$UPLOAD_ARTIFACT" ]; then curl -sL https://raw.githubusercontent.com/travis-ci/artifacts/master/install | bash; fi
 script:

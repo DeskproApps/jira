@@ -1,6 +1,9 @@
 import { createApp, createToolbar } from '@deskpro/apps-sdk-react';
 require('../main/sass/index.scss');
 
+// Remove this line when implementing the new re-design, it won't be needed here
+import '@deskpro/apps-components';
+
 /**
  * Called when sdk-core has created the app
  *
