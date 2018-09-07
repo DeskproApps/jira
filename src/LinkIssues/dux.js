@@ -1,10 +1,19 @@
+import { addComment } from '../Comments/actions'
+
 const ACTION_LINK_ISSUE = 'link-issues';
 const ACTION_UNLINK_ISSUE = 'unlink-issues';
 
 export function reducer(state, action)
 {
   if (! state) {
-    return {};
+    return {
+      ticket: {
+        url: null,
+        id:  null,
+        title: null
+      },
+      linkedIssues: []
+    };
   }
 
   const { type } = action;
@@ -29,6 +38,12 @@ export function reducer(state, action)
   return state;
 }
 
+/**
+ * @param {object} dpapp
+ * @param {object} issue
+ * @param {{title, url, id}} ticket
+ * @return {function(Function, *, JiraService): *}
+ */
 export function linkJiraIssue(dpapp, issue, ticket)
 {
   /**
@@ -45,12 +60,21 @@ export function linkJiraIssue(dpapp, issue, ticket)
       });
       const context = dpapp.context.get('ticket');
       context.customFields.setAppField('jiraCards', getState().link.linkedIssues.map(x => x.key));
+    }).then(() => {
+      const comment = `Deskpro Jira app linked Deskpro ticket #${ticket.id} at ${ticket.url} with this issue`;
+      dispatch(addComment(comment, [issue]))
     });
   }
 
   return action;
 }
 
+/**
+ * @param {object} dpapp
+ * @param {object} issue
+ * @param {{title, url, id}} ticket
+ * @return {function(Function, *, JiraService): *}
+ */
 export function unlinkJiraIssue(dpapp, issue, ticket)
 {
   /**
@@ -60,14 +84,20 @@ export function unlinkJiraIssue(dpapp, issue, ticket)
    * @return {*}
    */
   function action (dispatch, getState, jiraService) {
-    return jiraService.deleteLink(issue, ticket).then(link => {
-      dispatch({
-        type: ACTION_UNLINK_ISSUE,
-        issue: issue,
+    return jiraService.deleteLink(issue, ticket)
+      .then(link => {
+          dispatch({
+            type: ACTION_UNLINK_ISSUE,
+            issue: issue,
+          });
+          const context = dpapp.context.get('ticket');
+          context.customFields.setAppField('jiraCards', getState().link.linkedIssues.map(x => x.key));
+    })
+      .then(() => {
+        const comment = `Deskpro Jira App removed the link to Deskpro ticket #${ticket.id} at ${ticket.url} `;
+        dispatch(addComment(comment, [issue]))
       });
-      const context = dpapp.context.get('ticket');
-      context.customFields.setAppField('jiraCards', getState().link.linkedIssues.map(x => x.key));
-    });
+
   }
 
   return action;

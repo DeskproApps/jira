@@ -1,15 +1,37 @@
 import React from 'react';
 import renderer from 'react-test-renderer';
+import { default as bootstrap } from './helpers'
+import { Provider } from "react-redux";
+import { App, routesEnum } from '../../src/App';
 
-import { App } from '../../main/javascript/App';
+test('successfully render the loading screen', done => {
 
-test('successfully render the application in initial state', done => {
+  const httpClient = () => Promise.resolve(null);
+  const { store, dpapp, history, navigator } = bootstrap({ httpClient, initialRoute: routesEnum.ROUTE_LOADING });
 
-  // const dpapp = {};
-  // const component = renderer.create(<App dpapp={dpapp} />);
-  //
-  // let tree = component.toJSON();
-  // expect(tree).toMatchSnapshot();
-  expect(true).toBe(true);
+  const component = renderer.create(
+    <Provider store={store}>
+      <App dpapp={dpapp} history={history} navigator={navigator}/>
+    </Provider>
+  );
+
+  const tree = component.toJSON();
+  expect(tree).toMatchSnapshot();
+  done();
+});
+
+test('successfully render the home screen', done => {
+
+  const httpClient = () => Promise.resolve(null);
+  const { store, dpapp, history, navigator } = bootstrap({ httpClient, initialRoute: routesEnum.ROUTE_HOME });
+
+  const component = renderer.create(
+    <Provider store={store}>
+      <App dpapp={dpapp} history={history} navigator={navigator}/>
+    </Provider>
+  );
+
+  const tree = component.toJSON();
+  expect(tree).toMatchSnapshot();
   done();
 });

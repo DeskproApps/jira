@@ -1,9 +1,10 @@
 
-const ROUTE_HOME  = 'linkedIssues';
-const ROUTE_BROWSE = 'browseIssues';
-const ROUTE_CREATE  = 'createIssue';
-const ROUTE_EDIT    = 'editIssue';
-const ROUTE_SIGNIN  = 'signIn';
+const ROUTE_HOME  =     'linkedIssues';
+const ROUTE_BROWSE =    'browseIssues';
+const ROUTE_CREATE =    'createIssue';
+const ROUTE_EDIT =      'editIssue';
+const ROUTE_SIGNIN  =   'signIn';
+const ROUTE_LOADING =  'loading';
 
 export const routesEnum =
 {
@@ -11,7 +12,8 @@ export const routesEnum =
   ROUTE_CREATE,
   ROUTE_EDIT,
   ROUTE_HOME,
-  ROUTE_SIGNIN
+  ROUTE_SIGNIN,
+  ROUTE_LOADING
 };
 
 export function gotoHome(args)

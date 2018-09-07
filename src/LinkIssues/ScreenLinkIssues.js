@@ -5,7 +5,12 @@ import { List } from '@deskpro/apps-components';
 import { gotoEdit, gotoHome } from '../App'
 import { reduxConnector } from "../infrastructure";
 import { unlinkJiraIssue, getLinkedIssues, getTicket } from "./dux";
-import { IssueListElement, NavigateButton } from '../components'
+import { IssueListElement } from '../components'
+
+function renderEmptyList()
+{
+  return <p>You haven't linked any issues to this ticket. </p>;
+}
 
 export class ScreenLinkIssues extends React.PureComponent
 {
@@ -35,14 +40,6 @@ export class ScreenLinkIssues extends React.PureComponent
     navigator({ issue, onCancelRoute: gotoHome })(gotoEdit)
   };
 
-
-  renderEmptyList()
-  {
-    return [
-      <p>You haven't linked any issues to this ticket. </p>,
-    ];
-  }
-
   renderList()
   {
     const { linkedIssues } = this.props;
@@ -53,7 +50,7 @@ export class ScreenLinkIssues extends React.PureComponent
   render()
   {
     const { linkedIssues } = this.props;
-    return linkedIssues.length ? this.renderList() : this.renderEmptyList();
+    return linkedIssues.length ? this.renderList() : renderEmptyList();
   }
 }
 

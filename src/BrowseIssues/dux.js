@@ -3,7 +3,9 @@ const ACTION_SEARCH_ISSUES = 'search-issues';
 export function reducer(state, action)
 {
   if (! state) {
-    return {};
+    return {
+      foundIssues: []
+    };
   }
 
   const { type } = action;

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Router, Route, Switch,  } from 'react-router'
-import { Loader, Panel, Button, Tabs, TabMenu, List, Action, ActionBar } from '@deskpro/apps-components';
+import { Loader, Panel, Level, Action, ActionBar } from '@deskpro/apps-components';
 
 import { ScreenCreateIssue, ScreenEditIssue } from '../CreateIssue';
 import { ScreenBrowseIssues } from '../BrowseIssues';
@@ -14,17 +14,13 @@ import { verifyAccess } from '../Security'
 import { reduxConnector } from "../infrastructure";
 import {gotoBrowse, gotoCreate} from "./index";
 
-export class App extends React.Component
+export class App extends React.PureComponent
 {
   static propTypes = {
     dpapp:        PropTypes.object.isRequired,
     history:      PropTypes.object,
     navigator:    PropTypes.func.isRequired,
     verifyAccess: PropTypes.func.isRequired,
-  };
-
-  state = {
-    appReady: false,
   };
 
   componentDidMount()
@@ -34,18 +30,8 @@ export class App extends React.Component
     verifyAccess()
       .then(() => navigator()(gotoHome))
       .catch(err => { navigator()(gotoSignIn); })
-      .then(this.setState({ appReady: true }))
       .catch(dpapp.ui.showErrorNotification)
     ;
-  }
-
-  render()
-  {
-    const { navigator, dpapp } = this.props;
-    return [
-      <DeskproPortal navigator={navigator} dpapp={dpapp}/>,
-      this.state.appReady ? this.renderRouter() : null
-    ].filter(x => !!x)
   }
 
   gotoHome = () => {
@@ -63,9 +49,18 @@ export class App extends React.Component
     navigator()(gotoBrowse)
   };
 
+  render()
+  {
+    const { navigator, dpapp } = this.props;
+    return [
+      <DeskproPortal navigator={navigator} dpapp={dpapp}/>,
+      this.renderRouter()
+    ];
+  }
+
   renderRouter()
   {
-    const { history, dpapp } = this.props;
+    const { history } = this.props;
 
     return <Router history={history} >
       <Switch>
@@ -74,11 +69,16 @@ export class App extends React.Component
         <Route path={routesEnum.ROUTE_HOME} render={this.renderScreenLinkIssues} />
         <Route path={routesEnum.ROUTE_BROWSE} render={this.renderScreenBrowseIssues} />
         <Route path={routesEnum.ROUTE_EDIT} render={this.renderScreenEdit} />
-        <Route path="loading" render={() => <Loader />} />
-        <Route render={() => <Loader />} />
+        <Route path={routesEnum.ROUTE_LOADING} render={this.renderLoader} />
+        <Route render={this.renderLoader} />
       </Switch>
     </Router>
   }
+
+  renderLoader = () =>
+  {
+    return <Level><Loader /></Level>;
+  };
 
   renderSignIn = ({match, location, history}) =>
   {
@@ -99,8 +99,6 @@ export class App extends React.Component
       <Action icon={'close-heavy'} label={"Go back"} onClick={this.gotoHome}/>
       <ScreenCreateIssue dpapp={dpapp} navigator={navigator} comment={comment} />
     </Panel>;
-
-
   };
 
   renderScreenLinkIssues = ({match, location, history}) =>
@@ -108,11 +106,11 @@ export class App extends React.Component
     const { navigator, dpapp } = this.props;
 
     return [
-      <ActionBar title={"Linked Issues"}  >
+      <ActionBar key={"linked-issues-actions"} title={"Linked Issues"}>
         <Action icon={'add'} label={"Add"} onClick={this.gotoCreate}/>
         <Action icon={'search'} label={"Find"} onClick={this.gotoBrowse}/>
       </ActionBar>,
-      <ScreenLinkIssues dpapp={dpapp} navigator={navigator} onCancelRoute={gotoHome} />
+      <ScreenLinkIssues key={"screen-link-issues"} dpapp={dpapp} navigator={navigator} onCancelRoute={gotoHome} />
     ]
   };
 

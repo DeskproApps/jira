@@ -51,7 +51,7 @@ export class ScreenEditIssue  extends React.Component
 
         this.setState({ primaryFields, secondaryFields, values });
       })
-      .catch(e => { console.log('error loading jira editMeta ', e); })
+      .catch(e => { console.log('error loading jira editMeta '); console.error(e); })
     ;
   }
 
