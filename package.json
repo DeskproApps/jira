@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@deskpro/apps-components": "^0.8.0",
-    "@deskpro/apps-installer": "^1.0.4",
+    "@deskpro/apps-installer": "^1.0.5",
     "@deskpro/apps-react-scripts": "0.3.4",
     "@deskpro/apps-sdk": "^0.8.0",
     "moment": "^2.22.2",
