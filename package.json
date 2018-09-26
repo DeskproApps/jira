@@ -1,42 +1,64 @@
 {
   "name": "@deskproapps/jira",
-  "version": "0.1.0-beta.10",
-  "description": "Enables agents to link Deskpro tickets and Jira issues. Allows creating, searching and listing Jira issues from within Deskpro.",
-  "main": "lib/main/javascript/index.js",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@deskpro/apps-components": "^0.8.0",
+    "@deskpro/apps-installer": "^1.0.5",
+    "@deskpro/apps-react-scripts": "0.3.4",
+    "@deskpro/apps-sdk": "^0.8.0",
+    "moment": "^2.22.2",
+    "prop-types": "^15.6.2",
+    "react": "^16.4.2",
+    "react-datepicker": "^1.6.0",
+    "react-dom": "^16.4.2",
+    "react-redux": "^5.0.7",
+    "react-router": "^4.3.1",
+    "react-select": "^2.0.0",
+    "react-textarea-autosize": "^7.0.4",
+    "redux": "^4.0.0",
+    "redux-form": "^7.4.2",
+    "redux-thunk": "^2.3.0"
+  },
+  "devDependencies": {
+    "changelog-verify": "1.0.4",
+    "enzyme": "^3.3.0",
+    "enzyme-adapter-react-16": "^1.1.1",
+    "react-test-renderer": "^16.4.2",
+    "version-changelog": "2.1.0"
+  },
+  "homepage": ".",
   "scripts": {
-    "dpat": "dpat",
-    "dev": "dpat server .",
-    "lint": "eslint src/main/javascript/* --ext .js,.jsx --cache --cache-location=.cache/eslint",
-    "lint:fix": "npm run lint -- --fix",
-    "package": "dpat clean . && dpat compile . && dpat bundle-installer . && dpat verify ./dist && dpat package .",
-    "test": "dpat test .",
+    "start": "PORT=31080 react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
+    "lint": "react-scripts eslint src test",
+    "format": "react-scripts prettier --write \"{src,test}/**/*.js\"",
+    "format:check": "react-scripts prettier --list-different \"{src,test}/**/*.js\"",
     "version": "version-changelog CHANGELOG.md && changelog-verify CHANGELOG.md && git add CHANGELOG.md"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/DeskproApps/jira.git"
-  },
-  "keywords": [
-    "deskpro",
-    "deskpro app",
-    "deskpro jira",
-    "jira"
-  ],
+  "description": "Enables agents to link Deskpro tickets and Jira issues. Allows creating, searching and listing Jira issues from within Deskpro.",
   "author": {
     "name": "Deskpro Ltd.",
     "email": "apps@deskpro.com",
-    "url": "https://deskpro.com"
+    "url": "https://www.deskpro.com"
   },
-  "license": "BSD-3-Clause",
-  "bugs": {
-    "url": "https://github.com/DeskproApps/jira/issues"
-  },
-  "homepage": "https://github.com/DeskproApps/jira#readme",
   "deskpro": {
     "version": "2.3.0",
-    "title": "Jira BETA",
+    "title": "Jira",
     "isSingle": true,
     "scope": "agent",
+    "targets": [
+      {
+        "target": "ticket-sidebar",
+        "url": "index.html"
+      },
+      {
+        "target": "install",
+        "url": "install.html"
+      }
+    ],
     "storage": [
       {
         "name": "oauth:jira",
@@ -61,12 +83,6 @@
         "isBackendOnly": false,
         "permRead": "OWNER",
         "permWrite": "OWNER"
-      }
-    ],
-    "targets": [
-      {
-        "target": "ticket-sidebar",
-        "url": "html/index.html"
       }
     ],
     "settings": [
@@ -107,32 +123,27 @@
         "title": "Jira linked issues"
       }
     ],
-    "deskproApiTags": [
-      "tickets.*"
-    ],
+    "deskproApiTags": [],
     "externalApis": [
       "/^https?://([^.]+\\.)*atlassian.net/?.*$/"
     ]
   },
-  "devDependencies": {
-    "@deskpro/apps-dpat": "0.10.4",
-    "@deskpro/apps-installer": "github:deskpro/apps-installer#v0.4.5",
-    "@deskpro/apps-sdk-react": "1.0.0",
-    "@deskpro/react-components": "1.2.4",
-    "file-loader": "1.1.5",
-    "jsdom": "11.2.0",
-    "react-redux": "5.0.6",
-    "react-test-renderer": "15.6.1",
-    "redux": "3.7.2",
-    "redux-form": "7.1.2",
-    "url-loader": "0.6.2"
+  "eslintConfig": {
+    "extends": "react-app",
+    "rules": {
+      "jsx-a11y/href-no-hash": "off"
+    },
+    "overrides": [
+      {
+        "files": "test/**/*.js",
+        "env": {
+          "jest": true
+        }
+      }
+    ]
   },
-  "dependencies": {
-    "react": "^15.6.1",
-    "react-dom": "^15.6.1"
-  },
-  "optionalDependencies": {
-    "changelog-verify": "1.0.4",
-    "version-changelog": "2.1.0"
+  "prettier": {
+    "trailingComma": "all",
+    "singleQuote": true
   }
 }

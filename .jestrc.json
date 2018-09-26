@@ -1,6 +1,0 @@
-{
-  "collectCoverage": true,
-  "collectCoverageFrom": [
-    "src/main/javascript/*"
-  ]
-}

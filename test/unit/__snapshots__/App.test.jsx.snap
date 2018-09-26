@@ -1,0 +1,64 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`successfully render the home screen 1`] = `
+Array [
+  <div
+    className="dp-ActionBar dp-Level"
+>
+    <div
+        className="dp-LevelLeft"
+    >
+        <span
+            className="dp-ActionBarTitle"
+        >
+            Linked Issues
+        </span>
+    </div>
+    <div
+        className="dp-ActionList dp-LevelRight"
+    >
+        <a
+            className="dp-ActionListItem dp-ActionListIcon dp---is-hoverable"
+            onClick={[Function]}
+            title=""
+        >
+            <i
+                className="dp-IconPlus"
+            />
+            <span
+                className="dp-ActionListLabel"
+            >
+                Add
+            </span>
+        </a>
+        <a
+            className="dp-ActionListItem dp-ActionListIcon dp---is-hoverable"
+            onClick={[Function]}
+            title=""
+        >
+            <i
+                className="dp-IconSearch"
+            />
+            <span
+                className="dp-ActionListLabel"
+            >
+                Find
+            </span>
+        </a>
+    </div>
+</div>,
+  <p>
+    You haven't linked any issues to this ticket. 
+</p>,
+]
+`;
+
+exports[`successfully render the loading screen 1`] = `
+<div
+  className="dp-Level"
+>
+  <div
+    className="dp-Loader dp-Loader--isActive"
+  />
+</div>
+`;
