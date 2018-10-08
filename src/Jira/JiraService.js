@@ -1,7 +1,6 @@
 import { JiraApi } from './JiraApi'
 
 const parseIssueIdentifier = issue => {
-  "use strict";
   if (typeof issue === 'string') {
     return issue;
   }
@@ -333,5 +332,11 @@ export class JiraService
       .catch(err => Promise.reject(err))
       .then(response => { return response.body; })
     ;
+  }
+
+  getIssueUrl(issue)
+  {
+    const { instanceUrl } = this.props;
+    return `${instanceUrl}/browse/${issue.key}`;
   }
 }

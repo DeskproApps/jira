@@ -95,8 +95,8 @@ export class App extends React.PureComponent
     }
 
     const { navigator, dpapp } = this.props;
-    return <Panel title={"Create an issue"} border={"none"}>
-      <Action icon={'close-heavy'} label={"Go back"} onClick={this.gotoHome}/>
+    return <Panel title="Create an issue" border="none">
+      <Action icon="close-heavy" label="Go back" labelDisplay="onHover" onClick={this.gotoHome}/>
       <ScreenCreateIssue dpapp={dpapp} navigator={navigator} comment={comment} />
     </Panel>;
   };
@@ -106,11 +106,11 @@ export class App extends React.PureComponent
     const { navigator, dpapp } = this.props;
 
     return [
-      <ActionBar key={"linked-issues-actions"} title={"Linked Issues"}>
-        <Action icon={'add'} label={"Add"} onClick={this.gotoCreate}/>
-        <Action icon={'search'} label={"Find"} onClick={this.gotoBrowse}/>
+      <ActionBar key="linked-issues-actions" title="Linked Issues">
+        <Action icon="add" label="Add" onClick={this.gotoCreate}/>
+        <Action icon="search" label="Find" onClick={this.gotoBrowse}/>
       </ActionBar>,
-      <ScreenLinkIssues key={"screen-link-issues"} dpapp={dpapp} navigator={navigator} onCancelRoute={gotoHome} />
+      <ScreenLinkIssues key="screen-link-issues" dpapp={dpapp} navigator={navigator} onCancelRoute={gotoHome} />
     ]
   };
 
@@ -118,8 +118,8 @@ export class App extends React.PureComponent
   {
     const { navigator, dpapp } = this.props;
 
-    return <Panel title={"Find issues"} border={"none"}>
-      <Action icon={'close-heavy'} label={"Go back"} onClick={this.gotoHome}/>
+    return <Panel title="Find issues" border="none">
+      <Action icon="close-heavy" label="Go back" labelDisplay="onHover" onClick={this.gotoHome}/>
       <ScreenBrowseIssues dpapp={dpapp} navigator={navigator} />
     </Panel>;
 
@@ -127,12 +127,12 @@ export class App extends React.PureComponent
 
   renderScreenEdit = ({match, location, history}) =>
   {
-    const { issue, onCancelRoute } = location.state;
+    const { issue } = location.state;
     const { navigator, dpapp } = this.props;
 
     return (
-      <Panel title={"Edit issue"} border={"none"}>
-        <Action icon={'close-heavy'} label={"Go back"} onClick={this.gotoHome}/>
+      <Panel title="Edit issue" border="none">
+        <Action icon="close-heavy" label="Go back" labelDisplay="onHover" onClick={this.gotoHome}/>
         <ScreenEditIssue dpapp={dpapp} navigator={navigator} issue={issue} />
       </Panel>
     );

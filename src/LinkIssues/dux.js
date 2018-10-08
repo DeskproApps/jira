@@ -103,6 +103,15 @@ export function unlinkJiraIssue(dpapp, issue, ticket)
   return action;
 }
 
+export function getIssueUrl(issue)
+{
+  function action (dispatch, getState, jiraService) {
+    return jiraService.getIssueUrl(issue);
+  }
+
+  return action;
+}
+
 export const getLinkedIssues = ({ link }) => link.linkedIssues;
 
 export const getTicket = ({ link }) => link.ticket;
