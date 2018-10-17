@@ -101,7 +101,7 @@ export class IssueListElement extends React.Component
                 this.props.link ? <Action key="link" icon={"link"} label={"Link"} onClick={this.link}/> : null,
                 this.props.unlink && !confirmUnlink ? <Action key="unlink" icon="unlink" label="Unlink" onClick={this.confirmUnlink}/> : null,
                 this.props.unlink && confirmUnlink ? <Action key="unlink" label="Are you sure?" onClick={this.unlink}/> : null,
-                this.props.edit ? <Action icon={"edit"} label={"Edit"} onClick={this.edit}/> : null
+                this.props.edit ? <Action key="edit" icon={"edit"} label={"Edit"} onClick={this.edit}/> : null
               ].filter(x => !!x)
             }
 

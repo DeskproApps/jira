@@ -53,7 +53,7 @@ export class App extends React.PureComponent
   {
     const { navigator, dpapp } = this.props;
     return [
-      <DeskproPortal navigator={navigator} dpapp={dpapp}/>,
+      <DeskproPortal key="portal" navigator={navigator} dpapp={dpapp}/>,
       this.renderRouter()
     ];
   }
@@ -62,7 +62,7 @@ export class App extends React.PureComponent
   {
     const { history } = this.props;
 
-    return <Router history={history} >
+    return <Router key="router" history={history} >
       <Switch>
         <Route path={routesEnum.ROUTE_SIGNIN} render={this.renderSignIn} />
         <Route path={routesEnum.ROUTE_CREATE} render={this.renderScreenCreateIssue} />

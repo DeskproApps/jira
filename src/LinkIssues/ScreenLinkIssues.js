@@ -29,6 +29,10 @@ export class ScreenLinkIssues extends React.PureComponent
     linkedIssues: PropTypes.array.isRequired
   };
 
+  componentDidMount() {
+    this.props.dpapp.ui.badgeCount = this.props.linkedIssues.length;
+  }
+
   unlink = (issue) =>
   {
     const { unlinkJiraIssue, dpapp, ticket } = this.props;
