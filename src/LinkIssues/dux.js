@@ -58,8 +58,13 @@ export function linkJiraIssue(dpapp, issue, ticket)
         type: ACTION_LINK_ISSUE,
         issue: issue,
       });
+
+      const linkedIssues = getState().link.linkedIssues;
+      dpapp.ui.badgeCount = linkedIssues.length;
+      dpapp.ui.showBadgeCount();
+
       const context = dpapp.context.get('ticket');
-      context.customFields.setAppField('jiraCards', getState().link.linkedIssues.map(x => x.key));
+      context.customFields.setAppField('jiraCards', linkedIssues.map(x => x.key));
     }).then(() => {
       const comment = `Deskpro Jira app linked Deskpro ticket #${ticket.id} at ${ticket.url} with this issue`;
       dispatch(addComment(comment, [issue]))
@@ -90,14 +95,32 @@ export function unlinkJiraIssue(dpapp, issue, ticket)
             type: ACTION_UNLINK_ISSUE,
             issue: issue,
           });
+
+          const linkedIssues = getState().link.linkedIssues;
+          dpapp.ui.badgeCount = linkedIssues.length;
+          if (linkedIssues.length) {
+            dpapp.ui.showBadgeCount();
+          } else {
+            dpapp.ui.hideBadgeCount();
+          }
+
           const context = dpapp.context.get('ticket');
-          context.customFields.setAppField('jiraCards', getState().link.linkedIssues.map(x => x.key));
+          context.customFields.setAppField('jiraCards', linkedIssues.map(x => x.key));
     })
       .then(() => {
         const comment = `Deskpro Jira App removed the link to Deskpro ticket #${ticket.id} at ${ticket.url} `;
         dispatch(addComment(comment, [issue]))
       });
 
+  }
+
+  return action;
+}
+
+export function getIssueUrl(issue)
+{
+  function action (dispatch, getState, jiraService) {
+    return jiraService.getIssueUrl(issue);
   }
 
   return action;

@@ -4,6 +4,18 @@ This project is following [Semantic Versioning](http://semver.org)
 
 ## [Unreleased][]
 
+### Added
+
+  - navigate to the original JIRA issue by clicking on the linked item's title
+
+### Changed
+
+    - various UX improvements
+         
+### Fixed
+
+    - no more lag when collapsing the app     
+
 ## [0.1.0][] - 2018-11-19
 
 ### Changed

@@ -1,13 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Form, Select, Input, Textarea, Group, required, HiddenFields } from '../Forms';
+import { Form, HiddenFields } from '../Forms';
 import mapField from './fieldMappers';
 
 import { SubmitButton } from './SubmitButton';
-import { DisplayField } from './DisplayField';
 
-import { Loader, List, ListItem, Panel, Button, Tabs, TabMenu, ActionBar, Action } from '@deskpro/apps-components';
+import { Button } from '@deskpro/apps-components';
 
 export class IssueForm  extends React.PureComponent
 {
