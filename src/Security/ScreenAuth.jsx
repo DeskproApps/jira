@@ -28,7 +28,7 @@ class ScreenAuth extends React.Component {
     return (
       <Panel title={"Authenticate"} className="dp-jira-container">
         <p>
-          You must authenticate with Jira before you continue.
+          You must authenticate with JIRA before you continue.
         </p>
         <Button onClick={this.handleClick}>
           Authenticate

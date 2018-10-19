@@ -38,7 +38,7 @@
     "format:check": "react-scripts prettier --list-different \"{src,test}/**/*.js\"",
     "version": "version-changelog CHANGELOG.md && changelog-verify CHANGELOG.md && git add CHANGELOG.md"
   },
-  "description": "Enables agents to link Deskpro tickets and Jira issues. Allows creating, searching and listing Jira issues from within Deskpro.",
+  "description": "Enables agents to link Deskpro tickets and JIRA issues. Allows creating, searching and listing JIRA issues from within Deskpro.",
   "author": {
     "name": "Deskpro Ltd.",
     "email": "apps@deskpro.com",
@@ -46,7 +46,7 @@
   },
   "deskpro": {
     "version": "2.3.0",
-    "title": "Jira",
+    "title": "JIRA v2",
     "isSingle": true,
     "scope": "agent",
     "targets": [
@@ -103,14 +103,14 @@
       {
         "name": "jiraInstanceUrl",
         "defaultValue": "",
-        "title": "The Jira instance you want to connect to",
+        "title": "The JIRA instance you want to connect to",
         "required": true,
         "type": "text"
       },
       {
         "name": "jiraClientId",
         "defaultValue": "",
-        "title": "The consumer key",
+        "title": "JIRA Consumer Key",
         "required": true,
         "type": "text"
       }
@@ -120,7 +120,7 @@
         "type": "dataList",
         "attachedTo": "ticket",
         "alias": "jiraCards",
-        "title": "Jira linked issues"
+        "title": "JIRA linked issues"
       }
     ],
     "deskproApiTags": [],
