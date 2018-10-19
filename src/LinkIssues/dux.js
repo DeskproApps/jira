@@ -58,11 +58,12 @@ export function linkJiraIssue(dpapp, issue, ticket)
         type: ACTION_LINK_ISSUE,
         issue: issue,
       });
-      const context = dpapp.context.get('ticket');
+
       const linkedIssues = getState().link.linkedIssues;
-      console.warn(linkedIssues.length);
-      console.warn('dux.js');
       dpapp.ui.badgeCount = linkedIssues.length;
+      dpapp.ui.showBadgeCount();
+
+      const context = dpapp.context.get('ticket');
       context.customFields.setAppField('jiraCards', linkedIssues.map(x => x.key));
     }).then(() => {
       const comment = `Deskpro Jira app linked Deskpro ticket #${ticket.id} at ${ticket.url} with this issue`;
@@ -94,11 +95,16 @@ export function unlinkJiraIssue(dpapp, issue, ticket)
             type: ACTION_UNLINK_ISSUE,
             issue: issue,
           });
-          const context = dpapp.context.get('ticket');
+
           const linkedIssues = getState().link.linkedIssues;
-          console.warn(linkedIssues.length);
-          console.warn('dux.js');
           dpapp.ui.badgeCount = linkedIssues.length;
+          if (linkedIssues.length) {
+            dpapp.ui.showBadgeCount();
+          } else {
+            dpapp.ui.hideBadgeCount();
+          }
+
+          const context = dpapp.context.get('ticket');
           context.customFields.setAppField('jiraCards', linkedIssues.map(x => x.key));
     })
       .then(() => {

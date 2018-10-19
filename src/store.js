@@ -45,6 +45,12 @@ function loadInitialState(jiraService, dpapp) {
     })
     .then(results => {
       const [title, linkedIssues] = results;
+
+      if (linkedIssues && linkedIssues.length) {
+        dpapp.ui.badgeCount = linkedIssues.length;
+        dpapp.ui.showBadgeCount();
+      }
+
       return {
         browse: {
           foundIssues: []
