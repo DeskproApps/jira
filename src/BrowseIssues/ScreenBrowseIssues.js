@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Loader, List, Panel, Button, Tabs, TabMenu, Icon, ActionBar } from '@deskpro/apps-components';
+import { Loader, List } from '@deskpro/apps-components';
 
 import { Input, Form } from '../Forms';
 import { createThrottle, reduxConnector } from '../infrastructure'
-import { getFoundIssues, searchIssues } from './dux'
+import { getFoundIssues, getIssueUrl, searchIssues } from './dux'
 import { linkJiraIssue, unlinkJiraIssue, getLinkedIssues, getTicket } from '../LinkIssues';
 import { gotoEdit, gotoBrowse, } from '../App';
 
@@ -23,6 +23,8 @@ export class ScreenBrowseIssues  extends React.Component
     unlinkJiraIssue:  PropTypes.func.isRequired,
 
     linkJiraIssue:    PropTypes.func.isRequired,
+
+    getIssueUrl:      PropTypes.func,
 
     searchIssues:     PropTypes.func.isRequired,
 
@@ -55,6 +57,12 @@ export class ScreenBrowseIssues  extends React.Component
     linkJiraIssue(dpapp, issue, ticket);
   };
 
+  getUrl = (issue) =>
+  {
+    const { getIssueUrl } = this.props;
+    return getIssueUrl(issue)
+  };
+
   edit = (issue) =>
   {
     const { navigator } = this.props;
@@ -68,10 +76,26 @@ export class ScreenBrowseIssues  extends React.Component
 
     const mapper = issue => {
         if (-1 === linked.indexOf(issue.key)) {
-          return <IssueListElement key={issue.key} issue={issue} edit={this.edit} link={this.link} />
+          return (
+            <IssueListElement
+              key={issue.key}
+              issue={issue}
+              edit={this.edit}
+              link={this.link}
+              url={this.getUrl(issue)}
+            />
+          );
         }
 
-      return <IssueListElement key={issue.key} issue={issue} edit={this.edit} unlink={this.unlink} />
+      return (
+        <IssueListElement
+          key={issue.key}
+          issue={issue}
+          edit={this.edit}
+          unlink={this.unlink}
+          url={this.getUrl(issue)}
+        />
+      );
     };
 
     return <List> { foundIssues.map(mapper) } </List>
@@ -97,7 +121,7 @@ export class ScreenBrowseIssues  extends React.Component
 export default reduxConnector(
   ScreenBrowseIssues,
   {
-    unlinkJiraIssue, linkJiraIssue, searchIssues
+    unlinkJiraIssue, linkJiraIssue, searchIssues, getIssueUrl
   },
   {
     foundIssues:  getFoundIssues,

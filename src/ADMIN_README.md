@@ -1,3 +1,6 @@
+# JIRA v2 README
+
+
 ## Installation
 
 1. Pre-requisites
@@ -55,17 +58,17 @@
     
         From the `Integrations` section choose `Application links` and fill the url of your Deskpro instance in the `Create new link` input box:
         
-        ![Configure application links](https://raw.githubusercontent.com/DeskproApps/jira/master/docs/install-guide/002-configure-application-link.small.png))
+        ![Configure application links](https://raw.githubusercontent.com/DeskproApps/jira/master/docs/install-guide/002-configure-application-link.small.png)
         
         If you receive a warning the url being invalid although you enter it correctly, it's safe to click `Continue` and ignore it
         
-        ![Ignore invalid url warning](https://raw.githubusercontent.com/DeskproApps/jira/master/docs/install-guide/003-skip-invalid-url.small.png))
+        ![Ignore invalid url warning](https://raw.githubusercontent.com/DeskproApps/jira/master/docs/install-guide/003-skip-invalid-url.small.png)
     
     3. Link Applications
         
         Fill in the fields as shown in the image below and make sure you enable `Create incoming link` then click `Continue`
         
-        ![Link applications](https://raw.githubusercontent.com/DeskproApps/jira/master/docs/install-guide/004-incoming-link.small.png))
+        ![Link applications](https://raw.githubusercontent.com/DeskproApps/jira/master/docs/install-guide/004-incoming-link.small.png)
         
     4. Fill in the incoming link details
         
@@ -78,7 +81,7 @@
      
         Login to your Deskpro instance, then navigate to `Admin`, then click `Apps` from the `Apps` menu. Scroll down and choose `JIRA v2` then click `Install App`
         
-        ![Install application](https://raw.githubusercontent.com/DeskproApps/jira/master/docs/install-guide/006-install-app.small.png))
+        ![Install application](https://raw.githubusercontent.com/DeskproApps/jira/master/docs/install-guide/006-install-app.small.png)
         
     2. Configure the application
     

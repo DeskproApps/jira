@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Loader, List, Panel, Button, Tabs, TabMenu, Icon, ActionBar } from '@deskpro/apps-components';
 
 import { IssueForm } from '../components';
 import { gotoHome } from '../App';

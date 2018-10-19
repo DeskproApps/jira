@@ -15,8 +15,22 @@ const history = createHistory({
   initialIndex: 0
 });
 
+
+let store;
+function getStore(dpapp) {
+
+  if (store) {
+    return Promise.resolve(store);
+  }
+
+  return configureStore(dpapp).then(newStore => {
+    store = newStore;
+    return store;
+  })
+}
+
 createApp(dpapp => props => {
-  configureStore(dpapp).then(store =>
+  getStore(dpapp).then(store =>
     ReactDOM.render(
       <AppFrame {...props}>
         <Provider store={store}>

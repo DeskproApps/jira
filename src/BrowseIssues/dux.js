@@ -58,4 +58,13 @@ export function searchIssues(query)
   return action;
 }
 
+export function getIssueUrl(issue)
+{
+  function action (dispatch, getState, jiraService) {
+    return jiraService.getIssueUrl(issue);
+  }
+
+  return action;
+}
+
 export const getFoundIssues = ({ browse }) => browse.foundIssues;

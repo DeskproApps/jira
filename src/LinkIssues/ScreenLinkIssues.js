@@ -4,7 +4,7 @@ import { List } from '@deskpro/apps-components';
 
 import { gotoEdit, gotoHome } from '../App'
 import { reduxConnector } from "../infrastructure";
-import { unlinkJiraIssue, getLinkedIssues, getTicket } from "./dux";
+import { unlinkJiraIssue, getLinkedIssues, getIssueUrl, getTicket } from "./dux";
 import { IssueListElement } from '../components'
 
 function renderEmptyList()
@@ -24,13 +24,25 @@ export class ScreenLinkIssues extends React.PureComponent
 
     unlinkJiraIssue: PropTypes.func,
 
+    getIssueUrl: PropTypes.func,
+
     linkedIssues: PropTypes.array.isRequired
   };
+
+  componentDidMount() {
+    this.props.dpapp.ui.badgeCount = this.props.linkedIssues.length;
+  }
 
   unlink = (issue) =>
   {
     const { unlinkJiraIssue, dpapp, ticket } = this.props;
     unlinkJiraIssue(dpapp, issue, ticket)
+  };
+
+  getUrl = (issue) =>
+  {
+    const { getIssueUrl } = this.props;
+    return getIssueUrl(issue)
   };
 
 
@@ -43,7 +55,15 @@ export class ScreenLinkIssues extends React.PureComponent
   renderList()
   {
     const { linkedIssues } = this.props;
-    const mapper = issue => <IssueListElement key={issue.key} issue={issue} edit={this.edit} unlink={this.unlink} />;
+    const mapper = issue => (
+      <IssueListElement
+        key={issue.key}
+        issue={issue}
+        edit={this.edit}
+        unlink={this.unlink}
+        url={this.getUrl(issue)}
+      />
+    );
     return <List> { linkedIssues.map(mapper) } </List>;
   }
 
@@ -55,6 +75,6 @@ export class ScreenLinkIssues extends React.PureComponent
 }
 
 export default reduxConnector(
-  ScreenLinkIssues, { unlinkJiraIssue }, { linkedIssues: getLinkedIssues, ticket: getTicket }
+  ScreenLinkIssues, { unlinkJiraIssue, getIssueUrl }, { linkedIssues: getLinkedIssues, ticket: getTicket }
 );
 

@@ -4,7 +4,21 @@ This project is following [Semantic Versioning](http://semver.org)
 
 ## [Unreleased][]
 
-## [0.1.0][] - 2018-11-19
+## [0.1.1][] - 2018-10-19
+
+### Added
+
+  - navigate to the original JIRA issue by clicking on the linked item's title
+
+### Changed
+
+    - various UX improvements
+         
+### Fixed
+
+    - no more lag when collapsing the app     
+
+## [0.1.0][] - 2018-10-19
 
 ### Changed
 
@@ -91,7 +105,8 @@ This project is following [Semantic Versioning](http://semver.org)
 
  - initial release
  
-[Unreleased]: https://github.com/DeskproApps/jira/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/DeskproApps/jira/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/DeskproApps/jira/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/DeskproApps/jira/compare/v0.1.0-beta.10...v0.1.0-beta.11
 [0.1.0-beta.10]: https://github.com/DeskproApps/jira/compare/v0.1.1...v0.1.0-beta.10
 [0.1.1]: https://github.com/DeskproApps/jira/compare/v0.1.0...v0.1.1
