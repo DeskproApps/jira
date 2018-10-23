@@ -1,6 +1,6 @@
 {
   "name": "@deskproapps/jira",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "dependencies": {
     "@deskpro/apps-components": "0.8.3",
@@ -125,7 +125,7 @@
     ],
     "deskproApiTags": [],
     "externalApis": [
-      "/^https?://([^.]+\\.)*atlassian.net/?.*$/"
+      "/^https?://.*$/"
     ]
   },
   "eslintConfig": {
