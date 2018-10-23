@@ -4,6 +4,12 @@ This project is following [Semantic Versioning](http://semver.org)
 
 ## [Unreleased][]
 
+## [0.1.2][] - 2018-10-23
+
+### Changed
+
+    - allow app to connect to any 3rd party host via the http proxy
+
 ## [0.1.1][] - 2018-10-19
 
 ### Added
@@ -105,7 +111,8 @@ This project is following [Semantic Versioning](http://semver.org)
 
  - initial release
  
-[Unreleased]: https://github.com/DeskproApps/jira/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/DeskproApps/jira/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/DeskproApps/jira/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/DeskproApps/jira/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/DeskproApps/jira/compare/v0.1.0-beta.10...v0.1.0-beta.11
 [0.1.0-beta.10]: https://github.com/DeskproApps/jira/compare/v0.1.1...v0.1.0-beta.10
