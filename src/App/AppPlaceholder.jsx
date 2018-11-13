@@ -1,7 +1,7 @@
 import React from 'react';
 import { Action, ActionBar } from '@deskpro/apps-components';
 
-export class Preloader extends React.PureComponent
+export class AppPlaceholder extends React.PureComponent
 {
   render()
   {
@@ -14,4 +14,4 @@ export class Preloader extends React.PureComponent
   }
 }
 
-export default Preloader;
+export default AppPlaceholder;

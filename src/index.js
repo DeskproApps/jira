@@ -6,7 +6,7 @@ import { Provider } from "react-redux";
 import { createMemoryHistory as createHistory } from "history";
 
 import './styles.css';
-import { App, Preloader } from './App';
+import { App, AppPlaceholder } from './App';
 import { createNavigator } from './infrastructure';
 import configureStore from './store';
 
@@ -30,7 +30,7 @@ function getStore(dpapp) {
 }
 
 createApp(dpapp => props => {
-  let app = dpapp.getProperty('isPreRender') ? Promise.resolve(<Preloader />) : null;
+  let app = dpapp.getProperty('isPreRender') ? Promise.resolve(<AppPlaceholder />) : null;
   if (! app) {
     app = getStore(dpapp)
       .then(store => <AppFrame {...props}>
