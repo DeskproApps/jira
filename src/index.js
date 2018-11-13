@@ -30,7 +30,7 @@ function getStore(dpapp) {
 }
 
 createApp(dpapp => props => {
-  let app = dpapp.getProperty('isPreRender') ? Promise.resolve(<AppPlaceholder />) : null;
+  let app = dpapp.getProperty('isPreRender') ? Promise.resolve(<AppFrame {...props}><AppPlaceholder /></AppFrame>) : null;
   if (! app) {
     app = getStore(dpapp)
       .then(store => <AppFrame {...props}>
