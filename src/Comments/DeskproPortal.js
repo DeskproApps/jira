@@ -5,6 +5,7 @@ import { gotoCreate } from "../App";
 import { getLinkedIssues } from "../LinkIssues";
 import { addComment } from "./index";
 
+
 const defaultReplyStrategy = {
   reply: false,
   strategy: "no-comment"
@@ -64,6 +65,19 @@ function forceUpdate()
   this.forceUpdate();
 }
 
+function insertMode(initial)
+{
+  let value = null;
+  return function()
+  {
+    if (value) {
+      return value;
+    }
+    value = "replace";
+    return initial;
+  }
+}
+
 export class DeskproPortal extends React.PureComponent
 {
   static propTypes = {
@@ -72,6 +86,8 @@ export class DeskproPortal extends React.PureComponent
     linkedIssues: PropTypes.array.isRequired,
     addComment:   PropTypes.func.isRequired
   };
+
+  insertMode = insertMode("append")
 
   componentDidMount()
   {
@@ -88,28 +104,29 @@ export class DeskproPortal extends React.PureComponent
     const ticketId = context.get('ticket').id;
     const domRootId = `app-jira-${ticketId}`;
 
+    let sendCommentOption = "";
+    if (this.props.linkedIssues.length) {
+      sendCommentOption = "<option value=\"add-comment\" selected=\"selected\">Send comment to JIRA</option>";
+    }
+
+    const operation = this.insertMode();
+
     const insertQuery = {
-      parent: `#ticket${ticketId}-reply-controls`,
+      parent: operation === "replace" ? `#${domRootId}` : `#ticket${ticketId}-reply-controls`,
+      operation: operation,
       markup: `<div class="cell" id="${domRootId}">
                 <div class="inner-cell" style="padding-left: 11px;">
                   <input type="checkbox" id="ticket${ticketId}-reply-with-jira" />
                 </div>
                 <div class="inner-cell" style="position: relative;">
                     <select id="ticket${ticketId}-reply-with-jira-strategy" style="min-width: 170px;" data-style-type="icons">
-                    <option value="add-comment" selected="selected">Send comment to JIRA</option>
+                    ${sendCommentOption}              
                     <option value="new-issue">Send to JIRA as new issue</option>
                   </select>
                 </div>
             </div>`
     };
-
-    deskproWindow.domQuery({ type: 'exists', selector: `#${domRootId}`})
-      .then(value => {
-        if (false === value.exists) {
-          deskproWindow.domInsert(insertQuery);
-        }
-      })
-    ;
+    deskproWindow.domInsert(insertQuery);
 
     return null
   }

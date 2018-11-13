@@ -12,10 +12,50 @@ export default class InstallerSettings extends React.Component
     dpapp: PropTypes.object.isRequired
   };
 
+  state = {
+
+    error: null,
+
+    disableGenerateKeys: false,
+
+    setKeyPair: false,
+
+    keyPair: {
+      privateKey: "",
+      publicKey: "",
+    }
+  };
+
+  componentDidMount() {
+    const { installType } = this.props;
+
+    if (installType === 'install') {
+      this.generateKeys();
+    }
+  }
+
+
+  generateKeys = () =>
+  {
+    this.setState({
+      disableGenerateKeys: true
+    });
+
+    const { restApi } = this.props.dpapp;
+    restApi.post('crypto/keypairs')
+      .then(({ body }) => {
+        this.setState({ setKeyPair: true, keyPair: body })
+      }).then(() => this.setState({ disableGenerateKeys: false }));
+  };
+
+
   onSettings(settings)
   {
     const { oauth, storage } = this.props.dpapp;
     const { finishInstall } = this.props;
+
+    // sanitize inputs
+    // settings.jiraInstanceUrl = settings.jiraInstanceUrl.trim().replace(/\/$/, "");
 
     // retrieve the oauth proxy settings for jira
     oauth.settings('jira', { protocolVersion: '1.0' })
@@ -38,20 +78,39 @@ export default class InstallerSettings extends React.Component
       .then(connectionProps => oauth.register('jira', connectionProps))
       .then(() => oauth.requestAccess('jira', { protocolVersion: '1.0' }).then(({oauth_token: token, oauth_token_secret: tokenSecret}) => storage.setAppStorage('oauth:jira:tokens', {token, tokenSecret})))
       .then(() => finishInstall(settings).then(({ onStatus }) => onStatus()))
-      .catch(err => {}) // TODO display errors
+      .then(() => this.setState({ error: null }))
+      .catch(err => {
+        console.error("jira", err);
+        this.setState({ error: err })
+      })
   ;
   }
 
   render()
   {
     const { settings, values, finishInstall, settingsForm: SettingsForm } = this.props;
+    const { setKeyPair, keyPair, disableGenerateKeys } = this.state;
+
+    if (setKeyPair) {
+      values.rsaPrivateKey = keyPair.privateKey;
+      values.rsaPublicKey = keyPair.publicKey;
+    }
 
     if (settings.length) {
       let formRef;
       return (
         <div className={'settings'}>
           <SettingsForm settings={settings} values={values} ref={ref => formRef = ref} onSubmit={this.onSettings.bind(this)} />
+
+          {this.state.error ? <div style={{color: "red"}}>An error occurred while verifying the settings. Are you sure you are using the proper credentials? </div> : null }
+
           <button className={'btn-action'} onClick={() => formRef.submit()}>Update Settings</button>
+          &nbsp;&nbsp;
+          <button disabled={disableGenerateKeys} className={'btn-action'} onClick={() => this.generateKeys().then()} style={{
+            background: "#5cb85c linear-gradient(to bottom, #fafafa 0%, #d9d9d9 100%) repeat-x",
+            color: "black",
+            borderColor: "#bababa"
+          }}>Generate Keys</button>
         </div>
       );
     }
