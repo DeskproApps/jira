@@ -34,7 +34,6 @@ export default class InstallerSettings extends React.Component
     }
   }
 
-
   generateKeys = () =>
   {
     this.setState({
@@ -48,14 +47,13 @@ export default class InstallerSettings extends React.Component
       }).then(() => this.setState({ disableGenerateKeys: false }));
   };
 
-
   onSettings(settings)
   {
     const { oauth, storage } = this.props.dpapp;
     const { finishInstall } = this.props;
 
     // sanitize inputs
-    // settings.jiraInstanceUrl = settings.jiraInstanceUrl.trim().replace(/\/$/, "");
+    settings.jiraInstanceUrl = settings.jiraInstanceUrl.trim().replace(/\/$/, "");
 
     // retrieve the oauth proxy settings for jira
     oauth.settings('jira', { protocolVersion: '1.0' })
@@ -80,7 +78,7 @@ export default class InstallerSettings extends React.Component
       .then(() => finishInstall(settings).then(({ onStatus }) => onStatus()))
       .then(() => this.setState({ error: null }))
       .catch(err => {
-        console.error("jira", err);
+        console.error("jira error", err);
         this.setState({ error: err })
       })
   ;
@@ -91,22 +89,22 @@ export default class InstallerSettings extends React.Component
     const { settings, values, finishInstall, settingsForm: SettingsForm } = this.props;
     const { setKeyPair, keyPair, disableGenerateKeys } = this.state;
 
+    let actualValues = values;
     if (setKeyPair) {
-      values.rsaPrivateKey = keyPair.privateKey;
-      values.rsaPublicKey = keyPair.publicKey;
+      actualValues = { ...values, rsaPrivateKey: keyPair.privateKey, rsaPublicKey: keyPair.publicKey };
     }
 
     if (settings.length) {
       let formRef;
       return (
         <div className={'settings'}>
-          <SettingsForm settings={settings} values={values} ref={ref => formRef = ref} onSubmit={this.onSettings.bind(this)} />
+          <SettingsForm settings={settings} values={actualValues} ref={ref => formRef = ref} onSubmit={this.onSettings.bind(this)} />
 
           {this.state.error ? <div style={{color: "red"}}>An error occurred while verifying the settings. Are you sure you are using the proper credentials? </div> : null }
 
           <button className={'btn-action'} onClick={() => formRef.submit()}>Update Settings</button>
           &nbsp;&nbsp;
-          <button disabled={disableGenerateKeys} className={'btn-action'} onClick={() => this.generateKeys().then()} style={{
+          <button disabled={disableGenerateKeys} className={'btn-action'} onClick={() => this.generateKeys()} style={{
             background: "#5cb85c linear-gradient(to bottom, #fafafa 0%, #d9d9d9 100%) repeat-x",
             color: "black",
             borderColor: "#bababa"
