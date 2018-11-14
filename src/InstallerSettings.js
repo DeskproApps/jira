@@ -21,8 +21,8 @@ export default class InstallerSettings extends React.Component
     setKeyPair: false,
 
     keyPair: {
-      privateKey: "",
-      publicKey: "",
+      rsaPrivateKey: "",
+      rsaPublicKey: "",
     }
   };
 
@@ -43,7 +43,13 @@ export default class InstallerSettings extends React.Component
     const { restApi } = this.props.dpapp;
     restApi.post('crypto/keypairs')
       .then(({ body }) => {
-        this.setState({ setKeyPair: true, keyPair: body })
+        this.setState({
+          setKeyPair: true,
+          keyPair: {
+            rsaPrivateKey: body.private_key,
+            rsaPublicKey: body.public_key
+          }
+        })
       }).then(() => this.setState({ disableGenerateKeys: false }));
   };
 
@@ -91,7 +97,7 @@ export default class InstallerSettings extends React.Component
 
     let actualValues = values;
     if (setKeyPair) {
-      actualValues = { ...values, rsaPrivateKey: keyPair.privateKey, rsaPublicKey: keyPair.publicKey };
+      actualValues = { ...values, ...keyPair };
     }
 
     if (settings.length) {
