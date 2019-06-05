@@ -1,6 +1,6 @@
 {
   "name": "@deskproapps/jira",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "dependencies": {
     "@deskpro/apps-components": "~0.11.0",
