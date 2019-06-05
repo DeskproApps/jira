@@ -6,7 +6,7 @@ import { gotoHome } from '../App';
 
 import { createThrottle, reduxConnector } from '../infrastructure';
 import { loadJiraEditMeta, updateJiraIssue} from './actions'
-import {formValuesToIssue, issueToFormValues, issueTypesToOptions} from "./issueMappers";
+import { allowedValuesToOptions, formValuesToIssue, issueToFormValues } from "./issueMappers";
 
 const emptyObject = {};
 
@@ -83,7 +83,7 @@ export class ScreenEditIssue  extends React.Component
         onSubmit = { createThrottle(this.onSubmit, 500) }
 
         allowedValues = {{
-          issuetype: issueTypeField ? issueTypesToOptions(issueTypeField.allowedValues) : []
+          issuetype: issueTypeField ? allowedValuesToOptions(issueTypeField.allowedValues) : []
         }}
 
         primaryFields =   { primaryFields }

@@ -55,14 +55,18 @@ export class IssueForm  extends React.PureComponent
   {
     const { loading, onCancel } = this.props;
     return [
-      <SubmitButton className={"dp-form-control"} loading={ loading } disabled={ loading }> {  this.props.actionType === "create" ? 'Create' : 'Edit'  } </SubmitButton>,
-      onCancel ? <Button className={"dp-form-control"} disabled={ loading } onClick={onCancel}> Cancel </Button> : null
+      <SubmitButton className={"dp-form-control"} loading={ loading.toString() } disabled={ loading } key="submit"> {  this.props.actionType === "create" ? 'Create' : 'Edit'  } </SubmitButton>,
+      onCancel ? <Button className={"dp-form-control"} disabled={ loading } onClick={onCancel} key="cancel"> Cancel </Button> : null
     ].filter(x => !!x);
   }
 
   renderField = (field) =>
   {
-    const { key } = field;
+    let { key } = field;
+
+    if (!key) {
+      key = field.schema.system;
+    }
 
     const { allowedValues, onChange } = this.props;
 

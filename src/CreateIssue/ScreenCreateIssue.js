@@ -6,7 +6,7 @@ import { gotoHome } from '../App';
 import { linkJiraIssue, getTicket } from '../LinkIssues';
 import { createThrottle, reduxConnector } from '../infrastructure';
 import { loadJiraCreateMeta, createJiraIssue } from './actions'
-import { issueTypesToOptions, projectsToOptions, formValuesToIssue } from "./issueMappers";
+import { formValuesToIssue, allowedValuesToOptions } from "./issueMappers";
 
 export class ScreenCreateIssue  extends React.Component
 {
@@ -68,11 +68,11 @@ export class ScreenCreateIssue  extends React.Component
 
       const headerFields = ["project", "issuetype"];
 
-      let primaryFields = fields.filter(field => field.required && -1 === headerFields.indexOf(field.key));
-      primaryFields = fields.filter(field => "issuetype" === field.key).concat(primaryFields);
-      primaryFields = fields.filter(field => "project" === field.key).concat(primaryFields);
+      let primaryFields = fields.filter(field => field.required && -1 === headerFields.indexOf(field.schema.system));
+      primaryFields = fields.filter(field => "issuetype" === field.schema.system).concat(primaryFields);
+      primaryFields = fields.filter(field => "project" === field.schema.system).concat(primaryFields);
 
-      const secondaryFields = fields.filter(field => !field.required && -1 === headerFields.indexOf(field.key));
+      const secondaryFields = fields.filter(field => !field.required && -1 === headerFields.indexOf(field.schema.system));
       return { primaryFields, secondaryFields };
     })
       ;
@@ -81,7 +81,7 @@ export class ScreenCreateIssue  extends React.Component
   onProjectFieldChange(value)
   {
     const { projects } = this.state;
-    const option = projectsToOptions(projects).filter(o => o.value === value).pop();
+    const option = allowedValuesToOptions(projects).filter(o => o.value === value).pop();
 
     return this.loadFieldDefinitions(value)
       .then(state => {
@@ -97,7 +97,7 @@ export class ScreenCreateIssue  extends React.Component
       return;
     }
 
-    const option = issueTypesToOptions(issueTypes).filter(o => o.value === value).pop();
+    const option = allowedValuesToOptions(issueTypes).filter(o => o.value === value).pop();
     return this.loadFieldDefinitions(project, value)
       .then(state => {
         const values = { ...this.state.values, issuetype: option };
@@ -158,7 +158,7 @@ export class ScreenCreateIssue  extends React.Component
         onSubmit = { this.onSubmitThrottle }
 
         allowedValues = {
-          { project: projectsToOptions(projects), issuetype: issueTypesToOptions(issueTypes) }
+          { project: allowedValuesToOptions(projects), issuetype: allowedValuesToOptions(issueTypes) }
         }
 
         primaryFields =   { primaryFields }

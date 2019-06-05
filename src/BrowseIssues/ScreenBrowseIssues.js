@@ -98,12 +98,12 @@ export class ScreenBrowseIssues  extends React.Component
       );
     };
 
-    return <List> { foundIssues.map(mapper) } </List>
+    return <List key="list"> { foundIssues.map(mapper) } </List>
   }
 
   renderForm()
   {
-    return <Form name="search_issue" >
+    return <Form name="search_issue" key="form" >
       <Input name={"search"} onChange={this.onSearchThrottled} onKeyDown={this.onSearchThrottled} />
     </Form>;
   }
@@ -113,7 +113,7 @@ export class ScreenBrowseIssues  extends React.Component
     return [
       this.renderForm(),
       this.state.ui === 'normal' && this.props.foundIssues.length  ? this.renderList() : null,
-      this.state.ui === 'loading' ? <Loader /> : null
+      this.state.ui === 'loading' ? <Loader key="loader" /> : null
     ].filter(x => !!x);
   }
 }

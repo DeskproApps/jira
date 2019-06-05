@@ -2,14 +2,12 @@ function selectOption({ id, name }) {
   return { label: name, value: id };
 }
 
-export function issueTypesToOptions(values)
+export function allowedValuesToOptions(values)
 {
-  return values.map(selectOption)
-}
-
-export function projectsToOptions(values)
-{
-  return values.map(selectOption);
+  if (values) {
+    return values.map(selectOption);
+  }
+  return [];
 }
 
 export function formValuesToIssue(values)
