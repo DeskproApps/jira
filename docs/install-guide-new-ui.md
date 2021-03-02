@@ -26,28 +26,32 @@
         Congratulations! You can now link JIRA issues from inside Deskpro.          
      
 2. Configure the app connection in JIRA
-
-    1. Navigate to `Applications` page
-     
-        Log in to your JIRA instance, click the settings menu (small cog wheel next to your profile bage on the top right corner of the page) and choose `Applications`. You should arrive at a page that looks like this:
         
-        ![Applications page](install-guide/001-application-links.small.png)
+     if you don't have the this UI on Jira please refer to [this guide](install-guide.md).
+     
+     ![Home page](install-guide-new-ui/001-home-page.png)
+
+    1. Navigate to `Applications Links` page
+     
+        Log in to your JIRA instance, click the `Jira settings` menu then `Products` under `Integrations`.
+        
+        ![Jira Settings Menu](install-guide-new-ui/002-Jira-Settings-menu.png)
         
     2. Configure an Application Link
     
-        From the `Integrations` section choose `Application links` and fill the url of your Deskpro instance in the `Create new link` input box:
+        At the top of the page fill the url of your Deskpro instance in the input box and click `Create new link`:
         
-        ![Configure application links](install-guide/002-configure-application-link.small.png)
+        ![Configure application links](install-guide-new-ui/002-configure-application-link.png)
         
         If you receive a warning the url being invalid although you enter it correctly, it's safe to click `Continue` and ignore it
         
-        ![Ignore invalid url warning](install-guide/003-skip-invalid-url.small.png)
+        ![Ignore invalid url warning](install-guide-new-ui/003-skip-invalid-url.png)
     
     3. Link Applications
         
         Fill in the fields as shown in the image below and make sure you enable `Create incoming link` then click `Continue`
         
-        ![Link applications](install-guide/004-incoming-link.small.png)
+        ![Link applications](install-guide-new-ui/004-incoming-link.png)
         
     4. Fill in the incoming link details
         
