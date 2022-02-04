@@ -1,4 +1,4 @@
-Deskpro Horizon App Template
+Deskpro App Template
 ===
 
 This repository contains a bare-bones template of a [React](https://reactjs.org/) / [Typescript](https://www.typescriptlang.org/) [Vite](https://vitejs.dev/) app with our apps SDK pre-installed and 
@@ -10,14 +10,14 @@ Basic Usage
 Clone this repository and then re-initialise Git.
 
 ```bash
-git clone git@github.com:deskpro/horizon-vite-app-template.git
-cd horizon-vite-app-template
+git clone git@github.com:DeskproApps/app-template-vite.git
+cd app-template-vite
 rm -rf .git
 git init
 ```
 
 We recommend using [Yarn](https://yarnpkg.com/) to manage this project. First, start by installing the project 
-dependencies from inside the project directory `horizon-vite-app-template`.
+dependencies from inside the project directory `app-template-vite`.
 
 ```bash
 yarn install
