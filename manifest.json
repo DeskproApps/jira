@@ -1,0 +1,58 @@
+{
+  "name": "@deskpro/jira",
+  "title": "JIRA",
+  "description": "View JIRA issues associated with a Deskpro ticket",
+  "version": "0.0.4",
+  "scope": "agent",
+  "isSingleInstall": true,
+  "hasDevMode": true,
+  "targets": [{
+    "target": "ticket_sidebar",
+    "entrypoint": "index.html",
+    "options": {
+      "actions": {
+        "linkTicket": {
+          "type": "ticket_addition",
+          "title": "JIRA Issue",
+          "description": "Link ticket to JIRA issue"
+        }
+      }
+    }
+  }],
+  "entityAssociations": {
+    "linkedJiraIssues": {
+      "entity": "ticket",
+      "type": "external_id"
+    }
+  },
+  "settings": {
+    "domain": {
+      "title": "Domain",
+      "description": "Your JIRA API domain",
+      "type": "string",
+      "isRequired": true,
+      "isBackendOnly": false
+    },
+    "username": {
+      "title": "Username",
+      "description": "Your JIRA username",
+      "type": "string",
+      "isRequired": true,
+      "isBackendOnly": true
+    },
+    "api_key": {
+      "title": "API Key",
+      "description": "Your JIRA user's API key",
+      "type": "string",
+      "isRequired": true,
+      "isBackendOnly": true
+    }
+  },
+  "proxy": {
+    "whitelist": [{
+      "url": "https://(.*).atlassian.net/rest/api/.*",
+      "methods": ["GET", "POST", "PUT"],
+      "timeout": 30
+    }]
+  }
+}

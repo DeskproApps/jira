@@ -1,0 +1,27 @@
+{
+  "name": "@deskpro/app-jira",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "vite",
+    "build": "tsc && vite build",
+    "serve": "vite preview"
+  },
+  "dependencies": {
+    "@atlaskit/adf-utils": "14.4.0",
+    "@deskpro/app-sdk": "^0.1.1",
+    "iframe-resizer": "4.3.2",
+    "polished": "^4.1.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "ts-pattern": "3.3.5",
+    "use-debounce": "7.0.1"
+  },
+  "devDependencies": {
+    "@types/react": "^17.0.38",
+    "@types/react-dom": "^17.0.10",
+    "@vitejs/plugin-react": "^1.0.7",
+    "rollup-plugin-copy": "3.4.0",
+    "typescript": "4.5.5",
+    "vite": "^2.7.2"
+  }
+}
