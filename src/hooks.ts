@@ -1,6 +1,6 @@
 import { DependencyList, useEffect, useState } from "react";
 import { useDeskproAppClient } from "@deskpro/app-sdk";
-import { getIssueAttachments, listLinkedIssues } from "./context/StoreProvider/api";
+import {getIssueAttachments, getIssueDependencies, listLinkedIssues} from "./context/StoreProvider/api";
 import { useStore } from "./context/StoreProvider/hooks";
 import { IssueAttachment, IssueItem } from "./context/StoreProvider/types";
 import { ADFEntity, reduce } from "@atlaskit/adf-utils";
@@ -100,6 +100,8 @@ export const useLoadDataDependencies = () => {
       return;
     }
 
-    // todo: add dependency loading here
+    getIssueDependencies(client)
+        .then((deps) => dispatch({ type: "loadDataDependencies", deps }))
+    ;
   }, [client, dispatch]);
 };

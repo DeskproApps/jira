@@ -1,11 +1,54 @@
-import { FC } from "react";
+import {FC, useState} from "react";
 import {CreateLinkIssue} from "../components/CreateLinkIssue/CreateLinkIssue";
 import {IssueForm} from "../components/IssueForm/IssueForm";
+import {addExternalUrlToIssue, createIssue} from "../context/StoreProvider/api";
+import {useDeskproAppClient} from "@deskpro/app-sdk";
+import {CreateIssueData} from "../context/StoreProvider/types";
+import {useLoadLinkedIssues, useSetAppTitle} from "../hooks";
+import {useStore} from "../context/StoreProvider/hooks";
 
 export const Create: FC = () => {
+    const { client } = useDeskproAppClient();
+    const [ state, dispatch ] = useStore();
+    const [loading, setLoading] = useState<boolean>(false);
 
-    const onSubmit = () => {
-        // ...
+    const loadIssues = useLoadLinkedIssues();
+
+    useSetAppTitle("Add Issue");
+
+    const onSubmit = (data: CreateIssueData) => {
+        if (!client || !state.context?.data.ticket) {
+            return;
+        }
+
+        setLoading(true);
+
+        createIssue(client, data)
+            .then(({ key }) => {
+                client
+                    .getEntityAssociation("linkedJiraIssues", state.context?.data.ticket.id as string)
+                    .set(key);
+
+                return key;
+            })
+            .then((key) => addExternalUrlToIssue(
+                client,
+                key,
+                state.context?.data.ticket.id as string,
+                state.context?.data.ticket.permalinkUrl as string
+            ))
+            .then(() => loadIssues())
+            .then(() => {
+                setLoading(false);
+                dispatch({ type: "changePage", page: "home" });
+            })
+            .catch((error) => {
+                dispatch({ type: "error", error });
+            })
+            .finally(() => {
+                setLoading(false);
+            })
+        ;
     };
 
     return (
@@ -14,7 +57,7 @@ export const Create: FC = () => {
             <IssueForm
                 type="create"
                 onSubmit={onSubmit}
-                loading={false} // todo: loading flag needs to be set by request processor
+                loading={loading}
             />
         </>
     );

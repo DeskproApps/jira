@@ -22,6 +22,8 @@ export interface State {
   linkIssueSearchResults?: { loading: boolean, list: IssueSearchItem[] };
   linkedIssuesResults?: { loading: boolean, list: IssueItem[] };
   linkedIssueAttachments?: { loading: boolean, list: { [key: string]: IssueAttachment[] } };
+  dataDependencies?: any;
+  hasGeneratedIssueFormSuccessfully?: boolean;
   _error?: Error|unknown;
 }
 
@@ -35,6 +37,8 @@ export type Action =
   | { type: "linkedIssuesList", list: IssueItem[] }
   | { type: "issueAttachmentsLoading" }
   | { type: "issueAttachments", key: string, attachments: IssueAttachment[] }
+  | { type: "loadDataDependencies", deps: any }
+  | { type: "failedToGenerateIssueForm" }
   | { type: "error", error: string }
 ;
 
@@ -74,4 +78,13 @@ export interface IssueAttachment {
   sizeBytes: number;
   sizeMb: number;
   url: string;
+}
+
+export interface CreateIssueData {
+  summary: string;
+  description: string;
+  issueTypeId: string;
+  projectId: string;
+  reporterUserId: string;
+  customFields: Record<string, any>;
 }

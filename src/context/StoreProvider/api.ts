@@ -1,9 +1,13 @@
 import { IDeskproClient, proxyFetch } from "@deskpro/app-sdk";
-import { ApiRequestMethod, IssueAttachment, IssueItem, IssueSearchItem } from "./types";
-import { backlinkComment } from "./adf";
+import {ApiRequestMethod, CreateIssueData, IssueAttachment, IssueItem, IssueSearchItem} from "./types";
+import {backlinkCommentDoc, paragraphDoc} from "./adf";
+import cache from "js-cache";
 
 // JIRA REST API Base URL
 const API_BASE_URL = "https://__username__:__api_key__@__domain__.atlassian.net/rest/api/3";
+
+// Key for search dependency caching (milliseconds)
+const SEARCH_DEPS_CACHE_TTL = 5 * (60 * 1000); // 5 Minutes
 
 /**
  * Fetch a single JIRA issue by key, e.g. "DP-1"
@@ -17,7 +21,7 @@ export const getIssueByKey = async (client: IDeskproClient, key: string) =>
  */
 export const addExternalUrlToIssue = async (client: IDeskproClient, key: string, ticketId: string, url: string) =>
     request(client, "POST", `${API_BASE_URL}/issue/${key}/comment`, {
-      body: backlinkComment(ticketId, url),
+      body: backlinkCommentDoc(ticketId, url),
     })
 ;
 
@@ -181,6 +185,61 @@ export const getIssueAttachments = async (client: IDeskproClient, key: string): 
   } as IssueAttachment));
 }
 
+export const createIssue = async (client: IDeskproClient, data: CreateIssueData) => {
+  const body: any = {
+    fields: {
+      summary: data.summary,
+      issuetype: {
+        id: data.issueTypeId,
+      },
+      project: {
+        id: data.projectId,
+      },
+      description: paragraphDoc(data.description),
+      reporter: {
+        id: data.reporterUserId,
+      },
+      ...data.customFields,
+    },
+  };
+
+   const res = await request(client, "POST", `${API_BASE_URL}/issue`, body);
+
+   if (!res.id || !res.key) {
+     throw new Error("Failed to create JIRA issue");
+   }
+
+   return res;
+};
+
+export const getIssueDependencies = async (client: IDeskproClient) => {
+  const cache_key = "data_deps";
+
+  if (!cache.get(cache_key)) {
+    const dependencies = [
+      request(client, "GET", `${API_BASE_URL}/issue/createmeta?expand=projects.issuetypes.fields`),
+      request(client, "GET", `${API_BASE_URL}/project/search?maxResults=999`),
+      request(client, "GET", `${API_BASE_URL}/users/search?maxResults=999`),
+    ];
+
+    const [
+      createMeta,
+      projects,
+      users,
+    ] = await Promise.all(dependencies);
+
+    const resolved = {
+      createMeta,
+      projects: projects.values ?? [],
+      users,
+    };
+
+    cache.set(cache_key, resolved, SEARCH_DEPS_CACHE_TTL);
+  }
+
+  return cache.get(cache_key);
+};
+
 const request = async (client: IDeskproClient, method: ApiRequestMethod, url: string, body?: any) => {
   const dpFetch = await proxyFetch(client);
   const res = await dpFetch(url, {
@@ -191,6 +250,10 @@ const request = async (client: IDeskproClient, method: ApiRequestMethod, url: st
       "Content-Type": "application/json",
     },
   });
+
+  if (res.status === 400) {
+    return res.json();
+  }
 
   if (res.status < 200 || res.status >= 400) {
     throw new Error(`${method} ${url}: Response Status [${res.status}]`);

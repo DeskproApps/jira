@@ -23,7 +23,7 @@ export const CreateLinkIssue: FC<CreateLinkIssueProps> = ({ selected }: CreateLi
         onClick={() => dispatch({ type: "changePage", page: "link" })}
       />
       <Button
-        text="Create Story"
+        text="Create Issue"
         intent="secondary"
         icon={faPlus}
         size="large"

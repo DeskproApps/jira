@@ -10,6 +10,7 @@ import {
 import { useLoadLinkedIssues, useSetAppTitle } from "../hooks";
 import { faSearch, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { LinkedIssueResultItem } from "../components/LinkedIssueResultItem/LinkedIssueResultItem";
+import {ErrorBlock} from "../components/Error/ErrorBlock";
 
 export const Home: FC = () => {
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -24,7 +25,7 @@ export const Home: FC = () => {
     client?.registerElement("addIssue", { type: "plus_button" });
     client?.deregisterElement("home");
     client?.deregisterElement("viewContextMenu");
-  }, [client]);
+  }, [client, state]);
 
   const linkedIssues = useMemo(() => {
     if (!searchQuery) {
@@ -47,6 +48,9 @@ export const Home: FC = () => {
 
   return (
     <>
+      {state.hasGeneratedIssueFormSuccessfully === false && (
+          <ErrorBlock text="You cannot create issue type via this app, please visit JIRA" />
+      )}
       <Stack>
         <Input
           ref={searchInputRef}
