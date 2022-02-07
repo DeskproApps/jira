@@ -12,6 +12,7 @@ export type Page =
   "home"
   | "link"
   | "view"
+  | "create"
 ;
 
 export interface State {

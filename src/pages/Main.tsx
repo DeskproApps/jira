@@ -13,6 +13,7 @@ import { Page } from "../context/StoreProvider/types";
 import { ErrorBlock } from "../components/Error/ErrorBlock";
 import { useDebouncedCallback } from "use-debounce";
 import { useLoadLinkedIssues } from "../hooks";
+import {Create} from "./Create";
 
 export const Main: FC = () => {
   const { client } = useDeskproAppClient();
@@ -71,6 +72,7 @@ export const Main: FC = () => {
     .with("home", () => <Home {...state.pageParams} />)
     .with("link", () => <Link {...state.pageParams} />)
     .with("view", () => <View {...state.pageParams} />)
+      .with("create", () => <Create {...state.pageParams} />)
     .otherwise(() => <Home {...state.pageParams} />)
   ;
 
