@@ -14,15 +14,15 @@ export interface MappedFieldProps {
 }
 
 export default {
-    // "text": ({ id, jiraField, formikField, error }) => (
-    //     <Label
-    //         htmlFor={id}
-    //         label={jiraField.name}
-    //         error={error}
-    //     >
-    //         <Input id={id} {...formikField} variant="inline" placeholder="Add value" />
-    //     </Label>
-    // ),
+    "text": ({ id, jiraField, formikField, error }) => (
+        <Label
+            htmlFor={id}
+            label={jiraField.name}
+            error={error}
+        >
+            <Input id={id} {...formikField} variant="inline" placeholder="Add value" />
+        </Label>
+    ),
     "datetime": ({ id, jiraField, formikField, error, helpers }) => (
         <DateTimePicker
             onChange={(dates: any[]) => {
