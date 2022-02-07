@@ -1,8 +1,11 @@
-import { render } from "@testing-library/react";
+import { render, waitFor } from "@testing-library/react";
 import App from "./App";
 
-test("renders App component", () => {
+test("renders App component", async () => {
     const { getByText } = render(<App />);
-    const buttonElement = getByText(/My App/i);
-    expect(buttonElement).toBeInTheDocument();
+
+    await waitFor(() => {
+        const buttonElement = getByText(/My App/i);
+        expect(buttonElement).toBeInTheDocument();
+    });
 });
