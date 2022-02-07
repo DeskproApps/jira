@@ -1,5 +1,6 @@
 import { IDeskproClient, proxyFetch } from "@deskpro/app-sdk";
 import { ApiRequestMethod, IssueAttachment, IssueItem, IssueSearchItem } from "./types";
+import { backlinkComment } from "./adf";
 
 // JIRA REST API Base URL
 const API_BASE_URL = "https://__username__:__api_key__@__domain__.atlassian.net/rest/api/3";
@@ -9,6 +10,15 @@ const API_BASE_URL = "https://__username__:__api_key__@__domain__.atlassian.net/
  */
 export const getIssueByKey = async (client: IDeskproClient, key: string) =>
   request(client, "GET", `${API_BASE_URL}/issue/${key}`)
+;
+
+/**
+ * Add an external link to an issue
+ */
+export const addExternalUrlToIssue = async (client: IDeskproClient, key: string, ticketId: string, url: string) =>
+    request(client, "POST", `${API_BASE_URL}/issue/${key}/comment`, {
+      body: backlinkComment(ticketId, url),
+    })
 ;
 
 /**

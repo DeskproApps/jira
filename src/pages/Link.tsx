@@ -14,7 +14,7 @@ import { useDebouncedCallback } from "use-debounce";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useLoadLinkedIssues, useSetAppTitle } from "../hooks";
 import { SearchResultItem } from "../components/SearchResultItem/SearchResultItem";
-import { searchIssues } from "../context/StoreProvider/api";
+import { addExternalUrlToIssue, searchIssues } from "../context/StoreProvider/api";
 
 export const Link: FC = () => {
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -78,6 +78,13 @@ export const Link: FC = () => {
       .getEntityAssociation("linkedJiraIssues", state.context?.data.ticket.id as string)
       .set(key)
     );
+
+    updates.push(...selected.map((key: string) => addExternalUrlToIssue(
+        client,
+        key,
+        state.context?.data.ticket.id as string,
+        state.context?.data.ticket.permalinkUrl as string
+    )));
 
     Promise.all(updates)
       .then(() => loadLinkedIssues())

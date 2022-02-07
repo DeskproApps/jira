@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "@atlaskit/adf-utils": "14.4.0",
-    "@deskpro/app-sdk": "^0.1.1",
+    "@deskpro/app-sdk": "^0.1.4",
     "iframe-resizer": "4.3.2",
     "polished": "^4.1.1",
     "react": "^17.0.2",
