@@ -90,3 +90,16 @@ export const useAssociatedEntityCount = (key: string) => {
 
   return entityCount;
 }
+
+export const useLoadDataDependencies = () => {
+  const { client } = useDeskproAppClient();
+  const [ , dispatch ] = useStore();
+
+  useEffect(() => {
+    if (!client) {
+      return;
+    }
+
+    // todo: add dependency loading here
+  }, [client, dispatch]);
+};
