@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
-      - run: git fetch --no-tags --depth=1 origin main
+      - run: git fetch --no-tags --depth=1 origin master
 
       - uses: actions/setup-node@v2
         with:
