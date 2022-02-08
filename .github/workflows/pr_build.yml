@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
-  deskpro_ui:
+  deskpro_app_test_and_build:
     name: Test / Build
     timeout-minutes: 30
     runs-on: ubuntu-20.04
@@ -46,3 +46,15 @@ jobs:
 
       - name: Run tests
         run: yarn test:coverage
+
+      - name: Build
+        run: yarn build
+
+      - name: Package
+        run: yarn package
+
+      - name: Upload package
+        uses: actions/upload-artifact@v2
+        with:
+          name: app-packages
+          path: build

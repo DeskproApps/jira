@@ -51,3 +51,9 @@ yarn test:coverage
 ```
 
 For more information about building your app, please refer to our [app development guide](https://support.deskpro.com/en/guides/developers/how-to-build-a-basic-notes-app).
+
+Continuous Integration
+---
+
+We ship this template with GitHub action configurations for both PR and Branch builds. Our CI process will lint, type 
+check, test and provide a coverage report.
