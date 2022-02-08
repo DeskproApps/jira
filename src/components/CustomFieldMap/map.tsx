@@ -14,7 +14,7 @@ export interface MappedFieldProps {
 }
 
 export default {
-    "text": ({ id, jiraField, formikField, error }) => (
+    "string": ({ id, jiraField, formikField, error }) => (
         <Label
             htmlFor={id}
             label={jiraField.name}
