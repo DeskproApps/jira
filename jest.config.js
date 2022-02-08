@@ -20,4 +20,27 @@ module.exports = {
             "<rootDir>/jest/fileTransform.js",
         "\\.(css|less)$": "<rootDir>/jest/fileTransform.js",
     },
+    collectCoverageFrom: ["<rootDir>/src/**/*.{ts,tsx}"],
+    coveragePathIgnorePatterns: [
+        "node_modules",
+        ".gen.ts",
+        "testing",
+        "__tests__",
+        "__mocks__",
+        ".test.ts",
+        ".test.tsx",
+        ".stories.tsx",
+        ".dist",
+        ".d.ts",
+        "mocks",
+        ".app-story.tsx",
+        "main.tsx",
+    ],
+    coverageThreshold: {
+        global: {
+            branches: 60,
+            functions: 60,
+            lines: 60,
+        },
+    },
 };
