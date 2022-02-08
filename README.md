@@ -52,8 +52,29 @@ yarn test:coverage
 
 For more information about building your app, please refer to our [app development guide](https://support.deskpro.com/en/guides/developers/how-to-build-a-basic-notes-app).
 
+Packaging
+---
+
+To package your app we've included a packaging script that will allow you to build the app package zip archive. Steps 
+for building and packaging your app are as follows:
+
+```bash
+yarn build
+yarn package
+```
+
+Or, as a shortcut, you can use:
+
+```bash
+yarn build:package
+```
+
+Once your app has been built and packaged, you should find your package artifact in `./build`. You can now upload this 
+to Deskpro and try it out :)
+
 Continuous Integration
 ---
 
 We ship this template with GitHub action configurations for both PR and Branch builds. Our CI process will lint, type 
-check, test and provide a coverage report.
+check, test and provide a coverage report. The trunk Git branch is `master`, and CI will look for this when checking 
+out and comparing changes.
