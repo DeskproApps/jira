@@ -44,4 +44,10 @@ yarn test
 
 We've also included a sample test suite in `src/App.test.tsx`
 
+We maintain a minimum level of code coverage, to check that your code meets this threshold, run the following:
+
+```bash
+yarn test:coverage
+```
+
 For more information about building your app, please refer to our [app development guide](https://support.deskpro.com/en/guides/developers/how-to-build-a-basic-notes-app).
