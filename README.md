@@ -22,7 +22,7 @@ yarn start
 
 You should now be able to view the bare-bones app in your browser.
 
-Starting a New Official App Project
+Starting a New App Project
 ---
 
 When start a new official app project, you must [add a repository to our GitHub organisation](https://github.com/DeskproApps).
