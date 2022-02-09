@@ -25,7 +25,8 @@ You should now be able to view the bare-bones app in your browser.
 Starting a New App Project
 ---
 
-When start a new official app project, you must [add a repository to our GitHub organisation](https://github.com/DeskproApps).
+When start a new official app project, you must [add a repository to our GitHub organisation](https://github.com/DeskproApps). If you don't have access 
+to create this, please contact us.
 
 Our trunk branch name convention is `master` and this will be used by our CI processes to test and build your app.
 
