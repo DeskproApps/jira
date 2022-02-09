@@ -96,6 +96,9 @@ We maintain a minimum level of code coverage, to check that your code meets this
 yarn test:coverage
 ```
 
+> Our code coverage threshold is 60%, so your coverage report must show that all analyses are at or greater than 60% for 
+> your app to be officially accepted
+
 For more information about building your app, please refer to our [app development guide](https://support.deskpro.com/en/guides/developers/how-to-build-a-basic-notes-app).
 
 Packaging
