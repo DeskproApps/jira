@@ -118,8 +118,8 @@ Or, as a shortcut, you can use:
 yarn build:package
 ```
 
-Once your app has been built and packaged, you should find your package artifact in `./build`. You can now upload this 
-to Deskpro and try it out :)
+Once your app has been built and packaged, you should find your package artifact in `./build`. You can now [upload this 
+to Deskpro](https://support.deskpro.com/en/guides/developers/building-and-packaging-an-app) and try it out :)
 
 Continuous Integration
 ---
