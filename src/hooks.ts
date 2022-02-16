@@ -103,5 +103,5 @@ export const useLoadDataDependencies = () => {
     getIssueDependencies(client)
         .then((deps) => dispatch({ type: "loadDataDependencies", deps }))
     ;
-  }, [client, dispatch]);
+  }, [client, dispatch, getIssueDependencies]);
 };

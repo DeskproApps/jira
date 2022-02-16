@@ -24,6 +24,7 @@ export interface State {
   linkedIssueAttachments?: { loading: boolean, list: { [key: string]: IssueAttachment[] } };
   dataDependencies?: any;
   hasGeneratedIssueFormSuccessfully?: boolean;
+  isUnlinkingIssue?: boolean;
   _error?: Error|unknown;
 }
 
@@ -35,6 +36,7 @@ export type Action =
   | { type: "linkIssueSearchListReset" }
   | { type: "linkedIssuesListLoading" }
   | { type: "linkedIssuesList", list: IssueItem[] }
+  | { type: "unlinkIssue", key: string }
   | { type: "issueAttachmentsLoading" }
   | { type: "issueAttachments", key: string, attachments: IssueAttachment[] }
   | { type: "loadDataDependencies", deps: any }

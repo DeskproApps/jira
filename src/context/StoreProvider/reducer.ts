@@ -46,6 +46,7 @@ export const reducer: StoreReducer = (state: State, action: Action): State => {
     }))
     .with([__, { type: "linkedIssuesList" }],  ([prevState, action]) => ({
       ...prevState,
+      isUnlinkingIssue: false,
       linkedIssuesResults: {
         list: action.list,
         loading: false,
@@ -80,6 +81,14 @@ export const reducer: StoreReducer = (state: State, action: Action): State => {
       ...prevState,
       hasGeneratedIssueFormSuccessfully: false,
     }))
-    .otherwise(() => state)
+    .with([__, { type: "unlinkIssue" }],  ([prevState, action]) => ({
+      ...prevState,
+      isUnlinkingIssue: true,
+      linkedIssuesResults: {
+        list: (prevState.linkedIssuesResults?.list ?? []).filter((r) => r.key !== action.key),
+        loading: false,
+      },
+    }))
+    .exhaustive()
   ;
 };

@@ -54,13 +54,19 @@ export const View: FC<ViewProps> = ({ issueKey }: ViewProps) => {
       return;
     }
 
-    loadIssueAttachments(issueKey);
-  }, [client, issueKey, loadIssueAttachments, findAttachmentsByKey]);
+    if (!state.linkedIssueAttachments) {
+      loadIssueAttachments(issueKey);
+    }
+  }, [state, client, issueKey, loadIssueAttachments, findAttachmentsByKey]);
 
   const attachments = useMemo(
     () => state.linkedIssueAttachments ? findAttachmentsByKey(issueKey) : [],
     [issueKey, findAttachmentsByKey, state.linkedIssueAttachments]
   );
+
+  if (state.isUnlinkingIssue) {
+    return (<></>);
+  }
 
   if (!issue) {
     dispatch({ type: "error", error: "Issue not found" });

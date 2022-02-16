@@ -12,13 +12,11 @@ import { View } from "./View";
 import { Page } from "../context/StoreProvider/types";
 import { ErrorBlock } from "../components/Error/ErrorBlock";
 import { useDebouncedCallback } from "use-debounce";
-import { useLoadLinkedIssues } from "../hooks";
-import {Create} from "./Create";
+import { Create } from "./Create";
 
 export const Main: FC = () => {
   const { client } = useDeskproAppClient();
   const [state, dispatch] = useStore();
-  const loadLinkedIssues = useLoadLinkedIssues();
 
   if (state._error) {
     console.error(state._error);
@@ -43,21 +41,21 @@ export const Main: FC = () => {
 
     const contextData = state?.context?.data;
 
-    client?.getEntityAssociation("linkedJiraIssues", contextData.ticket.id).delete(issueKey).then(() => {
-      dispatch({ type: "linkedIssuesListLoading" });
-      loadLinkedIssues();
-      dispatch({ type: "changePage", page: "home" });
-    });
+    dispatch({ type: "unlinkIssue", key: issueKey });
+
+    client?.getEntityAssociation("linkedJiraIssues", contextData.ticket.id).delete(issueKey)
+        .then(() => dispatch({ type: "changePage", page: "home" }))
+    ;
   };
 
   useDeskproAppEvents({
-    onChange(context: Context) {
+    onChange: (context: Context) => {
       context && dispatch({ type: "loadContext", context: context });
     },
-    onShow() {
+    onShow: () => {
       client && setTimeout(() => client.resize(), 200);
     },
-    onElementEvent(id, type, payload) {
+    onElementEvent: (id, type, payload) => {
       match<[string, any]>([id, payload])
         .with(["addIssue", __], () => dispatch({ type: "changePage", page: "link" }))
         .with(["home", __], () => dispatch({ type: "changePage", page: "home" }))
@@ -69,11 +67,11 @@ export const Main: FC = () => {
   }, [state.context?.data]);
 
   const page = match<Page|undefined>(state.page)
-    .with("home", () => <Home {...state.pageParams} />)
-    .with("link", () => <Link {...state.pageParams} />)
-    .with("view", () => <View {...state.pageParams} />)
+      .with("home", () => <Home {...state.pageParams} />)
+      .with("link", () => <Link {...state.pageParams} />)
+      .with("view", () => <View {...state.pageParams} />)
       .with("create", () => <Create {...state.pageParams} />)
-    .otherwise(() => <Home {...state.pageParams} />)
+      .otherwise(() => <Home {...state.pageParams} />)
   ;
 
   return (
