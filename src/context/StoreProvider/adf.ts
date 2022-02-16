@@ -1,4 +1,4 @@
-export const backlinkComment = (ticketId: string, url: string) => ({
+export const backlinkCommentDoc = (ticketId: string, url: string) => ({
     version: 1,
     type: "doc",
     content: [
@@ -24,6 +24,22 @@ export const backlinkComment = (ticketId: string, url: string) => ({
                 {
                     type: "text",
                     text: " with this issue"
+                }
+            ]
+        }
+    ]
+});
+
+export const paragraphDoc = (text: string) => ({
+    version: 1,
+    type: "doc",
+    content: [
+        {
+            type: "paragraph",
+            content: [
+                {
+                    type: "text",
+                    text,
                 }
             ]
         }

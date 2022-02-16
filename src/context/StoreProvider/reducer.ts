@@ -72,6 +72,14 @@ export const reducer: StoreReducer = (state: State, action: Action): State => {
       ...prevState,
       _error: action.error,
     }))
+    .with([__, { type: "loadDataDependencies" }],  ([prevState, action]) => ({
+      ...prevState,
+      dataDependencies: action.deps,
+    }))
+    .with([__, { type: "failedToGenerateIssueForm" }],  ([prevState]) => ({
+      ...prevState,
+      hasGeneratedIssueFormSuccessfully: false,
+    }))
     .otherwise(() => state)
   ;
 };

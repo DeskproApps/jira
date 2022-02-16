@@ -18,10 +18,10 @@ import { schema } from "./validation";
 import { ErrorBlock } from "../Error/ErrorBlock";
 import { useLoadDataDependencies } from "../../hooks";
 import { orderBy } from "lodash";
-import {JiraField, JiraIssueType, JiraProject, JiraUser, mandatoryFields} from "./types";
-import {DropdownSelect} from "../DropdownSelect/DropdownSelect";
-import {CreateIssueData} from "../../context/StoreProvider/types";
-import {CustomFieldMap} from "../CustomFieldMap/CustomFieldMap";
+import { JiraField, JiraIssueType, JiraProject, JiraUser, mandatoryFields } from "./types";
+import { DropdownSelect } from "../DropdownSelect/DropdownSelect";
+import { CreateIssueData } from "../../context/StoreProvider/types";
+import { CustomFieldMap } from "../CustomFieldMap/CustomFieldMap";
 
 export interface IssueFormProps {
     onSubmit: (values: any, formikHelpers: FormikHelpers<any>) => void | Promise<any>;
@@ -180,7 +180,7 @@ export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, loading 
                         </div>
                         <div className="create-form-field">
                             <FormikField<string> name="description">
-                                {([field], { id, error }) => (
+                                {([field, meta], { id, error }) => (
                                     <Label
                                         htmlFor={id}
                                         label="Description"

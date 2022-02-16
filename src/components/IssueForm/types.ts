@@ -26,7 +26,7 @@ export interface JiraField {
     };
 }
 
-export const mandatoryFields: string[] = [
+export const mandatoryFields = [
     "issuetype",
     "project",
     "reporter",
