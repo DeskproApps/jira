@@ -180,7 +180,7 @@ export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, loading 
                         </div>
                         <div className="create-form-field">
                             <FormikField<string> name="description">
-                                {([field, meta], { id, error }) => (
+                                {([field], { id, error }) => (
                                     <Label
                                         htmlFor={id}
                                         label="Description"
