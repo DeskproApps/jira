@@ -1,13 +1,13 @@
-import { DependencyList, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDeskproAppClient } from "@deskpro/app-sdk";
 import { getIssueAttachments, listLinkedIssues } from "./context/StoreProvider/api";
 import { useStore } from "./context/StoreProvider/hooks";
 import { IssueAttachment, IssueItem } from "./context/StoreProvider/types";
 import { ADFEntity, reduce } from "@atlaskit/adf-utils";
 
-export const useSetAppTitle = (title: string, deps: DependencyList|undefined = []): void => {
+export const useSetAppTitle = (title: string): void => {
   const { client } = useDeskproAppClient();
-  useEffect(() => client?.setTitle(title), deps);
+  useEffect(() => client?.setTitle(title), [client, title]);
 };
 
 export const useLoadLinkedIssues = () => {

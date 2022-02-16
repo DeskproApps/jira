@@ -40,9 +40,9 @@ export const Main: FC = () => {
       return;
     }
 
-    const { ticket }: any = state?.context?.data;
+    const contextData = state?.context?.data;
 
-    client?.getEntityAssociation("linkedJiraIssues", ticket.id).delete(issueKey).then(() => {
+    client?.getEntityAssociation("linkedJiraIssues", contextData.ticket.id).delete(issueKey).then(() => {
       dispatch({ type: "linkedIssuesListLoading" });
       loadLinkedIssues();
       dispatch({ type: "changePage", page: "home" });

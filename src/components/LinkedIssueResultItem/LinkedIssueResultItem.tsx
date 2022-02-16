@@ -2,10 +2,10 @@ import {
   H1,
   HorizontalDivider,
   Property,
-  Stack, useDeskproAppClient, useDeskproAppTheme,
+  Stack, useDeskproAppTheme,
   VerticalDivider
 } from "@deskpro/app-sdk";
-import { FC, Fragment, ReactElement, useEffect, useState } from "react";
+import { FC, Fragment, ReactElement } from "react";
 import { IssueItem } from "../../context/StoreProvider/types";
 import "./LinkedIssueResultItem.css";
 import { ExternalLink } from "../ExternalLink/ExternalLink";

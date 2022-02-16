@@ -6,8 +6,7 @@ import {
   useSetAppTitle
 } from "../hooks";
 import {
-  Button,
-  H1, HorizontalDivider,
+  H1,
   Pill,
   Property, Spinner,
   Stack,
@@ -39,11 +38,11 @@ export const View: FC<ViewProps> = ({ issueKey }: ViewProps) => {
     client?.registerElement("viewContextMenu", { type: "menu", items: [
       { title: "Unlink Ticket", payload: { action: "unlink", issueKey }, },
     ] });
-  }, [client]);
+  }, [client, issueKey]);
 
   const issue = useMemo(
     () => findByKey(issueKey),
-    [issueKey]
+    [issueKey, findByKey]
   );
 
   useEffect(() => {
@@ -56,11 +55,11 @@ export const View: FC<ViewProps> = ({ issueKey }: ViewProps) => {
     }
 
     loadIssueAttachments(issueKey);
-  }, [client, issueKey]);
+  }, [client, issueKey, loadIssueAttachments, findAttachmentsByKey]);
 
   const attachments = useMemo(
-    () => findAttachmentsByKey(issueKey),
-    [issueKey, state.linkedIssueAttachments]
+    () => state.linkedIssueAttachments ? findAttachmentsByKey(issueKey) : [],
+    [issueKey, findAttachmentsByKey, state.linkedIssueAttachments]
   );
 
   if (!issue) {

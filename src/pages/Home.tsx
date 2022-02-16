@@ -41,7 +41,7 @@ export const Home: FC = () => {
     if (state.linkedIssuesResults === undefined) {
       loadLinkedIssues();
     }
-  }, [state.context?.data, state.linkedIssuesResults]);
+  }, [state.context?.data, state.linkedIssuesResults, loadLinkedIssues]);
 
   const loading = state.linkedIssuesResults?.loading || state.linkedIssuesResults?.loading === undefined;
 
