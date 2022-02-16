@@ -15,6 +15,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useLoadLinkedIssues, useSetAppTitle } from "../hooks";
 import { SearchResultItem } from "../components/SearchResultItem/SearchResultItem";
 import { addExternalUrlToIssue, searchIssues } from "../context/StoreProvider/api";
+import {CreateLinkIssue} from "../components/CreateLinkIssue/CreateLinkIssue";
 
 export const Link: FC = () => {
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -96,6 +97,7 @@ export const Link: FC = () => {
 
   return (
     <>
+      <CreateLinkIssue selected="link" />
       <Stack>
         <Input
           ref={searchInputRef}
