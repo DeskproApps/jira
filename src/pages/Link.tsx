@@ -14,7 +14,7 @@ import { useDebouncedCallback } from "use-debounce";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useLoadLinkedIssues, useSetAppTitle } from "../hooks";
 import { SearchResultItem } from "../components/SearchResultItem/SearchResultItem";
-import { addExternalUrlToIssue, searchIssues } from "../context/StoreProvider/api";
+import { addLinkCommentToIssue, searchIssues } from "../context/StoreProvider/api";
 import {CreateLinkIssue} from "../components/CreateLinkIssue/CreateLinkIssue";
 
 export const Link: FC = () => {
@@ -80,7 +80,7 @@ export const Link: FC = () => {
       .set(key)
     );
 
-    updates.push(...selected.map((key: string) => addExternalUrlToIssue(
+    updates.push(...selected.map((key: string) => addLinkCommentToIssue(
         client,
         key,
         state.context?.data.ticket.id as string,

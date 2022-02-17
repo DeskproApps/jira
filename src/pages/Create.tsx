@@ -1,7 +1,7 @@
 import {FC, useState} from "react";
 import {CreateLinkIssue} from "../components/CreateLinkIssue/CreateLinkIssue";
 import {IssueForm} from "../components/IssueForm/IssueForm";
-import {addExternalUrlToIssue, createIssue} from "../context/StoreProvider/api";
+import {addLinkCommentToIssue, createIssue} from "../context/StoreProvider/api";
 import {useDeskproAppClient} from "@deskpro/app-sdk";
 import {CreateIssueData} from "../context/StoreProvider/types";
 import {useLoadLinkedIssues, useSetAppTitle} from "../hooks";
@@ -31,7 +31,7 @@ export const Create: FC = () => {
 
                 return key;
             })
-            .then((key) => addExternalUrlToIssue(
+            .then((key) => addLinkCommentToIssue(
                 client,
                 key,
                 state.context?.data.ticket.id as string,
