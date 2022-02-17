@@ -9,5 +9,9 @@ const version = manifest.version.replaceAll(".", "_");
 
 const zip = new AdmZip();
 
+const packagePath = `build/${name}-${version}.zip`;
+
 zip.addLocalFolder(`${__dirname}/../dist`);
-zip.writeZip(`${__dirname}/../build/${name}-${version}.zip`);
+zip.writeZip(`${__dirname}/../${packagePath}`);
+
+console.info(`App package version ${manifest.version} created: ${packagePath}`);
