@@ -13,6 +13,7 @@ import { Page } from "../context/StoreProvider/types";
 import { ErrorBlock } from "../components/Error/ErrorBlock";
 import { useDebouncedCallback } from "use-debounce";
 import { Create } from "./Create";
+import {addUnlinkCommentToIssue} from "../context/StoreProvider/api";
 
 export const Main: FC = () => {
   const { client } = useDeskproAppClient();
@@ -44,6 +45,7 @@ export const Main: FC = () => {
     dispatch({ type: "unlinkIssue", key: issueKey });
 
     client?.getEntityAssociation("linkedJiraIssues", contextData.ticket.id).delete(issueKey)
+        .then(() => addUnlinkCommentToIssue(client, issueKey, contextData.ticket.id, state.context?.data.ticket.permalinkUrl as string))
         .then(() => dispatch({ type: "changePage", page: "home" }))
     ;
   };

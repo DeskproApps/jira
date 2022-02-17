@@ -1,6 +1,6 @@
 import { IDeskproClient, proxyFetch } from "@deskpro/app-sdk";
 import {ApiRequestMethod, CreateIssueData, IssueAttachment, IssueItem, IssueSearchItem} from "./types";
-import {backlinkCommentDoc, paragraphDoc} from "./adf";
+import {backlinkCommentDoc, paragraphDoc, removeBacklinkCommentDoc} from "./adf";
 import cache from "js-cache";
 
 // JIRA REST API Base URL
@@ -17,11 +17,20 @@ export const getIssueByKey = async (client: IDeskproClient, key: string) =>
 ;
 
 /**
- * Add an external link to an issue
+ * Add "linked" comment to JIRA issue
  */
-export const addExternalUrlToIssue = async (client: IDeskproClient, key: string, ticketId: string, url: string) =>
+export const addLinkCommentToIssue = async (client: IDeskproClient, key: string, ticketId: string, url: string) =>
     request(client, "POST", `${API_BASE_URL}/issue/${key}/comment`, {
       body: backlinkCommentDoc(ticketId, url),
+    })
+;
+
+/**
+ * Add "unlinked" comment to JIRA issue
+ */
+export const addUnlinkCommentToIssue = async (client: IDeskproClient, key: string, ticketId: string, url: string) =>
+    request(client, "POST", `${API_BASE_URL}/issue/${key}/comment`, {
+      body: removeBacklinkCommentDoc(ticketId, url),
     })
 ;
 
