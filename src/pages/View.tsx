@@ -102,9 +102,9 @@ export const View: FC<ViewProps> = ({ issueKey }: ViewProps) => {
               <ExternalLink href={`https://${domain}.atlassian.net/browse/${issue.epicKey}`} />
             </Property>
           )}
-          {issue.sprints && (
+          {(issue.sprints ?? []).length > 0 && (
             <Property title="Sprints">
-              {issue.sprints.map((sprint, idx) => (
+              {(issue.sprints ?? []).map((sprint, idx) => (
                 <div key={idx}>
                   {sprint.sprintName} ({sprint.sprintState})
                   <ExternalLink href={`https://${domain}.atlassian.net/jira/software/c/projects/${issue?.projectKey}/boards/${sprint.sprintBoardId}`} />

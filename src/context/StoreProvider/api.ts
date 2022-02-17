@@ -1,7 +1,8 @@
 import { IDeskproClient, proxyFetch } from "@deskpro/app-sdk";
-import {ApiRequestMethod, CreateIssueData, IssueAttachment, IssueItem, IssueSearchItem} from "./types";
-import {backlinkCommentDoc, paragraphDoc} from "./adf";
+import { ApiRequestMethod, CreateIssueData, IssueAttachment, IssueItem, IssueSearchItem } from "./types";
+import { backlinkCommentDoc, paragraphDoc } from "./adf";
 import cache from "js-cache";
+import { omit } from "lodash";
 
 // JIRA REST API Base URL
 const API_BASE_URL = "https://__username__:__api_key__@__domain__.atlassian.net/rest/api/3";
@@ -141,6 +142,22 @@ export const listLinkedIssues = async (client: IDeskproClient, keys: string[]): 
     );
   }
 
+
+
+
+
+  // todo: each field has "edit meta"
+  // todo: each issue type has "create meta"
+
+  // todo: view needs to ALWAYS be built from "edit meta"
+
+  // todo: create form uses "create meta" from selected issue type
+  // todo: edit form ALWAYS uses "edit meta" and you CANNOT change issue type
+
+
+
+
+
   return (fullIssues ?? []).map((issue: any) => ({
     id: issue.id,
     key: issue.key,
@@ -271,3 +288,11 @@ const findSprintLinkMeta = (issue: any) => Object
   .values(issue.editmeta.fields)
   .filter((field: any) => field.schema.custom === "com.pyxis.greenhopper.jira:gh-sprint")[0] ?? null
 ;
+
+const transformFieldMeta = (field: any) => ({
+  type: field.schema.custom,
+  key: field.key,
+  name: field.name,
+  required: field.required,
+  ...omit(field, ["key", "name", "operations", "schema", "required"]),
+});
