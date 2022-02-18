@@ -16,7 +16,7 @@ import { SelectSingleField } from "./CustomField/SelectSingleField";
 import { UrlField } from "./CustomField/UrlField";
 import { UserPickerField } from "./CustomField/UserPickerField";
 
-export default (meta: IssueMeta, value: unknown): ReactNode => match<FieldType, ReactNode>(meta.type)
+export default (meta: IssueMeta, value: unknown): ReactNode => match<FieldType, ReactNode|null>(meta.type)
     .with(FieldType.REQUEST_LANG, () => <RequestLanguageField meta={meta} value={value} />)
     .with(FieldType.TEXT_PLAIN, () => <PlainTextField meta={meta} value={value} />)
     .with(FieldType.TEXT_PARAGRAPH, () => <ParagraphField meta={meta} value={value} />)
@@ -30,8 +30,5 @@ export default (meta: IssueMeta, value: unknown): ReactNode => match<FieldType, 
     .with(FieldType.SELECT_SINGLE, () => <SelectSingleField meta={meta} value={value} />)
     .with(FieldType.URL, () => <UrlField meta={meta} value={value} />)
     .with(FieldType.USER_PICKER, () => <UserPickerField meta={meta} value={value} />)
-    .otherwise(() => {
-        console.warn(`Could not render field view, mapping missing for JIRA field type ${meta.type}`);
-        return <></>;
-    })
+    .otherwise(() => null)
 ;
