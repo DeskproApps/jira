@@ -16,6 +16,7 @@ import {
 import { ExternalLink } from "../components/ExternalLink/ExternalLink";
 import { useStore } from "../context/StoreProvider/hooks";
 import { faFileAlt } from "@fortawesome/free-regular-svg-icons";
+import { IssueFieldView } from "../components/IssueFieldView/IssueFieldView";
 
 export interface ViewProps {
   issueKey: string;
@@ -155,6 +156,9 @@ export const View: FC<ViewProps> = ({ issueKey }: ViewProps) => {
               ))}
             </Property>
           )}
+          {Object.keys(issue.customFields).map((key: string, idx: number) => (
+              <IssueFieldView meta={issue.customFields[key].meta} value={issue.customFields[key].value} key={idx} />
+          ))}
         </Stack>
       </Stack>
     </>
