@@ -2,6 +2,7 @@ import { IDeskproClient, proxyFetch } from "@deskpro/app-sdk";
 import {ApiRequestMethod, CreateIssueData, IssueAttachment, IssueItem, IssueSearchItem} from "./types";
 import {backlinkCommentDoc, paragraphDoc, removeBacklinkCommentDoc} from "./adf";
 import cache from "js-cache";
+import { omit } from "lodash";
 
 // JIRA REST API Base URL
 const API_BASE_URL = "https://__username__:__api_key__@__domain__.atlassian.net/rest/api/3";
@@ -169,6 +170,10 @@ export const listLinkedIssues = async (client: IDeskproClient, keys: string[]): 
     })),
     description: issues[issue.key].fields.description,
     labels: issues[issue.key].fields.labels ?? [],
+    customFields: combineCustomFieldValueAndMeta(
+        extractCustomFieldValues(issue.fields),
+        buildCustomFieldMeta(issue.editmeta.fields),
+    ),
   } as IssueItem));
 };
 
@@ -280,3 +285,46 @@ const findSprintLinkMeta = (issue: any) => Object
   .values(issue.editmeta.fields)
   .filter((field: any) => field.schema.custom === "com.pyxis.greenhopper.jira:gh-sprint")[0] ?? null
 ;
+
+const buildCustomFieldMeta = (fields: any) => {
+  const customFields: Record<string, any> = extractCustomFieldMeta(fields);
+
+  return Object.keys(customFields).reduce((fields, key) => ({
+    ...fields,
+    [key]: transformFieldMeta(customFields[key]),
+  }), {});
+};
+
+const extractCustomFieldMeta = (fields: any) => Object.keys(fields).reduce((customFields, key) => {
+  if (!isCustomFieldKey(key)) {
+    return customFields;
+  }
+
+  return { ...customFields, [key]: fields[key] };
+}, {});
+
+const extractCustomFieldValues = (fields: any) => Object.keys(fields).reduce((customFields, key) => {
+  if (!isCustomFieldKey(key)) {
+    return customFields;
+  }
+
+  return { ...customFields, [key]: fields[key] };
+}, {});
+
+const transformFieldMeta = (field: any) => ({
+  type: field.schema.custom,
+  key: field.key,
+  name: field.name,
+  required: field.required,
+  ...omit(field, ["key", "name", "operations", "schema", "required"]),
+});
+
+const combineCustomFieldValueAndMeta = (values: any, meta: any) => Object.keys(meta).reduce((fields, key) => ({
+  ...fields,
+  [key]: {
+    value: values[key],
+    meta: meta[key],
+  },
+}), {});
+
+const isCustomFieldKey = (key: string): boolean => /^customfield_[0-9]+$/.test(key);

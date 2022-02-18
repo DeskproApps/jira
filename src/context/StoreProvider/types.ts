@@ -1,6 +1,7 @@
 import { Context } from "@deskpro/app-sdk";
 import { Reducer } from "react";
 import { ADFEntity } from "@atlaskit/adf-utils";
+import {IssueMeta} from "../../types";
 
 export type ApiRequestMethod = "GET" | "POST" | "PUT" | "DELETE";
 
@@ -67,6 +68,7 @@ export interface IssueItem {
   }[],
   description?: ADFEntity;
   labels?: string[];
+  customFields: Record<string, { value: any, meta: IssueMeta }>;
 }
 
 export interface IssueSearchItem extends IssueItem {
