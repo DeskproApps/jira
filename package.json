@@ -4,7 +4,7 @@
   "license": "BSD-3-Clause",
   "scripts": {
     "start": "vite",
-    "build": "tsc && vite build",
+    "build": "rimraf ./dist/* && tsc && vite build && rimraf ./dist/assets/*.*.svg",
     "build:package": "yarn build && yarn package",
     "package": "node ./bin/package.js",
     "serve": "vite preview",
@@ -13,7 +13,7 @@
     "test:coverage": "cross-env NODE_OPTIONS=--max-old-space-size=1024 jest --maxWorkers=75% --coverage"
   },
   "dependencies": {
-    "@deskpro/app-sdk": "^0.1.4",
+    "@deskpro/app-sdk": "^0.1",
     "polished": "^4.1.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
@@ -34,6 +34,7 @@
     "eslint-config-prettier": "8.3.0",
     "eslint-plugin-react-hooks": "4.3.0",
     "jest": "^27.4.7",
+    "rimraf": "^3.0.2",
     "rollup-plugin-copy": "3.4.0",
     "slugify": "^1.6.5",
     "ts-jest": "^27.1.2",
