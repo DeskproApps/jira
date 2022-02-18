@@ -12,6 +12,7 @@ export const IssueFieldView: FC<IssueFieldViewProps> = ({ value, meta }: IssueFi
     const field = map(meta, value);
 
     if (field === null) {
+        // Inform us of the missing map then gracefully do not attempt to render the field
         console.warn(`Could not render field view, mapping missing for JIRA field type ${meta.type}`);
         return (<></>);
     }
