@@ -8,18 +8,8 @@ interface IssueFieldViewProps {
     value: any;
 }
 
-export const IssueFieldView: FC<IssueFieldViewProps> = ({ value, meta }: IssueFieldViewProps) => {
-    const Field = map[meta.type];
-
-    if (!Field) {
-        // If no field is mapped, warn us and gracefully render nothing
-        console.warn(`Could not render view field, mapping missing for JIRA field type ${meta.type}`);
-        return (<></>);
-    }
-
-    return (
-        <Property title={meta.name}>
-            <Field meta={meta} value={value} />
-        </Property>
-    );
-};
+export const IssueFieldView: FC<IssueFieldViewProps> = ({ value, meta }: IssueFieldViewProps) => (
+    <Property title={meta.name}>
+        {map(meta, value)}
+    </Property>
+);
