@@ -384,7 +384,7 @@ const extractCustomFieldMeta = (fields: any) => Object.keys(fields).reduce((cust
   return { ...customFields, [key]: fields[key] };
 }, {});
 
-const extractCustomFieldValues = (fields: any) => Object.keys(fields).reduce((customFields, key) => {
+export const extractCustomFieldValues = (fields: any) => Object.keys(fields).reduce((customFields, key) => {
   if (!isCustomFieldKey(key)) {
     return customFields;
   }
@@ -440,9 +440,9 @@ export const formatCustomFieldValueForSet = (meta: IssueMeta, value: any) => mat
     .with(FieldType.CHECKBOXES, () => (value ?? []).map((v: { id: string }) => v.id))
     .with(FieldType.LABELS, () => value ?? [])
     .with(FieldType.NUMBER, () => value ? `${value}` : "")
-    .with(FieldType.RADIO_BUTTONS, () => value?.id ?? "")
+    .with(FieldType.RADIO_BUTTONS, () => value?.id ?? undefined)
     .with(FieldType.SELECT_MULTI, () => (value ?? []).map((v: { id: string }) => v.id))
-    .with(FieldType.SELECT_SINGLE, () => value?.id ?? "")
+    .with(FieldType.SELECT_SINGLE, () => value?.id ?? undefined)
     .with(FieldType.URL, () => value ?? "")
     .with(FieldType.USER_PICKER, () => value?.accountId ?? undefined)
     .otherwise(() => undefined)

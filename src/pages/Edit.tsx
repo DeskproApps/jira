@@ -102,7 +102,7 @@ export const Edit: FC<EditProps> = ({ issueKey }: EditProps) => {
             loading={loading}
             apiErrors={apiErrors}
             values={values}
-            editMeta={issue.editmeta.fields}
+            editMeta={editMeta}
         />
     );
 };

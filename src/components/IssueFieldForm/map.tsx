@@ -37,9 +37,10 @@ const map = (type: FieldType): MaybeField => match<FieldType, MaybeField>(type)
 interface CustomFieldProps {
     meta: IssueMeta;
     apiErrors: Record<string, string>;
+    extraLabels?: string[];
 }
 
-export const CustomField: FC<CustomFieldProps> = ({ meta, apiErrors }: CustomFieldProps) => {
+export const CustomField: FC<CustomFieldProps> = ({ meta, apiErrors, extraLabels }: CustomFieldProps) => {
     const Field = map(meta.type);
 
     if (!Field) {
@@ -50,7 +51,14 @@ export const CustomField: FC<CustomFieldProps> = ({ meta, apiErrors }: CustomFie
         <div className="create-form-field">
             <FormikField<any> name={`customFields.${meta.key}`}>
                 {([field, , helpers], { id, error }) => (
-                    <Field id={id} meta={meta} field={field} error={!! (error || apiErrors[meta.name] || apiErrors[meta.key])} helpers={helpers} />
+                    <Field
+                        id={id}
+                        meta={meta}
+                        field={field}
+                        extraLabels={extraLabels}
+                        error={!! (error || apiErrors[meta.name] || apiErrors[meta.key])}
+                        helpers={helpers}
+                    />
                 )}
             </FormikField>
         </div>

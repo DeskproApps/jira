@@ -1,15 +1,15 @@
 import { FC } from "react";
 import { Formik, FormikHelpers } from "formik";
 import {
-    FormikField,
-    Stack,
-    Input,
-    TextArea,
-    HorizontalDivider,
-    Label,
     Button,
+    DropdownValueType,
+    FormikField,
+    HorizontalDivider,
+    Input,
+    Label,
     LoadingSpinner,
-    DropdownValueType
+    Stack,
+    TextArea
 } from "@deskpro/app-sdk";
 import { IntlProvider } from "react-intl";
 import "./IssueForm.css";
@@ -17,14 +17,14 @@ import { useStore } from "../../context/StoreProvider/hooks";
 import { schema } from "./validation";
 import { ErrorBlock } from "../Error/ErrorBlock";
 import { useLoadDataDependencies } from "../../hooks";
-import { orderBy } from "lodash";
+import { orderBy, uniq } from "lodash";
 import { JiraIssueType, JiraProject, JiraUser } from "./types";
 import { DropdownSelect } from "../DropdownSelect/DropdownSelect";
 import { IssueFormData } from "../../context/StoreProvider/types";
 import { buildCustomFieldMeta } from "../../context/StoreProvider/api";
-import { IssueMeta } from "../../types";
+import { FieldType, IssueMeta } from "../../types";
 import { CustomField } from "../IssueFieldForm/map";
-import {DropdownMultiSelect} from "../DropdownMultiSelect/DropdownMultiSelect";
+import { DropdownMultiSelect } from "../DropdownMultiSelect/DropdownMultiSelect";
 
 export interface IssueFormProps {
     onSubmit: (values: any, formikHelpers: FormikHelpers<any>, meta: Record<string, IssueMeta>) => void | Promise<any>;
@@ -32,7 +32,7 @@ export interface IssueFormProps {
     apiErrors: Record<string, string>;
     values?: any;
     loading?: boolean;
-    editMeta?: any;
+    editMeta?: Record<string, IssueMeta>;
 }
 
 export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, apiErrors, editMeta, loading = false }: IssueFormProps) => {
@@ -44,6 +44,15 @@ export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, apiError
         return (
             <LoadingSpinner />
         );
+    }
+
+    const extraLabels: string[] = [];
+
+    if (values && editMeta) {
+        const labelFields = Object.values(editMeta).filter((meta) => meta.type === FieldType.LABELS);
+        const labels = labelFields.map((meta) => values.customFields[meta.key] ?? null).filter((l) => !!l);
+
+        labels.forEach((labels) => labels.forEach((l: string) => extraLabels.push(l)));
     }
 
     const initialValues = values ?? {
@@ -104,9 +113,12 @@ export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, apiError
     };
 
     const buildLabelOptions = () => {
-        const labels = state.dataDependencies.labels ?? [];
+        const labels = [
+            ...state.dataDependencies.labels ?? [],
+            ...extraLabels,
+        ];
 
-        return (labels).map((label: string, idx: number) => ({
+        return uniq(labels).map((label: string, idx: number) => ({
             key: `${idx}`,
             label: label,
             value: label,
@@ -285,7 +297,7 @@ export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, apiError
                             </FormikField>
                         </div>
                         {Object.values(getCustomFields(values.projectId, values.issueTypeId)).map((meta, idx: number) => (
-                            <CustomField meta={meta} key={idx} apiErrors={apiErrors} />
+                            <CustomField meta={meta} key={idx} apiErrors={apiErrors} extraLabels={extraLabels} />
                         ))}
                         <HorizontalDivider />
                         <div className="create-form-field">

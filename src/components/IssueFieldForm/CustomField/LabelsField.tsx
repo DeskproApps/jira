@@ -3,15 +3,19 @@ import { Label } from "@deskpro/app-sdk";
 import { MappedFieldProps } from "../types";
 import { useStore } from "../../../context/StoreProvider/hooks";
 import { DropdownMultiSelect, DropdownMultiSelectValueType } from "../../DropdownMultiSelect/DropdownMultiSelect";
+import {uniq} from "lodash";
 
-export const LabelsField: FC<MappedFieldProps> = ({ id, meta, field, error, helpers }: MappedFieldProps) => {
+export const LabelsField: FC<MappedFieldProps> = ({ id, meta, field, error, helpers, extraLabels }: MappedFieldProps) => {
     const [ state ] = useStore();
 
     if (!state?.dataDependencies?.labels) {
         return (<></>);
     }
 
-    const labels = state.dataDependencies.labels ?? [];
+    const labels = [
+        ...state.dataDependencies.labels ?? [],
+        ...extraLabels ?? []
+    ];
 
     return (
         <Label
@@ -21,7 +25,7 @@ export const LabelsField: FC<MappedFieldProps> = ({ id, meta, field, error, help
         >
             <DropdownMultiSelect
                 helpers={helpers}
-                options={labels.map((label: string, idx: number) => ({
+                options={uniq(labels).map((label: string, idx: number) => ({
                     label,
                     key: `${idx}`,
                     valueLabel: label,

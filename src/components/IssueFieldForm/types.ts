@@ -7,4 +7,5 @@ export interface MappedFieldProps {
     helpers: FieldHelperProps<any>;
     id: string;
     error: boolean;
+    extraLabels?: string[];
 }
