@@ -18,19 +18,23 @@ import { schema } from "./validation";
 import { ErrorBlock } from "../Error/ErrorBlock";
 import { useLoadDataDependencies } from "../../hooks";
 import { orderBy } from "lodash";
-import { JiraField, JiraIssueType, JiraProject, JiraUser, mandatoryFields } from "./types";
+import { JiraIssueType, JiraProject, JiraUser } from "./types";
 import { DropdownSelect } from "../DropdownSelect/DropdownSelect";
 import { CreateIssueData } from "../../context/StoreProvider/types";
-import { CustomFieldMap } from "../CustomFieldMap/CustomFieldMap";
+import { buildCustomFieldMeta } from "../../context/StoreProvider/api";
+import { IssueMeta } from "../../types";
+import { CustomField } from "../IssueFieldForm/map";
+import {DropdownMultiSelect} from "../DropdownMultiSelect/DropdownMultiSelect";
 
 export interface IssueFormProps {
-    onSubmit: (values: any, formikHelpers: FormikHelpers<any>) => void | Promise<any>;
+    onSubmit: (values: any, formikHelpers: FormikHelpers<any>, meta: Record<string, IssueMeta>) => void | Promise<any>;
     values?: any;
     loading?: boolean;
     type: "create"|"update";
+    apiErrors: Record<string, string>;
 }
 
-export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, loading = false }: IssueFormProps) => {
+export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, apiErrors, loading = false }: IssueFormProps) => {
     const [ state ] = useStore();
 
     useLoadDataDependencies();
@@ -47,6 +51,8 @@ export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, loading 
         issueTypeId: "",
         projectId: "",
         reporterUserId: "",
+        labels: [],
+        priority: "",
         customFields: {},
     } as CreateIssueData;
 
@@ -81,7 +87,7 @@ export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, loading 
     ;
 
     const buildIssueTypeOptions = (projectId: string) => {
-        const { projects } = state.dataDependencies.createMeta;
+        const { projects } = state.dataDependencies.createMeta; // fixme: can come from editmeta too
         const project = (projects ?? []).filter((p: JiraProject) => p.id === projectId)[0] ?? null;
 
         if (!project) {
@@ -96,43 +102,74 @@ export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, loading 
         } as DropdownValueType<any>));
     };
 
-    const getCustomFields = (projectId?: string, issueTypeId?: string): JiraField[] => {
-        const { projects } = state.dataDependencies.createMeta;
+    const buildLabelOptions = () => {
+        const labels = state.dataDependencies.labels ?? [];
+
+        return (labels).map((label: string, idx: number) => ({
+            key: `${idx}`,
+            label: label,
+            value: label,
+            type: "value" as const,
+        } as DropdownValueType<any>));
+    };
+
+    const buildPriorityOptions = (projectId: string, issueTypeId: string) => {
+        const {projects} = state.dataDependencies.createMeta; // fixme: can come from editmeta too
+
         const project = (projects ?? []).filter((p: JiraProject) => p.id === projectId)[0] ?? null;
 
         if (!project) {
             return [];
         }
 
-        const issueType = (project.issuetypes ?? []).filter((i: JiraIssueType) => i.id === issueTypeId)[0] ?? null;
+        const issueType = project.issuetypes.filter((issueType: any) => issueType.id === issueTypeId)[0] as JiraIssueType;
 
-        if (!issueType) {
-            return [];
+        return (issueType.fields?.priority.allowedValues ?? []).map((priority: any, idx: number) => ({
+            key: `${idx}`,
+            label: priority.name,
+            value: priority.id,
+            type: "value" as const,
+        } as DropdownValueType<any>));
+    };
+
+    const getCustomFields = (projectId?: string, issueTypeId?: string): Record<string, IssueMeta> => {
+
+        // fixme: if this is an edit form, then we need to use the "editmeta" unless the project and/or issue type is changed
+
+        const { projects } = state.dataDependencies.createMeta;
+        const project = (projects ?? []).filter((p: JiraProject) => p.id === projectId)[0] ?? null;
+
+        if (!project) {
+            return {};
         }
 
-        const fields = issueType.fields ?? {};
+        const issueType = (project.issuetypes ?? [])
+            .filter((i: JiraIssueType) => i.id === issueTypeId)[0] ?? null
+        ;
 
-        const required = Object.keys(fields).reduce((all: any[], k: string) => {
-            if (fields[k].required) {
-                return [...all, fields[k]];
-            }
+        if (!issueType) {
+            return {};
+        }
 
-            return all;
-        }, []);
-
-        return required.filter((req) => !mandatoryFields.includes(req.key));
+        return buildCustomFieldMeta(issueType.fields);
     };
+
+    const submit = (values: any, helpers: FormikHelpers<any>) => onSubmit(
+        values,
+        helpers,
+        getCustomFields(values.projectId, values.issueTypeId)
+    );
 
     return (
         <IntlProvider locale="en">
             <Formik
                 initialValues={initialValues}
-                onSubmit={onSubmit}
+                onSubmit={submit}
                 validationSchema={schema}
             >
                 {({ values, submitForm, resetForm, errors, submitCount }) => (
                     <Stack gap={10} vertical>
-                        {Object.values(errors).length > 0 && submitCount > 0 && <ErrorBlock text={Object.values(errors) as string|string[]} />}
+                        {Object.values({...errors, ...apiErrors}).length > 0 && submitCount > 0 && <ErrorBlock text={Object.values({...errors, ...apiErrors}) as string|string[]} />}
                         <div className="create-form-field">
                             <FormikField<string> name="projectId">
                                 {([field, , helpers], { id, error }) => (
@@ -192,7 +229,7 @@ export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, loading 
                                             variant="inline"
                                             placeholder="Add Value"
                                             rows={5}
-                                            className="description-field"
+                                            className={`paragraph-field ${field.value ? "has-value" : ""}`}
                                         />
                                     </Label>
                                 )}
@@ -213,20 +250,44 @@ export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, loading 
                                 )}
                             </FormikField>
                         </div>
-                        {getCustomFields(values.projectId, values.issueTypeId).map((jiraField, idx: number) => (
-                            <div className="create-form-field" key={idx}>
-                                <FormikField<any> name={`customFields.${jiraField.key}`}>
+                        {(values.projectId && values.issueTypeId) && (
+                            <div className="create-form-field">
+                                <FormikField<string> name="priority">
                                     {([field, , helpers], { id, error }) => (
-                                        <CustomFieldMap
-                                            id={id}
-                                            error={error}
-                                            jiraField={jiraField}
-                                            formikField={field}
-                                            helpers={helpers}
-                                        />
+                                        <Label htmlFor={id} label="Priority" error={error}>
+                                            <DropdownSelect
+                                                helpers={helpers}
+                                                options={buildPriorityOptions(values.projectId, values.issueTypeId)}
+                                                id={id}
+                                                placeholder="Select value"
+                                                value={field.value}
+                                            />
+                                        </Label>
                                     )}
                                 </FormikField>
                             </div>
+                        )}
+                        <div className="create-form-field">
+                            <FormikField<string[]> name="labels">
+                                {([field, , helpers], { id, error }) => (
+                                    <Label
+                                        htmlFor={id}
+                                        label="Labels"
+                                        error={error}
+                                    >
+                                        <DropdownMultiSelect
+                                            helpers={helpers}
+                                            options={buildLabelOptions()}
+                                            id={id}
+                                            placeholder="Select values"
+                                            values={field.value}
+                                        />
+                                    </Label>
+                                )}
+                            </FormikField>
+                        </div>
+                        {Object.values(getCustomFields(values.projectId, values.issueTypeId)).map((meta, idx: number) => (
+                            <CustomField meta={meta} key={idx} apiErrors={apiErrors} />
                         ))}
                         <HorizontalDivider />
                         <div className="create-form-field">

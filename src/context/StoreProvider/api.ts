@@ -1,8 +1,17 @@
-import { IDeskproClient, proxyFetch } from "@deskpro/app-sdk";
-import {ApiRequestMethod, CreateIssueData, IssueAttachment, IssueItem, IssueSearchItem} from "./types";
+import {IDeskproClient, proxyFetch} from "@deskpro/app-sdk";
+import {
+  ApiRequestMethod,
+  CreateIssueData,
+  InvalidRequestResponseError,
+  IssueAttachment,
+  IssueItem,
+  IssueSearchItem
+} from "./types";
 import {backlinkCommentDoc, paragraphDoc, removeBacklinkCommentDoc} from "./adf";
 import cache from "js-cache";
-import { omit } from "lodash";
+import {omit} from "lodash";
+import {FieldType, IssueMeta} from "../../types";
+import {match} from "ts-pattern";
 
 // JIRA REST API Base URL
 const API_BASE_URL = "https://__username__:__api_key__@__domain__.atlassian.net/rest/api/3";
@@ -170,6 +179,9 @@ export const listLinkedIssues = async (client: IDeskproClient, keys: string[]): 
     })),
     description: issues[issue.key].fields.description,
     labels: issues[issue.key].fields.labels ?? [],
+    priority: issues[issue.key].fields.priority.name,
+    priorityId: issues[issue.key].fields.priority.id,
+    priorityIconUrl: issues[issue.key].fields.priority.iconUrl,
     customFields: combineCustomFieldValueAndMeta(
         extractCustomFieldValues(issue.fields),
         buildCustomFieldMeta(issue.editmeta.fields),
@@ -199,7 +211,12 @@ export const getIssueAttachments = async (client: IDeskproClient, key: string): 
   } as IssueAttachment));
 }
 
-export const createIssue = async (client: IDeskproClient, data: CreateIssueData) => {
+export const createIssue = async (client: IDeskproClient, data: CreateIssueData, meta: Record<string, IssueMeta>) => {
+  const customFields = Object.keys(data.customFields).reduce((fields, key) => ({
+    ...fields,
+    [key]: formatCustomFieldValue(meta[key], data.customFields[key]),
+  }), {});
+
   const body: any = {
     fields: {
       summary: data.summary,
@@ -213,14 +230,18 @@ export const createIssue = async (client: IDeskproClient, data: CreateIssueData)
       reporter: {
         id: data.reporterUserId,
       },
-      ...data.customFields,
+      labels: data.labels,
+      priority: {
+        id: data.priority,
+      },
+      ...customFields,
     },
   };
 
    const res = await request(client, "POST", `${API_BASE_URL}/issue`, body);
 
    if (!res.id || !res.key) {
-     throw new Error("Failed to create JIRA issue");
+     throw new InvalidRequestResponseError("Failed to create JIRA issue", res);
    }
 
    return res;
@@ -234,18 +255,21 @@ export const getIssueDependencies = async (client: IDeskproClient) => {
       request(client, "GET", `${API_BASE_URL}/issue/createmeta?expand=projects.issuetypes.fields`),
       request(client, "GET", `${API_BASE_URL}/project/search?maxResults=999`),
       request(client, "GET", `${API_BASE_URL}/users/search?maxResults=999`),
+      request(client, "GET", `${API_BASE_URL}/label?maxResults=999`),
     ];
 
     const [
       createMeta,
       projects,
       users,
+      labels,
     ] = await Promise.all(dependencies);
 
     const resolved = {
       createMeta,
       projects: projects.values ?? [],
       users,
+      labels: labels.values ?? [],
     };
 
     cache.set(cache_key, resolved, SEARCH_DEPS_CACHE_TTL);
@@ -276,6 +300,15 @@ const request = async (client: IDeskproClient, method: ApiRequestMethod, url: st
   return res.json();
 };
 
+export const buildCustomFieldMeta = (fields: any) => {
+  const customFields: Record<string, any> = extractCustomFieldMeta(fields);
+
+  return Object.keys(customFields).reduce((fields, key) => ({
+    ...fields,
+    [key]: transformFieldMeta(customFields[key]),
+  }), {});
+};
+
 const findEpicLinkMeta = (issue: any) => Object
   .values(issue.editmeta.fields)
   .filter((field: any) => field.schema.custom === "com.pyxis.greenhopper.jira:gh-epic-link")[0] ?? null
@@ -285,15 +318,6 @@ const findSprintLinkMeta = (issue: any) => Object
   .values(issue.editmeta.fields)
   .filter((field: any) => field.schema.custom === "com.pyxis.greenhopper.jira:gh-sprint")[0] ?? null
 ;
-
-const buildCustomFieldMeta = (fields: any) => {
-  const customFields: Record<string, any> = extractCustomFieldMeta(fields);
-
-  return Object.keys(customFields).reduce((fields, key) => ({
-    ...fields,
-    [key]: transformFieldMeta(customFields[key]),
-  }), {});
-};
 
 const extractCustomFieldMeta = (fields: any) => Object.keys(fields).reduce((customFields, key) => {
   if (!isCustomFieldKey(key)) {
@@ -328,3 +352,19 @@ const combineCustomFieldValueAndMeta = (values: any, meta: any) => Object.keys(m
 }), {});
 
 const isCustomFieldKey = (key: string): boolean => /^customfield_[0-9]+$/.test(key);
+
+const formatCustomFieldValue = (meta: IssueMeta, value: any) => match<FieldType, any>(meta.type)
+    .with(FieldType.TEXT_PLAIN, () => value)
+    .with(FieldType.TEXT_PARAGRAPH, () => paragraphDoc(value))
+    .with(FieldType.DATETIME, () => value)
+    .with(FieldType.DATE, () => value)
+    .with(FieldType.CHECKBOXES, () => (value ?? []).map((id: string) => ({ id })))
+    .with(FieldType.LABELS, () => value)
+    .with(FieldType.NUMBER, () => new Number(value))
+    .with(FieldType.RADIO_BUTTONS, () => ({ id: value }))
+    .with(FieldType.SELECT_MULTI, () => (value ?? []).map((id: string) => ({ id })))
+    .with(FieldType.SELECT_SINGLE, () => ({ id: value }))
+    .with(FieldType.URL, () => value)
+    .with(FieldType.USER_PICKER, () => ({ id: value }))
+    .run()
+;

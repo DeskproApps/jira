@@ -132,6 +132,14 @@ export const View: FC<ViewProps> = ({ issueKey }: ViewProps) => {
               </Stack>
             </Property>
           )}
+          {issue.priority && (
+              <Property title="Priority">
+                <Stack gap={3}>
+                  <img src={issue.priorityIconUrl} alt={issue.priority} height={16} />
+                  {issue.priority}
+                </Stack>
+              </Property>
+          )}
           {state.linkedIssueAttachments?.loading && (
             <Spinner size="small" />
           )}

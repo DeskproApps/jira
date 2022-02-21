@@ -2,6 +2,6 @@
     width: 100%;
 }
 
-.description-field:focus {
+.paragraph-field:focus, .paragraph-field.has-value {
     min-height: 100px;
 }
