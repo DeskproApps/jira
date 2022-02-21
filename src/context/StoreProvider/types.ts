@@ -14,6 +14,7 @@ export type Page =
   | "link"
   | "view"
   | "create"
+  | "edit"
 ;
 
 export interface State {
@@ -87,7 +88,7 @@ export interface IssueAttachment {
   url: string;
 }
 
-export interface CreateIssueData {
+export interface IssueFormData {
   summary: string;
   description: string;
   issueTypeId: string;

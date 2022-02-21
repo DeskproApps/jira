@@ -14,6 +14,7 @@ import { ErrorBlock } from "../components/Error/ErrorBlock";
 import { useDebouncedCallback } from "use-debounce";
 import { Create } from "./Create";
 import {addUnlinkCommentToIssue} from "../context/StoreProvider/api";
+import {Edit} from "./Edit";
 
 export const Main: FC = () => {
   const { client } = useDeskproAppClient();
@@ -61,6 +62,7 @@ export const Main: FC = () => {
       match<[string, any]>([id, payload])
         .with(["addIssue", __], () => dispatch({ type: "changePage", page: "link" }))
         .with(["home", __], () => dispatch({ type: "changePage", page: "home" }))
+        .with(["edit", __], () => dispatch({ type: "changePage", page: "edit", params: { issueKey: payload } }))
         .with([__, { action: "unlink", issueKey: __ }], () => unlinkTicket(payload))
         .otherwise(() => {})
       ;
@@ -73,6 +75,7 @@ export const Main: FC = () => {
       .with("link", () => <Link {...state.pageParams} />)
       .with("view", () => <View {...state.pageParams} />)
       .with("create", () => <Create {...state.pageParams} />)
+      .with("edit", () => <Edit {...state.pageParams} />)
       .otherwise(() => <Home {...state.pageParams} />)
   ;
 

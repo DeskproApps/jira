@@ -20,7 +20,7 @@ import { useLoadDataDependencies } from "../../hooks";
 import { orderBy } from "lodash";
 import { JiraIssueType, JiraProject, JiraUser } from "./types";
 import { DropdownSelect } from "../DropdownSelect/DropdownSelect";
-import { CreateIssueData } from "../../context/StoreProvider/types";
+import { IssueFormData } from "../../context/StoreProvider/types";
 import { buildCustomFieldMeta } from "../../context/StoreProvider/api";
 import { IssueMeta } from "../../types";
 import { CustomField } from "../IssueFieldForm/map";
@@ -28,13 +28,14 @@ import {DropdownMultiSelect} from "../DropdownMultiSelect/DropdownMultiSelect";
 
 export interface IssueFormProps {
     onSubmit: (values: any, formikHelpers: FormikHelpers<any>, meta: Record<string, IssueMeta>) => void | Promise<any>;
-    values?: any;
-    loading?: boolean;
     type: "create"|"update";
     apiErrors: Record<string, string>;
+    values?: any;
+    loading?: boolean;
+    editMeta?: any;
 }
 
-export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, apiErrors, loading = false }: IssueFormProps) => {
+export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, apiErrors, editMeta, loading = false }: IssueFormProps) => {
     const [ state ] = useStore();
 
     useLoadDataDependencies();
@@ -54,7 +55,7 @@ export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, apiError
         labels: [],
         priority: "",
         customFields: {},
-    } as CreateIssueData;
+    } as IssueFormData;
 
     const projects = orderBy(
         state.dataDependencies.projects ?? [],
@@ -87,7 +88,7 @@ export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, apiError
     ;
 
     const buildIssueTypeOptions = (projectId: string) => {
-        const { projects } = state.dataDependencies.createMeta; // fixme: can come from editmeta too
+        const { projects } =  state.dataDependencies.createMeta;
         const project = (projects ?? []).filter((p: JiraProject) => p.id === projectId)[0] ?? null;
 
         if (!project) {
@@ -114,7 +115,7 @@ export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, apiError
     };
 
     const buildPriorityOptions = (projectId: string, issueTypeId: string) => {
-        const {projects} = state.dataDependencies.createMeta; // fixme: can come from editmeta too
+        const { projects } = state.dataDependencies.createMeta;
 
         const project = (projects ?? []).filter((p: JiraProject) => p.id === projectId)[0] ?? null;
 
@@ -133,9 +134,6 @@ export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, apiError
     };
 
     const getCustomFields = (projectId?: string, issueTypeId?: string): Record<string, IssueMeta> => {
-
-        // fixme: if this is an edit form, then we need to use the "editmeta" unless the project and/or issue type is changed
-
         const { projects } = state.dataDependencies.createMeta;
         const project = (projects ?? []).filter((p: JiraProject) => p.id === projectId)[0] ?? null;
 

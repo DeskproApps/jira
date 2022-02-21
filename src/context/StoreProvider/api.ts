@@ -1,7 +1,7 @@
 import {IDeskproClient, proxyFetch} from "@deskpro/app-sdk";
 import {
   ApiRequestMethod,
-  CreateIssueData,
+  IssueFormData,
   InvalidRequestResponseError,
   IssueAttachment,
   IssueItem,
@@ -12,6 +12,7 @@ import cache from "js-cache";
 import {omit} from "lodash";
 import {FieldType, IssueMeta} from "../../types";
 import {match} from "ts-pattern";
+import {useAdfToPlainText} from "../../hooks";
 
 // JIRA REST API Base URL
 const API_BASE_URL = "https://__username__:__api_key__@__domain__.atlassian.net/rest/api/3";
@@ -23,7 +24,7 @@ const SEARCH_DEPS_CACHE_TTL = 5 * (60 * 1000); // 5 Minutes
  * Fetch a single JIRA issue by key, e.g. "DP-1"
  */
 export const getIssueByKey = async (client: IDeskproClient, key: string) =>
-  request(client, "GET", `${API_BASE_URL}/issue/${key}`)
+  request(client, "GET", `${API_BASE_URL}/issue/${key}?expand=editmeta`)
 ;
 
 /**
@@ -211,7 +212,7 @@ export const getIssueAttachments = async (client: IDeskproClient, key: string): 
   } as IssueAttachment));
 }
 
-export const createIssue = async (client: IDeskproClient, data: CreateIssueData, meta: Record<string, IssueMeta>) => {
+export const createIssue = async (client: IDeskproClient, data: IssueFormData, meta: Record<string, IssueMeta>) => {
   const customFields = Object.keys(data.customFields).reduce((fields, key) => ({
     ...fields,
     [key]: formatCustomFieldValue(meta[key], data.customFields[key]),
@@ -245,6 +246,42 @@ export const createIssue = async (client: IDeskproClient, data: CreateIssueData,
    }
 
    return res;
+};
+
+export const updateIssue = async (client: IDeskproClient, issueKey: string, data: IssueFormData, meta: Record<string, IssueMeta>) => {
+  const customFields = Object.keys(data.customFields).reduce((fields, key) => ({
+    ...fields,
+    [key]: formatCustomFieldValue(meta[key], data.customFields[key]),
+  }), {});
+
+  const body: any = {
+    fields: {
+      summary: data.summary,
+      issuetype: {
+        id: data.issueTypeId,
+      },
+      project: {
+        id: data.projectId,
+      },
+      description: paragraphDoc(data.description),
+      reporter: {
+        id: data.reporterUserId,
+      },
+      labels: data.labels,
+      priority: {
+        id: data.priority,
+      },
+      ...customFields,
+    },
+  };
+
+  const res = await request(client, "PUT", `${API_BASE_URL}/issue/${issueKey}`, body);
+
+  if (res?.errors) {
+    throw new InvalidRequestResponseError("Failed to create JIRA issue", res);
+  }
+
+  return res;
 };
 
 export const getIssueDependencies = async (client: IDeskproClient) => {
@@ -297,7 +334,11 @@ const request = async (client: IDeskproClient, method: ApiRequestMethod, url: st
     throw new Error(`${method} ${url}: Response Status [${res.status}]`);
   }
 
-  return res.json();
+  try {
+    return await res.json();
+  } catch (e) {
+    return {};
+  }
 };
 
 export const buildCustomFieldMeta = (fields: any) => {
@@ -353,6 +394,9 @@ const combineCustomFieldValueAndMeta = (values: any, meta: any) => Object.keys(m
 
 const isCustomFieldKey = (key: string): boolean => /^customfield_[0-9]+$/.test(key);
 
+/**
+ * Format fields when sending values to API
+ */
 const formatCustomFieldValue = (meta: IssueMeta, value: any) => match<FieldType, any>(meta.type)
     .with(FieldType.TEXT_PLAIN, () => value)
     .with(FieldType.TEXT_PARAGRAPH, () => paragraphDoc(value))
@@ -367,4 +411,23 @@ const formatCustomFieldValue = (meta: IssueMeta, value: any) => match<FieldType,
     .with(FieldType.URL, () => value)
     .with(FieldType.USER_PICKER, () => ({ id: value }))
     .run()
+;
+
+/**
+ * Format data when getting values from the API
+ */
+export const formatCustomFieldValueForSet = (meta: IssueMeta, value: any) => match<FieldType, any>(meta.type)
+    .with(FieldType.TEXT_PLAIN, () => value)
+    .with(FieldType.TEXT_PARAGRAPH, () => useAdfToPlainText()(value))
+    .with(FieldType.DATETIME, () => new Date(value))
+    .with(FieldType.DATE, () => new Date(value))
+    .with(FieldType.CHECKBOXES, () => (value ?? []).map((v: { id: string }) => v.id))
+    .with(FieldType.LABELS, () => value ?? [])
+    .with(FieldType.NUMBER, () => `${value}`)
+    .with(FieldType.RADIO_BUTTONS, () => value?.id)
+    .with(FieldType.SELECT_MULTI, () => (value ?? []).map((v: { id: string }) => v.id))
+    .with(FieldType.SELECT_SINGLE, () => value?.id)
+    .with(FieldType.URL, () => value)
+    .with(FieldType.USER_PICKER, () => value?.accountId)
+    .otherwise(() => undefined)
 ;

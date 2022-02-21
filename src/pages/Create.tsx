@@ -3,7 +3,7 @@ import {CreateLinkIssue} from "../components/CreateLinkIssue/CreateLinkIssue";
 import {IssueForm} from "../components/IssueForm/IssueForm";
 import {addLinkCommentToIssue, createIssue} from "../context/StoreProvider/api";
 import {useDeskproAppClient} from "@deskpro/app-sdk";
-import {CreateIssueData, InvalidRequestResponseError} from "../context/StoreProvider/types";
+import {IssueFormData, InvalidRequestResponseError} from "../context/StoreProvider/types";
 import {useLoadLinkedIssues, useSetAppTitle} from "../hooks";
 import {useStore} from "../context/StoreProvider/hooks";
 import {FormikHelpers} from "formik";
@@ -19,7 +19,7 @@ export const Create: FC = () => {
 
     useSetAppTitle("Add Issue");
 
-    const onSubmit = (data: CreateIssueData, _helpers: FormikHelpers<any>, meta: Record<string, IssueMeta>) => {
+    const onSubmit = (data: IssueFormData, _helpers: FormikHelpers<any>, meta: Record<string, IssueMeta>) => {
         if (!client || !state.context?.data.ticket) {
             return;
         }

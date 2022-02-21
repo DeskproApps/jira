@@ -36,6 +36,7 @@ export const View: FC<ViewProps> = ({ issueKey }: ViewProps) => {
 
   useEffect(() => {
     client?.registerElement("home", { type: "home_button" });
+    client?.registerElement("edit", { type: "edit_button", payload: issueKey });
     client?.registerElement("viewContextMenu", { type: "menu", items: [
       { title: "Unlink Ticket", payload: { action: "unlink", issueKey }, },
     ] });
