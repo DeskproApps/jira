@@ -213,10 +213,18 @@ export const getIssueAttachments = async (client: IDeskproClient, key: string): 
 }
 
 export const createIssue = async (client: IDeskproClient, data: IssueFormData, meta: Record<string, IssueMeta>) => {
-  const customFields = Object.keys(data.customFields).reduce((fields, key) => ({
-    ...fields,
-    [key]: formatCustomFieldValue(meta[key], data.customFields[key]),
-  }), {});
+  const customFields = Object.keys(data.customFields).reduce((fields, key) => {
+    const value = formatCustomFieldValue(meta[key], data.customFields[key]);
+
+    if (value === undefined) {
+      return fields;
+    }
+
+    return {
+      ...fields,
+      [key]: value,
+    };
+  }, {});
 
   const body: any = {
     fields: {
@@ -249,10 +257,18 @@ export const createIssue = async (client: IDeskproClient, data: IssueFormData, m
 };
 
 export const updateIssue = async (client: IDeskproClient, issueKey: string, data: IssueFormData, meta: Record<string, IssueMeta>) => {
-  const customFields = Object.keys(data.customFields).reduce((fields, key) => ({
-    ...fields,
-    [key]: formatCustomFieldValue(meta[key], data.customFields[key]),
-  }), {});
+  const customFields = Object.keys(data.customFields).reduce((fields, key) => {
+    const value = formatCustomFieldValue(meta[key], data.customFields[key]);
+
+    if (value === undefined) {
+      return fields;
+    }
+
+    return {
+      ...fields,
+      [key]: value,
+    };
+  }, {});
 
   const body: any = {
     fields: {
@@ -398,18 +414,18 @@ const isCustomFieldKey = (key: string): boolean => /^customfield_[0-9]+$/.test(k
  * Format fields when sending values to API
  */
 const formatCustomFieldValue = (meta: IssueMeta, value: any) => match<FieldType, any>(meta.type)
-    .with(FieldType.TEXT_PLAIN, () => value)
-    .with(FieldType.TEXT_PARAGRAPH, () => paragraphDoc(value))
-    .with(FieldType.DATETIME, () => value)
-    .with(FieldType.DATE, () => value)
+    .with(FieldType.TEXT_PLAIN, () => value ?? undefined)
+    .with(FieldType.TEXT_PARAGRAPH, () => value ? paragraphDoc(value) : undefined)
+    .with(FieldType.DATETIME, () => value ?? undefined)
+    .with(FieldType.DATE, () => value ?? undefined)
     .with(FieldType.CHECKBOXES, () => (value ?? []).map((id: string) => ({ id })))
-    .with(FieldType.LABELS, () => value)
-    .with(FieldType.NUMBER, () => new Number(value))
-    .with(FieldType.RADIO_BUTTONS, () => ({ id: value }))
+    .with(FieldType.LABELS, () => value ?? [])
+    .with(FieldType.NUMBER, () => value ? new Number(value) : undefined)
+    .with(FieldType.RADIO_BUTTONS, () => value ? ({ id: value }) : undefined)
     .with(FieldType.SELECT_MULTI, () => (value ?? []).map((id: string) => ({ id })))
-    .with(FieldType.SELECT_SINGLE, () => ({ id: value }))
-    .with(FieldType.URL, () => value)
-    .with(FieldType.USER_PICKER, () => ({ id: value }))
+    .with(FieldType.SELECT_SINGLE, () => value ? ({ id: value }) : undefined)
+    .with(FieldType.URL, () => value ?? undefined)
+    .with(FieldType.USER_PICKER, () => value ? ({ id: value }) : undefined)
     .run()
 ;
 
@@ -417,17 +433,17 @@ const formatCustomFieldValue = (meta: IssueMeta, value: any) => match<FieldType,
  * Format data when getting values from the API
  */
 export const formatCustomFieldValueForSet = (meta: IssueMeta, value: any) => match<FieldType, any>(meta.type)
-    .with(FieldType.TEXT_PLAIN, () => value)
+    .with(FieldType.TEXT_PLAIN, () => value ?? "")
     .with(FieldType.TEXT_PARAGRAPH, () => useAdfToPlainText()(value))
-    .with(FieldType.DATETIME, () => new Date(value))
-    .with(FieldType.DATE, () => new Date(value))
+    .with(FieldType.DATETIME, () => value ? new Date(value) : undefined)
+    .with(FieldType.DATE, () => value ? new Date(value) : undefined)
     .with(FieldType.CHECKBOXES, () => (value ?? []).map((v: { id: string }) => v.id))
     .with(FieldType.LABELS, () => value ?? [])
-    .with(FieldType.NUMBER, () => `${value}`)
-    .with(FieldType.RADIO_BUTTONS, () => value?.id)
+    .with(FieldType.NUMBER, () => value ? `${value}` : "")
+    .with(FieldType.RADIO_BUTTONS, () => value?.id ?? "")
     .with(FieldType.SELECT_MULTI, () => (value ?? []).map((v: { id: string }) => v.id))
-    .with(FieldType.SELECT_SINGLE, () => value?.id)
-    .with(FieldType.URL, () => value)
-    .with(FieldType.USER_PICKER, () => value?.accountId)
+    .with(FieldType.SELECT_SINGLE, () => value?.id ?? "")
+    .with(FieldType.URL, () => value ?? "")
+    .with(FieldType.USER_PICKER, () => value?.accountId ?? undefined)
     .otherwise(() => undefined)
 ;

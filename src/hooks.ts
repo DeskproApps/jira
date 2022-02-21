@@ -71,13 +71,19 @@ export const useFindLinkedIssueAttachmentsByKey = () => {
 }
 
 export const useAdfToPlainText = () => {
-  return (document: ADFEntity): string => reduce(document, (acc, node) => {
-    if (node.type === "text") {
-      acc += node.text;
+  return (document: ADFEntity): string => {
+    if (!document) {
+      return "";
     }
 
-    return acc;
-  }, "");
+    return reduce(document, (acc, node) => {
+      if (node.type === "text") {
+        acc += node.text;
+      }
+
+      return acc;
+    }, "");
+  };
 };
 
 export const useAssociatedEntityCount = (key: string) => {
