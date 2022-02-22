@@ -24,6 +24,7 @@ export const Home: FC = () => {
   useEffect(() => {
     client?.registerElement("addIssue", { type: "plus_button" });
     client?.deregisterElement("home");
+    client?.deregisterElement("edit");
     client?.deregisterElement("viewContextMenu");
   }, [client, state]);
 

@@ -1,4 +1,4 @@
-import {FC, useState} from "react";
+import {FC, useEffect, useState} from "react";
 import {CreateLinkIssue} from "../components/CreateLinkIssue/CreateLinkIssue";
 import {IssueForm} from "../components/IssueForm/IssueForm";
 import {addLinkCommentToIssue, createIssue} from "../context/StoreProvider/api";
@@ -18,6 +18,10 @@ export const Create: FC = () => {
     const loadIssues = useLoadLinkedIssues();
 
     useSetAppTitle("Add Issue");
+
+    useEffect(() => {
+        client?.deregisterElement("edit");
+    }, [client, state]);
 
     const onSubmit = (data: IssueFormData, _helpers: FormikHelpers<any>, meta: Record<string, IssueMeta>) => {
         if (!client || !state.context?.data.ticket) {
