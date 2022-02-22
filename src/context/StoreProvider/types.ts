@@ -14,6 +14,7 @@ export type Page =
   | "link"
   | "view"
   | "create"
+  | "edit"
 ;
 
 export interface State {
@@ -61,6 +62,9 @@ export interface IssueItem {
   reporterAvatarUrl: string;
   epicKey?: string;
   epicName?: string;
+  priority: string;
+  priorityId: string;
+  priorityIconUrl: string;
   sprints?: {
     sprintBoardId?: number;
     sprintName?: string;
@@ -84,11 +88,23 @@ export interface IssueAttachment {
   url: string;
 }
 
-export interface CreateIssueData {
+export interface IssueFormData {
   summary: string;
   description: string;
   issueTypeId: string;
   projectId: string;
   reporterUserId: string;
+  labels: string[],
+  priority: string;
   customFields: Record<string, any>;
+}
+
+export class InvalidRequestResponseError extends Error {
+  constructor(message: string, private _response: any) {
+    super(message);
+  }
+
+  get response() {
+    return this._response;
+  }
 }

@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@atlaskit/adf-utils": "14.4.0",
-    "@deskpro/app-sdk": "^0.1.8",
+    "@deskpro/app-sdk": "^0.1.10",
     "date-fns": "^2.28.0",
     "iframe-resizer": "4.3.2",
     "js-cache": "^1.0.3",

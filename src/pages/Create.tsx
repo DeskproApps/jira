@@ -1,29 +1,37 @@
-import {FC, useState} from "react";
+import {FC, useEffect, useState} from "react";
 import {CreateLinkIssue} from "../components/CreateLinkIssue/CreateLinkIssue";
 import {IssueForm} from "../components/IssueForm/IssueForm";
 import {addLinkCommentToIssue, createIssue} from "../context/StoreProvider/api";
 import {useDeskproAppClient} from "@deskpro/app-sdk";
-import {CreateIssueData} from "../context/StoreProvider/types";
+import {IssueFormData, InvalidRequestResponseError} from "../context/StoreProvider/types";
 import {useLoadLinkedIssues, useSetAppTitle} from "../hooks";
 import {useStore} from "../context/StoreProvider/hooks";
+import {FormikHelpers} from "formik";
+import {IssueMeta} from "../types";
 
 export const Create: FC = () => {
     const { client } = useDeskproAppClient();
     const [ state, dispatch ] = useStore();
     const [loading, setLoading] = useState<boolean>(false);
+    const [apiErrors, setApiErrors] = useState<Record<string, string>>({});
 
     const loadIssues = useLoadLinkedIssues();
 
     useSetAppTitle("Add Issue");
 
-    const onSubmit = (data: CreateIssueData) => {
+    useEffect(() => {
+        client?.deregisterElement("edit");
+    }, [client, state]);
+
+    const onSubmit = (data: IssueFormData, _helpers: FormikHelpers<any>, meta: Record<string, IssueMeta>) => {
         if (!client || !state.context?.data.ticket) {
             return;
         }
 
         setLoading(true);
+        setApiErrors({});
 
-        createIssue(client, data)
+        createIssue(client, data, meta)
             .then(({ key }) => {
                 client
                     .getEntityAssociation("linkedJiraIssues", state.context?.data.ticket.id as string)
@@ -43,7 +51,11 @@ export const Create: FC = () => {
                 dispatch({ type: "changePage", page: "home" });
             })
             .catch((error) => {
-                dispatch({ type: "error", error });
+                if (error instanceof InvalidRequestResponseError && error.response?.errors) {
+                    setApiErrors(error.response.errors);
+                } else {
+                    dispatch({ type: "error", error });
+                }
             })
             .finally(() => {
                 setLoading(false);
@@ -58,6 +70,7 @@ export const Create: FC = () => {
                 type="create"
                 onSubmit={onSubmit}
                 loading={loading}
+                apiErrors={apiErrors}
             />
         </>
     );

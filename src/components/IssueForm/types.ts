@@ -7,6 +7,7 @@ export interface JiraProject {
 export interface JiraIssueType {
     id: string;
     name: string;
+    fields?: Record<string, any>;
 }
 
 export interface JiraUser {

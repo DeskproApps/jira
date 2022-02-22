@@ -1,8 +1,18 @@
-import { IDeskproClient, proxyFetch } from "@deskpro/app-sdk";
-import {ApiRequestMethod, CreateIssueData, IssueAttachment, IssueItem, IssueSearchItem} from "./types";
+import {IDeskproClient, proxyFetch} from "@deskpro/app-sdk";
+import {
+  ApiRequestMethod,
+  IssueFormData,
+  InvalidRequestResponseError,
+  IssueAttachment,
+  IssueItem,
+  IssueSearchItem
+} from "./types";
 import {backlinkCommentDoc, paragraphDoc, removeBacklinkCommentDoc} from "./adf";
 import cache from "js-cache";
-import { omit } from "lodash";
+import {omit} from "lodash";
+import {FieldType, IssueMeta} from "../../types";
+import {match} from "ts-pattern";
+import {useAdfToPlainText} from "../../hooks";
 
 // JIRA REST API Base URL
 const API_BASE_URL = "https://__username__:__api_key__@__domain__.atlassian.net/rest/api/3";
@@ -14,7 +24,7 @@ const SEARCH_DEPS_CACHE_TTL = 5 * (60 * 1000); // 5 Minutes
  * Fetch a single JIRA issue by key, e.g. "DP-1"
  */
 export const getIssueByKey = async (client: IDeskproClient, key: string) =>
-  request(client, "GET", `${API_BASE_URL}/issue/${key}`)
+  request(client, "GET", `${API_BASE_URL}/issue/${key}?expand=editmeta`)
 ;
 
 /**
@@ -170,6 +180,9 @@ export const listLinkedIssues = async (client: IDeskproClient, keys: string[]): 
     })),
     description: issues[issue.key].fields.description,
     labels: issues[issue.key].fields.labels ?? [],
+    priority: issues[issue.key].fields.priority.name,
+    priorityId: issues[issue.key].fields.priority.id,
+    priorityIconUrl: issues[issue.key].fields.priority.iconUrl,
     customFields: combineCustomFieldValueAndMeta(
         extractCustomFieldValues(issue.fields),
         buildCustomFieldMeta(issue.editmeta.fields),
@@ -199,7 +212,20 @@ export const getIssueAttachments = async (client: IDeskproClient, key: string): 
   } as IssueAttachment));
 }
 
-export const createIssue = async (client: IDeskproClient, data: CreateIssueData) => {
+export const createIssue = async (client: IDeskproClient, data: IssueFormData, meta: Record<string, IssueMeta>) => {
+  const customFields = Object.keys(data.customFields).reduce((fields, key) => {
+    const value = formatCustomFieldValue(meta[key], data.customFields[key]);
+
+    if (value === undefined) {
+      return fields;
+    }
+
+    return {
+      ...fields,
+      [key]: value,
+    };
+  }, {});
+
   const body: any = {
     fields: {
       summary: data.summary,
@@ -213,17 +239,65 @@ export const createIssue = async (client: IDeskproClient, data: CreateIssueData)
       reporter: {
         id: data.reporterUserId,
       },
-      ...data.customFields,
+      labels: data.labels,
+      priority: {
+        id: data.priority,
+      },
+      ...customFields,
     },
   };
 
    const res = await request(client, "POST", `${API_BASE_URL}/issue`, body);
 
    if (!res.id || !res.key) {
-     throw new Error("Failed to create JIRA issue");
+     throw new InvalidRequestResponseError("Failed to create JIRA issue", res);
    }
 
    return res;
+};
+
+export const updateIssue = async (client: IDeskproClient, issueKey: string, data: IssueFormData, meta: Record<string, IssueMeta>) => {
+  const customFields = Object.keys(data.customFields).reduce((fields, key) => {
+    const value = formatCustomFieldValue(meta[key], data.customFields[key]);
+
+    if (value === undefined) {
+      return fields;
+    }
+
+    return {
+      ...fields,
+      [key]: value,
+    };
+  }, {});
+
+  const body: any = {
+    fields: {
+      summary: data.summary,
+      issuetype: {
+        id: data.issueTypeId,
+      },
+      project: {
+        id: data.projectId,
+      },
+      description: paragraphDoc(data.description),
+      reporter: {
+        id: data.reporterUserId,
+      },
+      labels: data.labels,
+      priority: {
+        id: data.priority,
+      },
+      ...customFields,
+    },
+  };
+
+  const res = await request(client, "PUT", `${API_BASE_URL}/issue/${issueKey}`, body);
+
+  if (res?.errors) {
+    throw new InvalidRequestResponseError("Failed to create JIRA issue", res);
+  }
+
+  return res;
 };
 
 export const getIssueDependencies = async (client: IDeskproClient) => {
@@ -234,18 +308,21 @@ export const getIssueDependencies = async (client: IDeskproClient) => {
       request(client, "GET", `${API_BASE_URL}/issue/createmeta?expand=projects.issuetypes.fields`),
       request(client, "GET", `${API_BASE_URL}/project/search?maxResults=999`),
       request(client, "GET", `${API_BASE_URL}/users/search?maxResults=999`),
+      request(client, "GET", `${API_BASE_URL}/label?maxResults=999`),
     ];
 
     const [
       createMeta,
       projects,
       users,
+      labels,
     ] = await Promise.all(dependencies);
 
     const resolved = {
       createMeta,
       projects: projects.values ?? [],
       users,
+      labels: labels.values ?? [],
     };
 
     cache.set(cache_key, resolved, SEARCH_DEPS_CACHE_TTL);
@@ -273,7 +350,20 @@ const request = async (client: IDeskproClient, method: ApiRequestMethod, url: st
     throw new Error(`${method} ${url}: Response Status [${res.status}]`);
   }
 
-  return res.json();
+  try {
+    return await res.json();
+  } catch (e) {
+    return {};
+  }
+};
+
+export const buildCustomFieldMeta = (fields: any) => {
+  const customFields: Record<string, any> = extractCustomFieldMeta(fields);
+
+  return Object.keys(customFields).reduce((fields, key) => ({
+    ...fields,
+    [key]: transformFieldMeta(customFields[key]),
+  }), {});
 };
 
 const findEpicLinkMeta = (issue: any) => Object
@@ -286,15 +376,6 @@ const findSprintLinkMeta = (issue: any) => Object
   .filter((field: any) => field.schema.custom === "com.pyxis.greenhopper.jira:gh-sprint")[0] ?? null
 ;
 
-const buildCustomFieldMeta = (fields: any) => {
-  const customFields: Record<string, any> = extractCustomFieldMeta(fields);
-
-  return Object.keys(customFields).reduce((fields, key) => ({
-    ...fields,
-    [key]: transformFieldMeta(customFields[key]),
-  }), {});
-};
-
 const extractCustomFieldMeta = (fields: any) => Object.keys(fields).reduce((customFields, key) => {
   if (!isCustomFieldKey(key)) {
     return customFields;
@@ -303,7 +384,7 @@ const extractCustomFieldMeta = (fields: any) => Object.keys(fields).reduce((cust
   return { ...customFields, [key]: fields[key] };
 }, {});
 
-const extractCustomFieldValues = (fields: any) => Object.keys(fields).reduce((customFields, key) => {
+export const extractCustomFieldValues = (fields: any) => Object.keys(fields).reduce((customFields, key) => {
   if (!isCustomFieldKey(key)) {
     return customFields;
   }
@@ -328,3 +409,41 @@ const combineCustomFieldValueAndMeta = (values: any, meta: any) => Object.keys(m
 }), {});
 
 const isCustomFieldKey = (key: string): boolean => /^customfield_[0-9]+$/.test(key);
+
+/**
+ * Format fields when sending values to API
+ */
+const formatCustomFieldValue = (meta: IssueMeta, value: any) => match<FieldType, any>(meta.type)
+    .with(FieldType.TEXT_PLAIN, () => value ?? undefined)
+    .with(FieldType.TEXT_PARAGRAPH, () => value ? paragraphDoc(value) : undefined)
+    .with(FieldType.DATETIME, () => value ?? undefined)
+    .with(FieldType.DATE, () => value ?? undefined)
+    .with(FieldType.CHECKBOXES, () => (value ?? []).map((id: string) => ({ id })))
+    .with(FieldType.LABELS, () => value ?? [])
+    .with(FieldType.NUMBER, () => value ? new Number(value) : undefined)
+    .with(FieldType.RADIO_BUTTONS, () => value ? ({ id: value }) : undefined)
+    .with(FieldType.SELECT_MULTI, () => (value ?? []).map((id: string) => ({ id })))
+    .with(FieldType.SELECT_SINGLE, () => value ? ({ id: value }) : undefined)
+    .with(FieldType.URL, () => value ?? undefined)
+    .with(FieldType.USER_PICKER, () => value ? ({ id: value }) : undefined)
+    .run()
+;
+
+/**
+ * Format data when getting values from the API
+ */
+export const formatCustomFieldValueForSet = (meta: IssueMeta, value: any) => match<FieldType, any>(meta.type)
+    .with(FieldType.TEXT_PLAIN, () => value ?? "")
+    .with(FieldType.TEXT_PARAGRAPH, () => useAdfToPlainText()(value))
+    .with(FieldType.DATETIME, () => value ? new Date(value) : undefined)
+    .with(FieldType.DATE, () => value ? new Date(value) : undefined)
+    .with(FieldType.CHECKBOXES, () => (value ?? []).map((v: { id: string }) => v.id))
+    .with(FieldType.LABELS, () => value ?? [])
+    .with(FieldType.NUMBER, () => value ? `${value}` : "")
+    .with(FieldType.RADIO_BUTTONS, () => value?.id ?? undefined)
+    .with(FieldType.SELECT_MULTI, () => (value ?? []).map((v: { id: string }) => v.id))
+    .with(FieldType.SELECT_SINGLE, () => value?.id ?? undefined)
+    .with(FieldType.URL, () => value ?? "")
+    .with(FieldType.USER_PICKER, () => value?.accountId ?? undefined)
+    .otherwise(() => undefined)
+;
