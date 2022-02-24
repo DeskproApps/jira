@@ -384,10 +384,10 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@deskpro/app-sdk@^0.1.10":
-  version "0.1.10"
-  resolved "https://registry.yarnpkg.com/@deskpro/app-sdk/-/app-sdk-0.1.10.tgz#da608e6ceea9c4dba624d3eca124a520806c5577"
-  integrity sha512-4iO9gY/MgERp+Ot5uQvYElo3bw0b07WTkXkukxQ6zyDxsw6nBmXyjdhss1UlKl6+PbztKL25axczM7IFt4D/ew==
+"@deskpro/app-sdk@^0.1.11":
+  version "0.1.11"
+  resolved "https://registry.yarnpkg.com/@deskpro/app-sdk/-/app-sdk-0.1.11.tgz#62244b558d65a8e6c5e406e7377c74b73c10cf2d"
+  integrity sha512-n/KEqJLfKN5nBa9bNOxaZEDq6e8hwMFO6VZMv2dmWSewhNyTsYC8VngPHAMYM3e+LVyVxHVMumza/uDihWArKw==
   dependencies:
     "@deskpro/deskpro-ui" "0.1.14"
     handlebars "4.7.7"
