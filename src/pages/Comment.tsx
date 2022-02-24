@@ -35,9 +35,9 @@ export const Comment: FC<CommentProps> = ({ issueKey }: CommentProps) => {
         client.deregisterElement("viewContextMenu");
     }, [issueKey]);
 
-    const initialValues = {
+    const initialValues: CommentFormValues = {
         comments: "",
-    } as CommentFormValues;
+    };
 
     const submit = (data: CommentFormValues) => {
         if (!client) {

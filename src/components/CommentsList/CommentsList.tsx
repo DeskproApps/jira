@@ -11,11 +11,12 @@ import ReactTimeAgo from "react-time-ago";
 import truncate from "html-truncate";
 
 interface CommentsListProps {
+    domain: string;
     issueKey: string;
 }
 
-export const CommentsList: FC<CommentsListProps> = ({ issueKey }: CommentsListProps) => {
-    const [state, dispatch] = useStore();
+export const CommentsList: FC<CommentsListProps> = ({ issueKey, domain }: CommentsListProps) => {
+    const [, dispatch] = useStore();
     const { theme } = useDeskproAppTheme();
     const comments = useFindIssueComments(issueKey);
     const adfToAnchoredText = useAdfToAnchoredText();
@@ -23,8 +24,6 @@ export const CommentsList: FC<CommentsListProps> = ({ issueKey }: CommentsListPr
     if (!comments) {
         return (<Spinner size="small" />);
     }
-
-    const domain = state.context?.settings.domain as string;
 
     return (
         <>

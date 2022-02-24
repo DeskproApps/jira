@@ -172,7 +172,7 @@ export const View: FC<ViewProps> = ({ issueKey }: ViewProps) => {
           ))}
           <Stack vertical gap={10} style={{ width: "100%" }}>
             <HorizontalDivider style={{ width: "100%" }} />
-            <CommentsList issueKey={issueKey} />
+            <CommentsList issueKey={issueKey} domain={state.context?.settings.domain} />
           </Stack>
         </Stack>
       </Stack>
