@@ -103,6 +103,7 @@ export const Edit: FC<EditProps> = ({ issueKey }: EditProps) => {
             apiErrors={apiErrors}
             values={values}
             editMeta={editMeta}
+            issueKey={issueKey}
         />
     );
 };

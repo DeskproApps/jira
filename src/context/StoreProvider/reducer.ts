@@ -89,6 +89,13 @@ export const reducer: StoreReducer = (state: State, action: Action): State => {
         loading: false,
       },
     }))
+    .with([__, { type: "issueComments" }],  ([prevState, action]) => ({
+      ...prevState,
+      issueComments: {
+        ...(prevState.issueComments ?? {}),
+        [action.key]: action.comments,
+      },
+    }))
     .exhaustive()
   ;
 };

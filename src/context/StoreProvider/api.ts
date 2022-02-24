@@ -5,11 +5,11 @@ import {
   InvalidRequestResponseError,
   IssueAttachment,
   IssueItem,
-  IssueSearchItem
+  IssueSearchItem, JiraComment
 } from "./types";
 import {backlinkCommentDoc, paragraphDoc, removeBacklinkCommentDoc} from "./adf";
 import cache from "js-cache";
-import {omit} from "lodash";
+import {omit, orderBy} from "lodash";
 import {FieldType, IssueMeta} from "../../types";
 import {match} from "ts-pattern";
 import {useAdfToPlainText} from "../../hooks";
@@ -33,6 +33,40 @@ export const getIssueByKey = async (client: IDeskproClient, key: string) =>
 export const addLinkCommentToIssue = async (client: IDeskproClient, key: string, ticketId: string, url: string) =>
     request(client, "POST", `${API_BASE_URL}/issue/${key}/comment`, {
       body: backlinkCommentDoc(ticketId, url),
+    })
+;
+
+/**
+ * Get list of comments for a given issue key
+ */
+export const getIssueComments = async (client: IDeskproClient, key: string): Promise<JiraComment[]> => {
+  const data = await request(client, "GET", `${API_BASE_URL}/issue/${key}/comment`);
+
+  if (!data?.comments || !Array.isArray(data.comments)) {
+    return [];
+  }
+
+  const comments = data.comments.map((comment: any) => ({
+    id: comment.id,
+    created: new Date(comment.created),
+    updated: new Date(comment.updated),
+    body: comment.body,
+    author: {
+      accountId: comment.author.accountId,
+      displayName: comment.author.displayName,
+      avatarUrl: comment.author.avatarUrls["24x24"],
+    },
+  } as JiraComment));
+
+  return orderBy<JiraComment>(comments, (comment) => comment.created, ['desc']);
+};
+
+/**
+ * Add a comment to an issue
+ */
+export const addIssueComment = async (client: IDeskproClient, key: string, comment: string) =>
+    request(client, "POST", `${API_BASE_URL}/issue/${key}/comment`, {
+      body: paragraphDoc(comment),
     })
 ;
 

@@ -13,8 +13,9 @@ import { Page } from "../context/StoreProvider/types";
 import { ErrorBlock } from "../components/Error/ErrorBlock";
 import { useDebouncedCallback } from "use-debounce";
 import { Create } from "./Create";
-import {addUnlinkCommentToIssue} from "../context/StoreProvider/api";
-import {Edit} from "./Edit";
+import { addUnlinkCommentToIssue } from "../context/StoreProvider/api";
+import { Edit } from "./Edit";
+import { Comment } from "./Comment";
 
 export const Main: FC = () => {
   const { client } = useDeskproAppClient();
@@ -76,6 +77,7 @@ export const Main: FC = () => {
       .with("view", () => <View {...state.pageParams} />)
       .with("create", () => <Create {...state.pageParams} />)
       .with("edit", () => <Edit {...state.pageParams} />)
+      .with("comment", () => <Comment {...state.pageParams} />)
       .otherwise(() => <Home {...state.pageParams} />)
   ;
 

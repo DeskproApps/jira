@@ -15,6 +15,7 @@ export type Page =
   | "view"
   | "create"
   | "edit"
+  | "comment"
 ;
 
 export interface State {
@@ -27,6 +28,7 @@ export interface State {
   dataDependencies?: any;
   hasGeneratedIssueFormSuccessfully?: boolean;
   isUnlinkingIssue?: boolean;
+  issueComments?: Record<string, JiraComment[]>;
   _error?: Error|unknown;
 }
 
@@ -44,6 +46,7 @@ export type Action =
   | { type: "loadDataDependencies", deps: any }
   | { type: "failedToGenerateIssueForm" }
   | { type: "error", error: string }
+  | { type: "issueComments", key: string, comments: JiraComment[] }
 ;
 
 export interface TicketContext extends Context {
@@ -107,4 +110,16 @@ export class InvalidRequestResponseError extends Error {
   get response() {
     return this._response;
   }
+}
+
+export interface JiraComment {
+  id: string;
+  created: Date;
+  updated: Date;
+  body: ADFEntity;
+  author: {
+    accountId: string;
+    displayName: string;
+    avatarUrl: string;
+  };
 }
