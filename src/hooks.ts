@@ -1,8 +1,13 @@
 import { useEffect, useState } from "react";
-import { useDeskproAppClient } from "@deskpro/app-sdk";
-import {getIssueAttachments, getIssueDependencies, listLinkedIssues} from "./context/StoreProvider/api";
+import { useDeskproAppClient, useInitialisedDeskproAppClient } from "@deskpro/app-sdk";
+import {
+  getIssueAttachments,
+  getIssueComments,
+  getIssueDependencies,
+  listLinkedIssues
+} from "./context/StoreProvider/api";
 import { useStore } from "./context/StoreProvider/hooks";
-import { IssueAttachment, IssueItem } from "./context/StoreProvider/types";
+import { IssueAttachment, IssueItem, JiraComment } from "./context/StoreProvider/types";
 import { ADFEntity, reduce } from "@atlaskit/adf-utils";
 
 export const useSetAppTitle = (title: string): void => {
@@ -86,6 +91,31 @@ export const useAdfToPlainText = () => {
   };
 };
 
+export const useAdfToAnchoredText = () => {
+  return (document: ADFEntity): string => {
+    if (!document) {
+      return "";
+    }
+
+    return reduce(document, (acc, node) => {
+      if (node.type === "text") {
+
+        if (node?.marks) {
+          const links = (node.marks ?? []).filter((m) => m.type === "link")[0];
+          if (links && links.attrs?.href) {
+            acc += `<a href="${links.attrs.href}" target="_blank">${node.text}</a>`;
+            return acc;
+          }
+        }
+
+        acc += node.text;
+      }
+
+      return acc;
+    }, "");
+  };
+};
+
 export const useAssociatedEntityCount = (key: string) => {
   const { client } = useDeskproAppClient();
   const [entityCount, setEntityCount] = useState<number>(0);
@@ -110,4 +140,24 @@ export const useLoadDataDependencies = () => {
         .then((deps) => dispatch({ type: "loadDataDependencies", deps }))
     ;
   }, [client, dispatch, getIssueDependencies]);
+};
+
+export const useFindIssueComments = (issueKey: string): JiraComment[]|null => {
+  const [ state , dispatch ] = useStore();
+
+  useInitialisedDeskproAppClient((client) => {
+    if (!issueKey) {
+      return;
+    }
+
+    getIssueComments(client, issueKey)
+        .then((comments) => dispatch({ type: "issueComments", key: issueKey, comments }))
+    ;
+  }, [issueKey]);
+
+  if (!state?.issueComments || !state?.issueComments[issueKey]) {
+    return null;
+  }
+
+  return state?.issueComments[issueKey];
 };

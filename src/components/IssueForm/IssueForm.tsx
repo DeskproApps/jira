@@ -33,10 +33,11 @@ export interface IssueFormProps {
     values?: any;
     loading?: boolean;
     editMeta?: Record<string, IssueMeta>;
+    issueKey?: string;
 }
 
-export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, apiErrors, editMeta, loading = false }: IssueFormProps) => {
-    const [ state ] = useStore();
+export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, apiErrors, editMeta, issueKey, loading = false }: IssueFormProps) => {
+    const [ state, dispatch ] = useStore();
 
     useLoadDataDependencies();
 
@@ -303,7 +304,11 @@ export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, apiError
                         <div className="create-form-field">
                             <Stack justify="space-between">
                                 <Button text={type === "create" ? "Create" : "Update"} onClick={() => submitForm()} loading={loading} />
-                                <Button text="Reset" intent="secondary" onClick={() => resetForm()} />
+                                {type === "update" && issueKey ? (
+                                    <Button text="Cancel" intent="secondary" onClick={() => dispatch({ type: "changePage", page: "view", params: { issueKey } })} />
+                                ) : (
+                                    <Button text="Reset" intent="secondary" onClick={() => resetForm()} />
+                                )}
                             </Stack>
                         </div>
                     </Stack>

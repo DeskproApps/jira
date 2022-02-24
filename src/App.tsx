@@ -12,6 +12,11 @@ import "flag-icon-css/css/flag-icons.min.css";
 import "@deskpro/deskpro-ui/dist/deskpro-ui.css";
 import "@deskpro/deskpro-ui/dist/deskpro-custom-icons.css";
 
+import TimeAgo from "javascript-time-ago";
+import en from "javascript-time-ago/locale/en.json";
+
+TimeAgo.addDefaultLocale(en)
+
 function App() {
   return (
     <DeskproAppProvider>
