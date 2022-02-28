@@ -11,12 +11,13 @@ import {
   Property, Spinner,
   Stack,
   HorizontalDivider,
+  AttachmentTag,
   useDeskproAppClient,
   useDeskproAppTheme
 } from "@deskpro/app-sdk";
 import { ExternalLink } from "../components/ExternalLink/ExternalLink";
 import { useStore } from "../context/StoreProvider/hooks";
-import { faFileAlt } from "@fortawesome/free-regular-svg-icons";
+import { faFile } from "@fortawesome/free-regular-svg-icons";
 import { IssueFieldView } from "../components/IssueFieldView/IssueFieldView";
 import { CommentsList } from "../components/CommentsList/CommentsList";
 
@@ -148,23 +149,19 @@ export const View: FC<ViewProps> = ({ issueKey }: ViewProps) => {
           )}
           {(!state.linkedIssueAttachments?.loading && attachments.length > 0) && (
             <Property title="Attachments">
-              {attachments.map((attachment, idx) => (
-                <div key={idx} style={{ marginBottom: "3px" }}>
-                  <Pill
-                    textColor={theme.colors.grey100}
-                    backgroundColor={theme.colors.grey10}
-                    label={(
-                      <span style={{ display: "inline-flex" }}>
-                        <a href={attachment.url} target="_blank" className="truncate" style={{ color: theme.colors.cyan100, textDecoration: "none", width: "160px" }}>
-                          {attachment.filename}
-                        </a>
-                        <span style={{ marginLeft: "4px" }}>{attachment.sizeMb.toFixed(2)}MB</span>
-                      </span>
-                    )}
-                    icon={faFileAlt}
-                  />
-                </div>
-              ))}
+              <Stack gap={3} vertical>
+                {attachments.map((attachment, idx) => (
+                    <AttachmentTag
+                        key={idx}
+                        target="_blank"
+                        download
+                        href={attachment.url}
+                        filename={attachment.filename}
+                        fileSize={attachment.sizeBytes}
+                        icon={faFile}
+                    />
+                ))}
+              </Stack>
             </Property>
           )}
           {Object.keys(issue.customFields).map((key: string, idx: number) => (

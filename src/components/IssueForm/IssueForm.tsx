@@ -1,6 +1,7 @@
 import { FC } from "react";
 import { Formik, FormikHelpers } from "formik";
 import {
+    AttachmentTag,
     Button,
     DropdownValueType,
     FormikField,
@@ -25,6 +26,9 @@ import { buildCustomFieldMeta } from "../../context/StoreProvider/api";
 import { FieldType, IssueMeta } from "../../types";
 import { CustomField } from "../IssueFieldForm/map";
 import { DropdownMultiSelect } from "../DropdownMultiSelect/DropdownMultiSelect";
+import {faFile} from "@fortawesome/free-regular-svg-icons";
+import {faPlus} from "@fortawesome/free-solid-svg-icons";
+import {AttachmentsField} from "../AttachmentsField/AttachmentsField";
 
 export interface IssueFormProps {
     onSubmit: (values: any, formikHelpers: FormikHelpers<any>, meta: Record<string, IssueMeta>) => void | Promise<any>;
@@ -278,6 +282,10 @@ export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, apiError
                                 </FormikField>
                             </div>
                         )}
+                        <div className="create-form-field">
+                            <Label label="Attachments" />
+                            <AttachmentsField />
+                        </div>
                         <div className="create-form-field">
                             <FormikField<string[]> name="labels">
                                 {([field, , helpers], { id, error }) => (
