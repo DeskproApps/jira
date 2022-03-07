@@ -1,4 +1,4 @@
-import {FC, useEffect, useState} from "react";
+import {FC, useEffect, useMemo, useState} from "react";
 import { IssueForm } from "../components/IssueForm/IssueForm";
 import {
     buildCustomFieldMeta,
@@ -7,8 +7,19 @@ import {
     getIssueByKey, updateIssue
 } from "../context/StoreProvider/api";
 import { useDeskproAppClient, LoadingSpinner } from "@deskpro/app-sdk";
-import { IssueFormData, InvalidRequestResponseError } from "../context/StoreProvider/types";
-import {useAdfToPlainText, useLoadLinkedIssues, useSetAppTitle} from "../hooks";
+import {
+    IssueFormData,
+    InvalidRequestResponseError,
+    IssueAttachment,
+    AttachmentFile
+} from "../context/StoreProvider/types";
+import {
+    useAdfToPlainText,
+    useFindLinkedIssueAttachmentsByKey,
+    useLoadLinkedIssueAttachment,
+    useLoadLinkedIssues,
+    useSetAppTitle
+} from "../hooks";
 import { useStore } from "../context/StoreProvider/hooks";
 import { FormikHelpers } from "formik";
 import { IssueMeta } from "../types";
@@ -27,6 +38,8 @@ export const Edit: FC<EditProps> = ({ issueKey }: EditProps) => {
     const adfToPlainText = useAdfToPlainText();
 
     const loadIssues = useLoadLinkedIssues();
+    const loadIssueAttachments = useLoadLinkedIssueAttachment();
+    const findAttachmentsByKey = useFindLinkedIssueAttachmentsByKey();
 
     useSetAppTitle(`Edit ${issueKey}`);
 
@@ -39,6 +52,15 @@ export const Edit: FC<EditProps> = ({ issueKey }: EditProps) => {
     useEffect(() => {
         (client && issueKey) && getIssueByKey(client, issueKey).then(setIssue);
     }, [client, issueKey])
+
+    useEffect(() => {
+        loadIssueAttachments(issueKey);
+    }, [issueKey]);
+
+    const attachments = useMemo(
+        () => findAttachmentsByKey(issueKey),
+        [issueKey]
+    );
 
     if (!issue) {
         return (<LoadingSpinner />);
@@ -59,8 +81,8 @@ export const Edit: FC<EditProps> = ({ issueKey }: EditProps) => {
                 dispatch({ type: "changePage", page: "view", params: { issueKey } });
             })
             .catch((error) => {
-                if (error instanceof InvalidRequestResponseError && error.response?.errors) {
-                    setApiErrors(error.response.errors);
+                if (error instanceof InvalidRequestResponseError && (error.response?.errors || error.response?.errorMessages)) {
+                    setApiErrors(error.response.errors ?? error.response?.errorMessages);
                 } else {
                     dispatch({ type: "error", error });
                 }
@@ -74,6 +96,11 @@ export const Edit: FC<EditProps> = ({ issueKey }: EditProps) => {
     const editMeta: Record<string, IssueMeta> = buildCustomFieldMeta(issue.editmeta.fields ?? {});
 
     const values = {
+        attachments: attachments.map((a) => ({
+            id: a.id,
+            name: a.filename,
+            size: a.sizeBytes,
+        } as AttachmentFile)),
         summary: issue.fields.summary,
         description: adfToPlainText(issue.fields.description),
         issueTypeId: issue.fields.issuetype.id,

@@ -100,6 +100,15 @@ export interface IssueFormData {
   labels: string[],
   priority: string;
   customFields: Record<string, any>;
+  attachments: AttachmentFile[];
+}
+
+export interface AttachmentFile {
+  name: string;
+  size: number;
+  id?: number;
+  file?: File;
+  delete?: boolean;
 }
 
 export class InvalidRequestResponseError extends Error {

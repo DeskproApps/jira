@@ -21,7 +21,7 @@ import { useLoadDataDependencies } from "../../hooks";
 import { orderBy, uniq } from "lodash";
 import { JiraIssueType, JiraProject, JiraUser } from "./types";
 import { DropdownSelect } from "../DropdownSelect/DropdownSelect";
-import { IssueFormData } from "../../context/StoreProvider/types";
+import {AttachmentFile, IssueAttachment, IssueFormData} from "../../context/StoreProvider/types";
 import { buildCustomFieldMeta } from "../../context/StoreProvider/api";
 import { FieldType, IssueMeta } from "../../types";
 import { CustomField } from "../IssueFieldForm/map";
@@ -69,6 +69,7 @@ export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, apiError
         labels: [],
         priority: "",
         customFields: {},
+        attachments: [],
     } as IssueFormData;
 
     const projects = orderBy(
@@ -284,7 +285,11 @@ export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, apiError
                         )}
                         <div className="create-form-field">
                             <Label label="Attachments" />
-                            <AttachmentsField />
+                            <FormikField<AttachmentFile[]> name="attachments">
+                                {([field, , helpers]) => (
+                                    <AttachmentsField onFiles={helpers.setValue} existing={field.value} />
+                                )}
+                            </FormikField>
                         </div>
                         <div className="create-form-field">
                             <FormikField<string[]> name="labels">

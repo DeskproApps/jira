@@ -13,7 +13,7 @@ import {
   HorizontalDivider,
   AttachmentTag,
   useDeskproAppClient,
-  useDeskproAppTheme
+  useDeskproAppTheme, useInitialisedDeskproAppClient
 } from "@deskpro/app-sdk";
 import { ExternalLink } from "../components/ExternalLink/ExternalLink";
 import { useStore } from "../context/StoreProvider/hooks";
@@ -51,18 +51,8 @@ export const View: FC<ViewProps> = ({ issueKey }: ViewProps) => {
   );
 
   useEffect(() => {
-    if (!client || !issueKey) {
-      return;
-    }
-
-    if (findAttachmentsByKey(issueKey).length) {
-      return;
-    }
-
-    if (!state.linkedIssueAttachments) {
-      loadIssueAttachments(issueKey);
-    }
-  }, [state, client, issueKey, loadIssueAttachments, findAttachmentsByKey]);
+    loadIssueAttachments(issueKey);
+  }, [issueKey]);
 
   const attachments = useMemo(
     () => state.linkedIssueAttachments ? findAttachmentsByKey(issueKey) : [],
@@ -159,6 +149,7 @@ export const View: FC<ViewProps> = ({ issueKey }: ViewProps) => {
                         filename={attachment.filename}
                         fileSize={attachment.sizeBytes}
                         icon={faFile}
+                        maxWidth="244px"
                     />
                 ))}
               </Stack>

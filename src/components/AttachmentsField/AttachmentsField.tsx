@@ -3,35 +3,62 @@ import {AttachmentTag, Button, Stack} from "@deskpro/app-sdk";
 import {faFile} from "@fortawesome/free-regular-svg-icons";
 import {faPlus} from "@fortawesome/free-solid-svg-icons";
 import {omit} from "lodash";
+import {AttachmentFile} from "../../context/StoreProvider/types";
 
 interface AttachmentsFieldProps {
-
+    onFiles?: (files: AttachmentFile[]) => void;
+    existing?: AttachmentFile[];
 }
 
-export const AttachmentsField: FC<AttachmentsFieldProps> = () => {
+export const AttachmentsField: FC<AttachmentsFieldProps> = ({ onFiles, existing }: AttachmentsFieldProps) => {
     const fileRef = useRef<HTMLInputElement>(null);
 
-    const [fieldIdx, setFieldIdx] = useState<number>(0);
-    const [fields, setFields] = useState<string[]>(["file[0]"]);
-    const [files, setFiles] = useState<Record<string, File>>({});
+    const [fieldIdx, setFieldIdx] = useState<number>((existing ?? []).length);
+    const [fields, setFields] = useState<string[]>(["file[0]", ...(existing ?? []).map((_, idx: number) => `file[${idx + 1}]`)]);
+    const [files, setFiles] = useState<Record<string, AttachmentFile>>((existing ?? []).reduce((all, a, idx: number) => ({
+        ...all,
+        [`file[${idx}]`]: a,
+    }), {}));
 
     const upload = (e: ChangeEvent<HTMLInputElement>, name: string) => {
-        if (!e.target.files) {
+        if (!e.target.files || !e.target.files[0]) {
             return;
         }
 
-        setFiles({
+        const file = e.target.files[0];
+
+        const newFiles = {
             ...files,
-            [name]: e.target.files[0],
-        });
+            [name]: {
+                file,
+                name: file.name,
+                size: file.size,
+            } as AttachmentFile,
+        };
+
+        setFiles(newFiles);
 
         setFieldIdx(fieldIdx + 1);
         setFields([...fields, `file[${fieldIdx + 1}]`]);
+
+        onFiles && onFiles(Object.values(newFiles));
     };
 
-    const add = () => fileRef.current && fileRef.current.click();
+    const add = () => {
+        fileRef.current && fileRef.current.click()
+    };
 
-    const remove = (name: string) => setFiles(omit(files, [name]));
+    const remove = (name: string) => {
+        if (files[name].id) {
+            files[name].delete = true;
+            setFiles(files);
+            onFiles && onFiles(Object.values(files));
+        } else {
+            const remaining = omit(files, [name]);
+            setFiles(remaining);
+            onFiles && onFiles(Object.values(remaining));
+        }
+    };
 
     return (
         <>
@@ -46,7 +73,7 @@ export const AttachmentsField: FC<AttachmentsFieldProps> = () => {
                 />
             ))}
             <Stack gap={3} vertical>
-                {Object.keys(files).map((name, idx: number) => (
+                {Object.keys(files).filter((name) => !files[name]?.delete).map((name, idx: number) => (
                     <AttachmentTag
                         key={idx}
                         filename={files[name].name}

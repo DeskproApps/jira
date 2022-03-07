@@ -2,7 +2,7 @@
   "name": "@deskpro/jira",
   "title": "JIRA",
   "description": "View JIRA issues associated with a Deskpro ticket",
-  "version": "0.2.9",
+  "version": "0.2.10",
   "scope": "agent",
   "isSingleInstall": true,
   "hasDevMode": true,
@@ -51,7 +51,7 @@
   "proxy": {
     "whitelist": [{
       "url": "https://(.*).atlassian.net/rest/api/.*",
-      "methods": ["GET", "POST", "PUT"],
+      "methods": ["GET", "POST", "PUT", "DELETE"],
       "timeout": 30
     }]
   }

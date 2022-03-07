@@ -5,7 +5,7 @@ import {
   InvalidRequestResponseError,
   IssueAttachment,
   IssueItem,
-  IssueSearchItem, JiraComment
+  IssueSearchItem, JiraComment, AttachmentFile
 } from "./types";
 import {backlinkCommentDoc, paragraphDoc, removeBacklinkCommentDoc} from "./adf";
 import cache from "js-cache";
@@ -15,7 +15,7 @@ import {match} from "ts-pattern";
 import {useAdfToPlainText} from "../../hooks";
 
 // JIRA REST API Base URL
-const API_BASE_URL = "https://__username__:__api_key__@__domain__.atlassian.net/rest/api/3";
+const API_BASE_URL = "https://__domain__.atlassian.net/rest/api/3";
 
 // Key for search dependency caching (milliseconds)
 const SEARCH_DEPS_CACHE_TTL = 5 * (60 * 1000); // 5 Minutes
@@ -287,6 +287,24 @@ export const createIssue = async (client: IDeskproClient, data: IssueFormData, m
      throw new InvalidRequestResponseError("Failed to create JIRA issue", res);
    }
 
+  if ((data.attachments ?? []).length) {
+    const attachmentUploads = data.attachments.map((attachment: AttachmentFile) => {
+      if (attachment.file) {
+        const form = new FormData();
+        form.append(`file`, attachment.file);
+
+        return request(
+            client,
+            "POST",
+            `${API_BASE_URL}/issue/${res.key}/attachments`,
+            form
+        );
+      }
+    });
+
+    await Promise.all(attachmentUploads);
+  }
+
    return res;
 };
 
@@ -327,8 +345,34 @@ export const updateIssue = async (client: IDeskproClient, issueKey: string, data
 
   const res = await request(client, "PUT", `${API_BASE_URL}/issue/${issueKey}`, body);
 
-  if (res?.errors) {
-    throw new InvalidRequestResponseError("Failed to create JIRA issue", res);
+  if (res?.errors || res?.errorMessages) {
+    throw new InvalidRequestResponseError("Failed to update JIRA issue", res);
+  }
+
+  if ((data.attachments ?? []).length) {
+    const attachmentUploads = data.attachments.map((attachment: AttachmentFile) => {
+      if (attachment.file) {
+        const form = new FormData();
+        form.append(`file`, attachment.file);
+
+        return request(
+            client,
+            "POST",
+            `${API_BASE_URL}/issue/${issueKey}/attachments`,
+            form
+        );
+      }
+
+      if (attachment.id && attachment.delete) {
+        return request(
+            client,
+            "DELETE",
+            `${API_BASE_URL}/attachment/${attachment.id}`,
+        );
+      }
+    });
+
+    await Promise.all(attachmentUploads);
   }
 
   return res;
@@ -365,15 +409,32 @@ export const getIssueDependencies = async (client: IDeskproClient) => {
   return cache.get(cache_key);
 };
 
-const request = async (client: IDeskproClient, method: ApiRequestMethod, url: string, body?: any) => {
+const request = async (client: IDeskproClient, method: ApiRequestMethod, url: string, content?: any) => {
   const dpFetch = await proxyFetch(client);
+
+  let body = undefined;
+
+  if (content instanceof FormData) {
+    body = content;
+  } else if(content) {
+    body = JSON.stringify(content);
+  }
+
+  const headers: Record<string, string> = {
+    "Authorization": "Basic __username+':'+api_key.base64__",
+    "Accept": "application/json",
+  };
+
+  if (body instanceof FormData) {
+    headers["X-Atlassian-Token"] = "no-check";
+  } else if (content) {
+    headers["Content-Type"] = "application/json";
+  }
+
   const res = await dpFetch(url, {
     method,
-    body: body ? JSON.stringify(body) : undefined,
-    headers: {
-      "Accept": "application/json",
-      "Content-Type": "application/json",
-    },
+    body,
+    headers,
   });
 
   if (res.status === 400) {
