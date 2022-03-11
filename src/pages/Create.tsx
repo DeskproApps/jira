@@ -1,7 +1,7 @@
 import {FC, useEffect, useState} from "react";
 import {CreateLinkIssue} from "../components/CreateLinkIssue/CreateLinkIssue";
 import {IssueForm} from "../components/IssueForm/IssueForm";
-import {addLinkCommentToIssue, createIssue} from "../context/StoreProvider/api";
+import {addLinkCommentToIssue, createIssue, getIssueByKey} from "../context/StoreProvider/api";
 import {useDeskproAppClient} from "@deskpro/app-sdk";
 import {IssueFormData, InvalidRequestResponseError} from "../context/StoreProvider/types";
 import {useLoadLinkedIssues, useSetAppTitle} from "../hooks";
@@ -32,12 +32,14 @@ export const Create: FC = () => {
         setApiErrors({});
 
         createIssue(client, data, meta)
-            .then(({ key }) => {
-                client
+            .then(({ key }) => getIssueByKey(client, key))
+            .then(async (issue) => {
+                await client
                     .getEntityAssociation("linkedJiraIssues", state.context?.data.ticket.id as string)
-                    .set(key);
+                    .set(issue.key, issue)
+                ;
 
-                return key;
+                return issue.key;
             })
             .then((key) => addLinkCommentToIssue(
                 client,
