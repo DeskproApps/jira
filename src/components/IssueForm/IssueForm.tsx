@@ -1,7 +1,6 @@
 import { FC } from "react";
 import { Formik, FormikHelpers } from "formik";
 import {
-    AttachmentTag,
     Button,
     DropdownValueType,
     FormikField,
@@ -21,13 +20,11 @@ import { useLoadDataDependencies } from "../../hooks";
 import { orderBy, uniq } from "lodash";
 import { JiraIssueType, JiraProject, JiraUser } from "./types";
 import { DropdownSelect } from "../DropdownSelect/DropdownSelect";
-import {AttachmentFile, IssueAttachment, IssueFormData} from "../../context/StoreProvider/types";
+import {AttachmentFile, IssueFormData} from "../../context/StoreProvider/types";
 import { buildCustomFieldMeta } from "../../context/StoreProvider/api";
 import { FieldType, IssueMeta } from "../../types";
 import { CustomField } from "../IssueFieldForm/map";
 import { DropdownMultiSelect } from "../DropdownMultiSelect/DropdownMultiSelect";
-import {faFile} from "@fortawesome/free-regular-svg-icons";
-import {faPlus} from "@fortawesome/free-solid-svg-icons";
 import {AttachmentsField} from "../AttachmentsField/AttachmentsField";
 
 export interface IssueFormProps {
@@ -66,6 +63,7 @@ export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, apiError
         issueTypeId: "",
         projectId: "",
         reporterUserId: "",
+        assigneeUserId: "",
         labels: [],
         priority: "",
         customFields: {},
@@ -246,6 +244,21 @@ export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, apiError
                                             placeholder="Add Value"
                                             rows={5}
                                             className={`paragraph-field ${field.value ? "has-value" : ""}`}
+                                        />
+                                    </Label>
+                                )}
+                            </FormikField>
+                        </div>
+                        <div className="create-form-field">
+                            <FormikField<string> name="assigneeUserId">
+                                {([field, , helpers], { id, error }) => (
+                                    <Label htmlFor={id} label="Assignee" error={error}>
+                                        <DropdownSelect
+                                            helpers={helpers}
+                                            options={userOptions}
+                                            id={id}
+                                            placeholder="Select value"
+                                            value={field.value}
                                         />
                                     </Label>
                                 )}

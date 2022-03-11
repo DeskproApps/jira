@@ -110,6 +110,17 @@ export const View: FC<ViewProps> = ({ issueKey }: ViewProps) => {
           <Property title="Status">
             {issue.status}
           </Property>
+          <Property title="Assignee">
+            {issue.assigneeId ? (
+                <div style={{ position: "relative" }}>
+                  <img src={issue.assigneeAvatarUrl} width={18} height={18} alt="" className="user-avatar" />
+                  <span className="user-name">{issue.assigneeName}</span>
+                  <ExternalLink href={`https://${domain}.atlassian.net/jira/people/${issue.assigneeId}`} />
+                </div>
+            ) : (
+                <span style={{ color: theme.colors.grey80 }}>None</span>
+            )}
+          </Property>
           <Property title="Reporter">
             <div style={{ position: "relative" }}>
               <img src={issue.reporterAvatarUrl} width={18} height={18} alt="" className="user-avatar" />

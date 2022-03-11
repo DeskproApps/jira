@@ -63,6 +63,9 @@ export interface IssueItem {
   reporterId: string;
   reporterName: string;
   reporterAvatarUrl: string;
+  assigneeId: string;
+  assigneeName: string;
+  assigneeAvatarUrl: string;
   epicKey?: string;
   epicName?: string;
   priority: string;
@@ -97,6 +100,7 @@ export interface IssueFormData {
   issueTypeId: string;
   projectId: string;
   reporterUserId: string;
+  assigneeUserId: string;
   labels: string[],
   priority: string;
   customFields: Record<string, any>;
