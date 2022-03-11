@@ -6,6 +6,7 @@ import { faCalendarAlt } from "@fortawesome/free-solid-svg-icons";
 
 export const DateField: FC<MappedFieldProps> = ({ id, meta, field, helpers, error }: MappedFieldProps) => (
     <DatePicker
+        options={{ position: "left" }}
         onChange={(dates: any[]) => {
             helpers.setValue(dates[0]);
             helpers.setTouched(true);
@@ -18,7 +19,7 @@ export const DateField: FC<MappedFieldProps> = ({ id, meta, field, helpers, erro
                 error={error}
                 placeholder="Select date"
             >
-                <DatePickerInput id={id} inputsize="small" variant="inline" rightIcon={faCalendarAlt} ref={ref} />
+                <DatePickerInput id={id} inputsize="small" variant="inline" rightIcon={faCalendarAlt} ref={ref} style={{ maxWidth: "244px" }} />
             </Label>
         )}
     />
