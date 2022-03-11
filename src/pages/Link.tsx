@@ -14,7 +14,7 @@ import { useDebouncedCallback } from "use-debounce";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useLoadLinkedIssues, useSetAppTitle } from "../hooks";
 import { SearchResultItem } from "../components/SearchResultItem/SearchResultItem";
-import { addLinkCommentToIssue, searchIssues } from "../context/StoreProvider/api";
+import {addLinkCommentToIssue, getIssueByKey, searchIssues} from "../context/StoreProvider/api";
 import {CreateLinkIssue} from "../components/CreateLinkIssue/CreateLinkIssue";
 
 export const Link: FC = () => {
@@ -76,10 +76,14 @@ export const Link: FC = () => {
 
     setIsLinkIssuesLoading(true);
 
-    const updates = selected.map((key: string) => client
-      .getEntityAssociation("linkedJiraIssues", state.context?.data.ticket.id as string)
-      .set(key)
-    );
+    const updates = selected.map(async (key: string) => {
+      const issue = await getIssueByKey(client, key);
+
+      return client
+          .getEntityAssociation("linkedJiraIssues", state.context?.data.ticket.id as string)
+          .set(key, issue)
+      ;
+    });
 
     updates.push(...selected.map((key: string) => addLinkCommentToIssue(
         client,

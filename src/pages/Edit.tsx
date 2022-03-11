@@ -73,6 +73,14 @@ export const Edit: FC<EditProps> = ({ issueKey }: EditProps) => {
         setApiErrors({});
 
         updateIssue(client, issueKey, data, meta)
+            .then(async () => {
+                const issue = await getIssueByKey(client, issueKey);
+
+                return client
+                    .getEntityAssociation("linkedJiraIssues", state.context?.data.ticket.id as string)
+                    .set(issueKey, issue)
+                ;
+            })
             .then(() => loadIssues())
             .then(() => {
                 setLoading(false);
