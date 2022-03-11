@@ -18,7 +18,7 @@ export const DateTimeField: FC<MappedFieldProps> = ({ id, meta, field, helpers, 
                 error={error}
                 placeholder="Select date/time"
             >
-                <DatePickerInput id={id} inputsize="small" variant="inline" rightIcon={faCalendarAlt} ref={ref} />
+                <DatePickerInput id={id} inputsize="small" variant="inline" rightIcon={faCalendarAlt} ref={ref} style={{ maxWidth: "244px" }} />
             </Label>
         )}
     />

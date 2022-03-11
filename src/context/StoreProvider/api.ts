@@ -205,6 +205,9 @@ export const listLinkedIssues = async (client: IDeskproClient, keys: string[]): 
     reporterId: issues[issue.key].fields.reporter.accountId,
     reporterName: issues[issue.key].fields.reporter.displayName,
     reporterAvatarUrl: issues[issue.key].fields.reporter.avatarUrls["24x24"],
+    assigneeId: issues[issue.key].fields.assignee?.accountId,
+    assigneeName: issues[issue.key].fields.assignee?.displayName,
+    assigneeAvatarUrl: issues[issue.key].fields.assignee?.avatarUrls["24x24"],
     epicKey: epics[epicKeys[issue.key]] ? epics[epicKeys[issue.key]].key : undefined,
     epicName: epics[epicKeys[issue.key]] ? epics[epicKeys[issue.key]].fields.summary : undefined,
     sprints: (sprints[issue.key] ?? []).map((sprint: any) => ({
@@ -281,6 +284,10 @@ export const createIssue = async (client: IDeskproClient, data: IssueFormData, m
     },
   };
 
+  if (data.assigneeUserId) {
+    body.fields.assignee = { id: data.assigneeUserId };
+  }
+
    const res = await request(client, "POST", `${API_BASE_URL}/issue`, body);
 
    if (!res.id || !res.key) {
@@ -342,6 +349,10 @@ export const updateIssue = async (client: IDeskproClient, issueKey: string, data
       ...customFields,
     },
   };
+
+  if (data.assigneeUserId) {
+    body.fields.assignee = { id: data.assigneeUserId };
+  }
 
   const res = await request(client, "PUT", `${API_BASE_URL}/issue/${issueKey}`, body);
 

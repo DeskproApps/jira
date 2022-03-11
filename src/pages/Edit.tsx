@@ -2,7 +2,6 @@ import {FC, useEffect, useMemo, useState} from "react";
 import { IssueForm } from "../components/IssueForm/IssueForm";
 import {
     buildCustomFieldMeta,
-    createIssue,
     formatCustomFieldValueForSet,
     getIssueByKey, updateIssue
 } from "../context/StoreProvider/api";
@@ -10,7 +9,6 @@ import { useDeskproAppClient, LoadingSpinner } from "@deskpro/app-sdk";
 import {
     IssueFormData,
     InvalidRequestResponseError,
-    IssueAttachment,
     AttachmentFile
 } from "../context/StoreProvider/types";
 import {
@@ -106,6 +104,7 @@ export const Edit: FC<EditProps> = ({ issueKey }: EditProps) => {
         issueTypeId: issue.fields.issuetype.id,
         projectId: issue.fields.project.id,
         reporterUserId: issue.fields.reporter.accountId,
+        assigneeUserId: issue.fields.assignee?.accountId,
         labels: issue.fields.labels ?? [],
         priority: issue.fields.priority.id,
         customFields: Object.keys(editMeta).reduce((fields, key) => {
