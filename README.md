@@ -77,6 +77,20 @@ Once you're happy with your PR - merge it :)
 
 We'll also perform the same CI process on `master` as this is what we use to review your app when it's done.
 
+UI Library
+---
+
+Our apps SDK provides a [Storybook](https://storybook.js.org/) of available UI components from our standard [UI Library](https://www.npmjs.com/package/@deskpro/deskpro-ui).
+
+To run the apps UI storybook, [clone our SDK repository](https://github.com/DeskproApps/app-sdk) and run the following:
+
+```bash
+yarn
+yarn start
+```
+
+You should now have Storybook running locally on http://localhost:6008/
+
 Testing
 ---
 
