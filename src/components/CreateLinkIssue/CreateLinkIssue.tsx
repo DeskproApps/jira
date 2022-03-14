@@ -15,7 +15,7 @@ export const CreateLinkIssue: FC<CreateLinkIssueProps> = ({ selected }: CreateLi
   return (
     <Stack className="create-link" justify="space-between" align="center" style={{ backgroundColor: colors.grey10 }}>
       <Button
-        text="Find Story"
+        text="Find Issue"
         intent="secondary"
         icon={faSearch}
         size="large"

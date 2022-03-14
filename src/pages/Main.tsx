@@ -3,7 +3,7 @@ import { __, match } from "ts-pattern";
 import {
   Context,
   TargetAction, useDeskproAppClient,
-  useDeskproAppEvents
+  useDeskproAppEvents, useInitialisedDeskproAppClient
 } from "@deskpro/app-sdk";
 import { useStore } from "../context/StoreProvider/hooks";
 import { Home } from "./Home";
@@ -16,6 +16,8 @@ import { Create } from "./Create";
 import { addUnlinkCommentToIssue } from "../context/StoreProvider/api";
 import { Edit } from "./Edit";
 import { Comment } from "./Comment";
+import {registerReplyBoxNotesAdditionsTargetAction, ticketReplyNotesSelectionStateKey} from "../utils";
+import {ReplyBoxNoteSelection} from "../types";
 
 export const Main: FC = () => {
   const { client } = useDeskproAppClient();
@@ -29,11 +31,25 @@ export const Main: FC = () => {
     client?.registerElement("refresh", { type: "refresh_button" });
   }, [client]);
 
-  const debounceTargetAction = useDebouncedCallback<(a: TargetAction) => void>(
-    (action: TargetAction) => match<string>(action.name)
-      .with("linkTicket", () => dispatch({ type: "changePage", page: "link" }))
-      .run()
-    ,
+  const debounceTargetAction = useDebouncedCallback<(a: TargetAction<ReplyBoxNoteSelection[]>) => void>(
+    (action: TargetAction<ReplyBoxNoteSelection[]>) => {
+      match<string>(action.name)
+          .with("linkTicket", () => dispatch({ type: "changePage", page: "link" }))
+          .with("jiraReplyBoxNoteAdditions", () => (action.payload ?? []).forEach((selection) => {
+            if (state.context?.data.ticket.id) {
+              client?.setUserState(
+                  ticketReplyNotesSelectionStateKey(state.context?.data.ticket.id as string, selection.id),
+                  selection.selected
+              ).then((result) => {
+                if (result.isSuccess) {
+                  registerReplyBoxNotesAdditionsTargetAction(client, state);
+                }
+              });
+            }
+          }))
+          .run()
+      ;
+    },
     200
   );
 
@@ -52,6 +68,10 @@ export const Main: FC = () => {
     ;
   };
 
+  useInitialisedDeskproAppClient((client) => {
+    registerReplyBoxNotesAdditionsTargetAction(client, state);
+  }, [state.linkedIssuesResults?.list, state?.context?.data]);
+
   useDeskproAppEvents({
     onChange: (context: Context) => {
       context && dispatch({ type: "loadContext", context: context });
@@ -68,7 +88,7 @@ export const Main: FC = () => {
         .otherwise(() => {})
       ;
     },
-    onTargetAction: debounceTargetAction,
+    onTargetAction: (a) => debounceTargetAction(a as TargetAction),
   }, [state.context?.data]);
 
   const page = match<Page|undefined>(state.page)
