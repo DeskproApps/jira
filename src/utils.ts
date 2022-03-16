@@ -31,14 +31,11 @@ export const registerReplyBoxNotesAdditionsTargetAction = (client: IDeskproClien
         .all(linkedIssues.map((issue) => client.getUserState<boolean>(ticketReplyNotesSelectionStateKey(ticketId, issue.id))))
         .then((flags) => {
             client.registerTargetAction("jiraReplyBoxNoteAdditions", "reply_box_note_item_selection", {
-                payload: {
-                    linkedIssues: (state.linkedIssuesResults?.list ?? []).map((issue, idx) => ({
-                        id: issue.id,
-                        key: issue.key,
-                        summary: issue.summary,
-                        selected: flags[idx][0]?.data ?? false,
-                    })),
-                },
+                payload: (state.linkedIssuesResults?.list ?? []).map((issue, idx) => ({
+                    id: issue.id,
+                    title: issue.key,
+                    selected: flags[idx][0]?.data ?? false,
+                })),
             });
         })
     ;

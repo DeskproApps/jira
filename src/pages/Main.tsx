@@ -70,6 +70,7 @@ export const Main: FC = () => {
 
   useInitialisedDeskproAppClient((client) => {
     registerReplyBoxNotesAdditionsTargetAction(client, state);
+    client.registerTargetAction("jiraOnReplyBoxNote", "on_reply_box_note");
   }, [state.linkedIssuesResults?.list, state?.context?.data]);
 
   useDeskproAppEvents({
