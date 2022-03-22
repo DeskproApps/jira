@@ -3,7 +3,7 @@ import { __, match } from "ts-pattern";
 import {
   Context,
   TargetAction, useDeskproAppClient,
-  useDeskproAppEvents
+  useDeskproAppEvents, useInitialisedDeskproAppClient
 } from "@deskpro/app-sdk";
 import { useStore } from "../context/StoreProvider/hooks";
 import { Home } from "./Home";
@@ -13,12 +13,16 @@ import { Page } from "../context/StoreProvider/types";
 import { ErrorBlock } from "../components/Error/ErrorBlock";
 import { useDebouncedCallback } from "use-debounce";
 import { Create } from "./Create";
-import { addUnlinkCommentToIssue } from "../context/StoreProvider/api";
+import {addIssueComment, addUnlinkCommentToIssue} from "../context/StoreProvider/api";
 import { Edit } from "./Edit";
 import { Comment } from "./Comment";
+import { registerReplyBoxNotesAdditionsTargetAction, ticketReplyNotesSelectionStateKey } from "../utils";
+import { ReplyBoxNoteSelection } from "../types";
+import {useLoadLinkedIssues} from "../hooks";
 
 export const Main: FC = () => {
   const { client } = useDeskproAppClient();
+  const loadLinkedIssues = useLoadLinkedIssues();
   const [state, dispatch] = useStore();
 
   if (state._error) {
@@ -29,12 +33,54 @@ export const Main: FC = () => {
     client?.registerElement("refresh", { type: "refresh_button" });
   }, [client]);
 
-  const debounceTargetAction = useDebouncedCallback<(a: TargetAction) => void>(
-    (action: TargetAction) => match<string>(action.name)
-      .with("linkTicket", () => dispatch({ type: "changePage", page: "link" }))
-      .run()
-    ,
-    200
+  const debounceTargetAction = useDebouncedCallback<(a: TargetAction<ReplyBoxNoteSelection[]>) => void>(
+    (action: TargetAction) => {
+      match<string>(action.name)
+          .with("linkTicket", () => dispatch({ type: "changePage", page: "link" }))
+          .with("jiraReplyBoxNoteAdditions", () => (action.payload ?? []).forEach((selection: { id: string; selected: boolean; }) => {
+            const ticketId = action.subject;
+
+            if (state.context?.data.ticket.id) {
+              client?.setState(
+                  ticketReplyNotesSelectionStateKey(ticketId, selection.id),
+                  { id: selection.id, selected: selection.selected }
+              ).then((result) => {
+                if (result.isSuccess) {
+                  registerReplyBoxNotesAdditionsTargetAction(client, state);
+                }
+              });
+            }
+          }))
+          .with("jiraOnReplyBoxNote", () => {
+            const ticketId = action.subject;
+            const note = action.payload.note;
+
+            if (!ticketId || !note || !client) {
+              return;
+            }
+
+            if (ticketId !== state.context?.data.ticket.id) {
+              return;
+            }
+
+            client.setBlocking(true);
+            client.getState<{ id: string; selected: boolean }>(`tickets/${ticketId}/*`)
+                .then((r) => {
+                  const issueIds = r
+                      .filter(({ data }) => data?.selected)
+                      .map((({ data }) => data?.id as string))
+                  ;
+
+                  return Promise.all(issueIds.map((issueId) => addIssueComment(client, issueId, note)));
+                })
+                .then(() => loadLinkedIssues())
+                .finally(() => client.setBlocking(false))
+            ;
+          })
+          .run()
+      ;
+    },
+    500
   );
 
   const unlinkTicket = ({ issueKey }: any) => {
@@ -52,6 +98,11 @@ export const Main: FC = () => {
     ;
   };
 
+  useInitialisedDeskproAppClient((client) => {
+    registerReplyBoxNotesAdditionsTargetAction(client, state);
+    client.registerTargetAction("jiraOnReplyBoxNote", "on_reply_box_note");
+  }, [state.linkedIssuesResults?.list, state?.context?.data]);
+
   useDeskproAppEvents({
     onChange: (context: Context) => {
       context && dispatch({ type: "loadContext", context: context });
@@ -68,7 +119,7 @@ export const Main: FC = () => {
         .otherwise(() => {})
       ;
     },
-    onTargetAction: debounceTargetAction,
+    onTargetAction: (a) => debounceTargetAction(a as TargetAction),
   }, [state.context?.data]);
 
   const page = match<Page|undefined>(state.page)

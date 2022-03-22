@@ -113,3 +113,12 @@ export type IssueMeta = {
         autoCompleteUrl: string;
     }
 ;
+
+export interface ReplyBoxNoteSelection {
+    id: string;
+    selected: boolean;
+}
+
+export interface ReplyBoxOnReply {
+    note: string;
+}
