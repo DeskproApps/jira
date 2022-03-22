@@ -118,3 +118,7 @@ export interface ReplyBoxNoteSelection {
     id: string;
     selected: boolean;
 }
+
+export interface ReplyBoxOnReply {
+    note: string;
+}

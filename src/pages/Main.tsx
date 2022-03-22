@@ -13,14 +13,16 @@ import { Page } from "../context/StoreProvider/types";
 import { ErrorBlock } from "../components/Error/ErrorBlock";
 import { useDebouncedCallback } from "use-debounce";
 import { Create } from "./Create";
-import { addUnlinkCommentToIssue } from "../context/StoreProvider/api";
+import {addIssueComment, addUnlinkCommentToIssue} from "../context/StoreProvider/api";
 import { Edit } from "./Edit";
 import { Comment } from "./Comment";
-import {registerReplyBoxNotesAdditionsTargetAction, ticketReplyNotesSelectionStateKey} from "../utils";
-import {ReplyBoxNoteSelection} from "../types";
+import { registerReplyBoxNotesAdditionsTargetAction, ticketReplyNotesSelectionStateKey } from "../utils";
+import { ReplyBoxNoteSelection } from "../types";
+import {useLoadLinkedIssues} from "../hooks";
 
 export const Main: FC = () => {
   const { client } = useDeskproAppClient();
+  const loadLinkedIssues = useLoadLinkedIssues();
   const [state, dispatch] = useStore();
 
   if (state._error) {
@@ -32,14 +34,16 @@ export const Main: FC = () => {
   }, [client]);
 
   const debounceTargetAction = useDebouncedCallback<(a: TargetAction<ReplyBoxNoteSelection[]>) => void>(
-    (action: TargetAction<ReplyBoxNoteSelection[]>) => {
+    (action: TargetAction) => {
       match<string>(action.name)
           .with("linkTicket", () => dispatch({ type: "changePage", page: "link" }))
-          .with("jiraReplyBoxNoteAdditions", () => (action.payload ?? []).forEach((selection) => {
+          .with("jiraReplyBoxNoteAdditions", () => (action.payload ?? []).forEach((selection: { id: string; selected: boolean; }) => {
+            const ticketId = action.subject;
+
             if (state.context?.data.ticket.id) {
-              client?.setUserState(
-                  ticketReplyNotesSelectionStateKey(state.context?.data.ticket.id as string, selection.id),
-                  selection.selected
+              client?.setState(
+                  ticketReplyNotesSelectionStateKey(ticketId, selection.id),
+                  { id: selection.id, selected: selection.selected }
               ).then((result) => {
                 if (result.isSuccess) {
                   registerReplyBoxNotesAdditionsTargetAction(client, state);
@@ -47,10 +51,36 @@ export const Main: FC = () => {
               });
             }
           }))
+          .with("jiraOnReplyBoxNote", () => {
+            const ticketId = action.subject;
+            const note = action.payload.note;
+
+            if (!ticketId || !note || !client) {
+              return;
+            }
+
+            if (ticketId !== state.context?.data.ticket.id) {
+              return;
+            }
+
+            client.setBlocking(true);
+            client.getState<{ id: string; selected: boolean }>(`tickets/${ticketId}/*`)
+                .then((r) => {
+                  const issueIds = r
+                      .filter(({ data }) => data?.selected)
+                      .map((({ data }) => data?.id as string))
+                  ;
+
+                  return Promise.all(issueIds.map((issueId) => addIssueComment(client, issueId, note)));
+                })
+                .then(() => loadLinkedIssues())
+                .finally(() => client.setBlocking(false))
+            ;
+          })
           .run()
       ;
     },
-    200
+    500
   );
 
   const unlinkTicket = ({ issueKey }: any) => {

@@ -28,13 +28,14 @@ export const registerReplyBoxNotesAdditionsTargetAction = (client: IDeskproClien
     }
 
     Promise
-        .all(linkedIssues.map((issue) => client.getUserState<boolean>(ticketReplyNotesSelectionStateKey(ticketId, issue.id))))
+        .all(linkedIssues.map((issue) => client.getState<{ selected: boolean }>(ticketReplyNotesSelectionStateKey(ticketId, issue.id))))
         .then((flags) => {
             client.registerTargetAction("jiraReplyBoxNoteAdditions", "reply_box_note_item_selection", {
+                title: "JIRA Issues",
                 payload: (state.linkedIssuesResults?.list ?? []).map((issue, idx) => ({
                     id: issue.id,
                     title: issue.key,
-                    selected: flags[idx][0]?.data ?? false,
+                    selected: flags[idx][0]?.data?.selected ?? false,
                 })),
             });
         })
