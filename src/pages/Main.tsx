@@ -16,7 +16,11 @@ import { Create } from "./Create";
 import {addIssueComment, addUnlinkCommentToIssue} from "../context/StoreProvider/api";
 import { Edit } from "./Edit";
 import { Comment } from "./Comment";
-import { registerReplyBoxNotesAdditionsTargetAction, ticketReplyNotesSelectionStateKey } from "../utils";
+import {
+  registerReplyBoxEmailsAdditionsTargetAction,
+  registerReplyBoxNotesAdditionsTargetAction, ticketReplyEmailsSelectionStateKey,
+  ticketReplyNotesSelectionStateKey
+} from "../utils";
 import { ReplyBoxNoteSelection } from "../types";
 import {useLoadLinkedIssues} from "../hooks";
 
@@ -51,6 +55,20 @@ export const Main: FC = () => {
               });
             }
           }))
+          .with("jiraReplyBoxEmailAdditions", () => (action.payload ?? []).forEach((selection: { id: string; selected: boolean; }) => {
+            const ticketId = action.subject;
+
+            if (state.context?.data.ticket.id) {
+              client?.setState(
+                  ticketReplyEmailsSelectionStateKey(ticketId, selection.id),
+                  { id: selection.id, selected: selection.selected }
+              ).then((result) => {
+                if (result.isSuccess) {
+                  registerReplyBoxEmailsAdditionsTargetAction(client, state);
+                }
+              });
+            }
+          }))
           .with("jiraOnReplyBoxNote", () => {
             const ticketId = action.subject;
             const note = action.payload.note;
@@ -64,7 +82,7 @@ export const Main: FC = () => {
             }
 
             client.setBlocking(true);
-            client.getState<{ id: string; selected: boolean }>(`tickets/${ticketId}/*`)
+            client.getState<{ id: string; selected: boolean }>(`tickets/${ticketId}/notes/*`)
                 .then((r) => {
                   const issueIds = r
                       .filter(({ data }) => data?.selected)
@@ -72,6 +90,32 @@ export const Main: FC = () => {
                   ;
 
                   return Promise.all(issueIds.map((issueId) => addIssueComment(client, issueId, note)));
+                })
+                .then(() => loadLinkedIssues())
+                .finally(() => client.setBlocking(false))
+            ;
+          })
+          .with("jiraOnReplyBoxEmail", () => {
+            const ticketId = action.subject;
+            const email = action.payload.email;
+
+            if (!ticketId || !email || !client) {
+              return;
+            }
+
+            if (ticketId !== state.context?.data.ticket.id) {
+              return;
+            }
+
+            client.setBlocking(true);
+            client.getState<{ id: string; selected: boolean }>(`tickets/${ticketId}/emails/*`)
+                .then((r) => {
+                  const issueIds = r
+                      .filter(({ data }) => data?.selected)
+                      .map((({ data }) => data?.id as string))
+                  ;
+
+                  return Promise.all(issueIds.map((issueId) => addIssueComment(client, issueId, email)));
                 })
                 .then(() => loadLinkedIssues())
                 .finally(() => client.setBlocking(false))
@@ -100,7 +144,9 @@ export const Main: FC = () => {
 
   useInitialisedDeskproAppClient((client) => {
     registerReplyBoxNotesAdditionsTargetAction(client, state);
+    registerReplyBoxEmailsAdditionsTargetAction(client, state);
     client.registerTargetAction("jiraOnReplyBoxNote", "on_reply_box_note");
+    client.registerTargetAction("jiraOnReplyBoxEmail", "on_reply_box_email");
   }, [state.linkedIssuesResults?.list, state?.context?.data]);
 
   useDeskproAppEvents({

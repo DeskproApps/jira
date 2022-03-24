@@ -14,8 +14,9 @@ import { useDebouncedCallback } from "use-debounce";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useLoadLinkedIssues, useSetAppTitle } from "../hooks";
 import { SearchResultItem } from "../components/SearchResultItem/SearchResultItem";
-import {addLinkCommentToIssue, getIssueByKey, searchIssues} from "../context/StoreProvider/api";
-import {CreateLinkIssue} from "../components/CreateLinkIssue/CreateLinkIssue";
+import { addLinkCommentToIssue, getIssueByKey, searchIssues } from "../context/StoreProvider/api";
+import { CreateLinkIssue } from "../components/CreateLinkIssue/CreateLinkIssue";
+import {ticketReplyEmailsSelectionStateKey, ticketReplyNotesSelectionStateKey} from "../utils";
 
 export const Link: FC = () => {
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -74,14 +75,24 @@ export const Link: FC = () => {
       return;
     }
 
+    const ticketId = state.context?.data.ticket.id as string;
+
     setIsLinkIssuesLoading(true);
 
     const updates = selected.map(async (key: string) => {
       const issue = await getIssueByKey(client, key);
 
       return client
-          .getEntityAssociation("linkedJiraIssues", state.context?.data.ticket.id as string)
+          .getEntityAssociation("linkedJiraIssues", ticketId)
           .set(key, issue)
+          .then(() => client?.setState(ticketReplyNotesSelectionStateKey(ticketId, issue.id), {
+            id: issue.id,
+            selected: true,
+          }))
+          .then(() => client?.setState(ticketReplyEmailsSelectionStateKey(ticketId, issue.id), {
+            id: issue.id,
+            selected: true,
+          }))
       ;
     });
 
