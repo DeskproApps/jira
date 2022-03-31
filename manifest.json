@@ -1,8 +1,8 @@
 {
   "name": "@deskpro/jira",
   "title": "JIRA",
-  "description": "View JIRA issues associated with a Deskpro ticket",
-  "version": "0.2.15",
+  "description": "View Jira issues linked with Deskpro tickets to streamline communication with users",
+  "version": "0.2.16",
   "scope": "agent",
   "isSingleInstall": true,
   "hasDevMode": true,
