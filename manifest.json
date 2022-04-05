@@ -2,7 +2,7 @@
   "name": "@deskpro/jira",
   "title": "JIRA",
   "description": "View Jira issues linked with Deskpro tickets to streamline communication with users",
-  "version": "0.2.16",
+  "version": "0.2.17",
   "scope": "agent",
   "isSingleInstall": true,
   "hasDevMode": true,
@@ -21,6 +21,7 @@
   }],
   "entityAssociations": {
     "linkedJiraIssues": {
+      "title": "Linked JIRA Issues",
       "entity": "ticket",
       "type": "external_id"
     }
