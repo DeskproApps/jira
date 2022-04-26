@@ -15,6 +15,23 @@ export const useSetAppTitle = (title: string): void => {
   useEffect(() => client?.setTitle(title), [client, title]);
 };
 
+export const useWhenNoLinkedItems = (onNoLinkedItems: () => void) => {
+  const { client } = useDeskproAppClient();
+  const [ state ] = useStore();
+
+  useEffect(() => {
+    if (!client || !state.context?.data.ticket.id) {
+      return;
+    }
+
+    client
+        .getEntityAssociation("linkedJiraIssues", state.context?.data.ticket.id as string)
+        .list()
+        .then((items) => items.length === 0 && onNoLinkedItems())
+    ;
+  }, [client, state.context?.data.ticket.id]);
+};
+
 export const useLoadLinkedIssues = () => {
   const { client } = useDeskproAppClient();
   const [ state, dispatch ] = useStore();

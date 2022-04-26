@@ -22,7 +22,7 @@ import {
   ticketReplyNotesSelectionStateKey
 } from "../utils";
 import { ReplyBoxNoteSelection } from "../types";
-import {useLoadLinkedIssues} from "../hooks";
+import { useLoadLinkedIssues, useWhenNoLinkedItems } from "../hooks";
 
 export const Main: FC = () => {
   const { client } = useDeskproAppClient();
@@ -32,6 +32,8 @@ export const Main: FC = () => {
   if (state._error) {
     console.error(state._error);
   }
+
+  useWhenNoLinkedItems(() => dispatch({ type: "changePage", page: "link" }));
 
   useEffect(() => {
     client?.registerElement("refresh", { type: "refresh_button" });
