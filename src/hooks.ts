@@ -50,6 +50,21 @@ export const useLoadLinkedIssues = () => {
       client.setBadgeCount(keys.length);
 
       const list = await listLinkedIssues(client, keys);
+
+      const idToKeyUpdates = keys.filter((key) => /^[0-9]+$/.test(key.toString())).map((id) => {
+        const item = list.filter((item) => item.id.toString() === id.toString())[0];
+        if (item) {
+          return Promise.all([
+            client.getEntityAssociation("linkedJiraIssues", state.context?.data.ticket.id as string).delete(id),
+            client.getEntityAssociation("linkedJiraIssues", state.context?.data.ticket.id as string).set(item.key),
+          ]);
+        }
+
+        return null;
+      }).filter((update) => !!update);
+
+      await Promise.all(idToKeyUpdates);
+
       dispatch({ type: "linkedIssuesList", list });
     } catch (e) {
       dispatch({ type: "error", error: `${e}` });
