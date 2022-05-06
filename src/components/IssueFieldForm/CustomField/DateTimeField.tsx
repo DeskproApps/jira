@@ -1,7 +1,7 @@
 import { FC } from "react";
 import { MappedFieldProps } from "../types";
 import { getDateFromValue } from "../../../utils";
-import { DatePickerInput, DateTimePicker, Label } from "@deskpro/app-sdk";
+import { DateTimePicker, Input, Label } from "@deskpro/app-sdk";
 import { faCalendarAlt } from "@fortawesome/free-solid-svg-icons";
 
 export const DateTimeField: FC<MappedFieldProps> = ({ id, meta, field, helpers, error }: MappedFieldProps) => (
@@ -18,7 +18,7 @@ export const DateTimeField: FC<MappedFieldProps> = ({ id, meta, field, helpers, 
                 error={error}
                 placeholder="Select date/time"
             >
-                <DatePickerInput id={id} inputsize="small" variant="inline" rightIcon={faCalendarAlt} ref={ref} style={{ maxWidth: "244px" }} />
+                <Input id={id} inputsize="small" variant="inline" rightIcon={faCalendarAlt} ref={ref} style={{ maxWidth: "244px" }} />
             </Label>
         )}
     />
