@@ -3,7 +3,7 @@
  * https://jestjs.io/docs/en/configuration.html
  */
 
-const esModules = ["d3-array", "d3-hierarchy", "internmap", "d3-scale"].join("|");
+const esModules = ["d3-array", "d3-hierarchy", "internmap", "d3-scale", "pretty-bytes"].join("|");
 
 module.exports = {
     clearMocks: true,
