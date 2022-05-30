@@ -1,8 +1,7 @@
-Deskpro App Template
+My App
 ===
 
-This repository contains a bare-bones template of a [React](https://reactjs.org/) / [Typescript](https://www.typescriptlang.org/) [Vite](https://vitejs.dev/) app with our apps SDK pre-installed and 
-configured.
+TODO: Include a summary of app functionality and a screenshot
 
 Basic Usage
 ---
@@ -77,20 +76,6 @@ Once you're happy with your PR - merge it :)
 
 We'll also perform the same CI process on `master` as this is what we use to review your app when it's done.
 
-UI Library
----
-
-Our apps SDK provides a [Storybook](https://storybook.js.org/) of available UI components from our standard [UI Library](https://www.npmjs.com/package/@deskpro/deskpro-ui).
-
-To run the apps UI storybook, [clone our SDK repository](https://github.com/DeskproApps/app-sdk) and run the following:
-
-```bash
-yarn
-yarn start
-```
-
-You should now have Storybook running locally on http://localhost:6008/
-
 Testing
 ---
 
@@ -102,42 +87,3 @@ You can run all tests using:
 yarn test
 ```
 
-We've also included a sample test suite in `src/App.test.tsx`
-
-We maintain a minimum level of code coverage, to check that your code meets this threshold, run the following:
-
-```bash
-yarn test:coverage
-```
-
-> Our code coverage threshold is 60%, so your coverage report must show that all analyses are at or greater than 60% for
-> your app to be officially accepted
-
-For more information about building your app, please refer to our [app development guide](https://support.deskpro.com/en/guides/developers/how-to-build-a-basic-notes-app).
-
-Packaging
----
-
-To package your app we've included a packaging script that will allow you to build the app package zip archive. Steps 
-for building and packaging your app are as follows:
-
-```bash
-yarn build
-yarn package
-```
-
-Or, as a shortcut, you can use:
-
-```bash
-yarn build:package
-```
-
-Once your app has been built and packaged, you should find your package artifact in `./build`. You can now [upload this 
-to Deskpro](https://support.deskpro.com/en/guides/developers/building-and-packaging-an-app) and try it out :)
-
-Continuous Integration
----
-
-We ship this template with GitHub action configurations for both PR and Branch builds. Our CI process will lint, type 
-check, test and provide a coverage report. The trunk Git branch is `master`, and CI will look for this when checking 
-out and comparing changes.
