@@ -1,6 +1,6 @@
-![Deskpro](https://raw.githubusercontent.com/DeskproApps/jira/master/docs/assets/deskpro-logo.svg)
+<img align="right" src="https://raw.githubusercontent.com/DeskproApps/jira/master/docs/assets/deskpro-logo.svg">
 
-JIRA
+JIRA App
 ===
 
 View JIRA issues linked with Deskpro tickets to streamline communication with users
