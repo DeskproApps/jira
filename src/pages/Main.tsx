@@ -1,9 +1,7 @@
-import { FC } from "react";
 import { Button } from "@deskpro/app-sdk";
 
-export const Main: FC = () => {
-
+export const Main = () => {
     return (
-        <Button text="My App" />
+        <Button text="Greet" onClick={() => alert("Hello")} />
     );
 };
