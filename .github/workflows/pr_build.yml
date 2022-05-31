@@ -55,4 +55,4 @@ jobs:
         with:
           name: app-package
           path: dist
-          retention-days: 14
+          retention-days: 30
