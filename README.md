@@ -1,12 +1,11 @@
-<div align="center">
+<div align="right">
     <img src="https://raw.githubusercontent.com/DeskproApps/jira/master/docs/assets/deskpro-logo.svg">
 </div>
 
-<h1 align="center">JIRA App</h1>
+JIRA App
+===
 
-<p align="center">
-    View JIRA issues linked with Deskpro tickets to streamline communication with users
-</p>
+View JIRA issues linked with Deskpro tickets to streamline communication with users
 
 <div align="center">
     <img src="https://raw.githubusercontent.com/DeskproApps/jira/master/docs/assets/jira-screenshot-01.png" />
