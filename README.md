@@ -1,10 +1,17 @@
-<img align="right" src="https://raw.githubusercontent.com/DeskproApps/jira/master/docs/assets/deskpro-logo.svg">
+<center>
+    <img src="https://raw.githubusercontent.com/DeskproApps/jira/master/docs/assets/deskpro-logo.svg">
+</center>
 
-JIRA App
-===
+<h1 align="center">JIRA App</h1>
 
-View JIRA issues linked with Deskpro tickets to streamline communication with users
+<p align="center">
+    View JIRA issues linked with Deskpro tickets to streamline communication with users
+</p>
 
-![JIRA - Deskpro App](https://raw.githubusercontent.com/DeskproApps/jira/master/docs/assets/jira-screenshot-01.png)
+<center>
+    <img src="https://raw.githubusercontent.com/DeskproApps/jira/master/docs/assets/jira-screenshot-01.png" />
+</center>
 
-[Read more about our JIRA app](https://www.deskpro.com/apps/jira)
+<p align="center">
+    <a href="https://www.deskpro.com/apps/jira">Find out more about our JIRA app</a>
+</p>
