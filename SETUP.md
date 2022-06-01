@@ -1,12 +1,14 @@
-App Setup
+JIRA App Setup
 ===
 
 To install the JIRA app you must first create an API key. Head over your JIRA cloud account, the URL will look something
-like `https://<my_company>.atlassian.net/`. Once you've logged in, navigate to the "Account Settings" section.
+like `https://<my_company>.atlassian.net/`. 
+
+Once you've logged in, navigate to the "Account Settings" section.
 
 [![](/docs/assets/setup/jira-setup-01.png)](/docs/assets/setup/jira-setup-01.png)
 
-Next, go to the "Security" section. Here you'll find the "API Token" section.
+Next, go to the "Security" page. Here you'll find the "API Token" section.
 
 [![](/docs/assets/setup/jira-setup-02.png)](/docs/assets/setup/jira-setup-02.png)
 
@@ -23,7 +25,7 @@ labelled it "Deskpro JIRA App"
 
 [![](/docs/assets/setup/jira-setup-05.png)](/docs/assets/setup/jira-setup-05.png)
 
-After creating the API token, reveal it by clicking the "eye" icon. Copy the API for a later step. It's **important that you keep your API safe**.
+After creating the API token, reveal it by clicking the "eye" icon. Copy the API for a later step. It's **important that you keep your secret API token safe**.
 
 [![](/docs/assets/setup/jira-setup-06.png)](/docs/assets/setup/jira-setup-06.png)
 
@@ -33,7 +35,7 @@ Ok, now head back to Deskpro and navigate to the "Settings" tab of the JIRA app.
 
 From this screen, enter the following details:
 
-* **Domain** - this is your company name found in your JIRA URL, e.g. for `https://mycompany.atlassian.com` enter `mycompany` in this field
+* **Domain** - this is your company name found in your JIRA URL, e.g. for `https://mycompany.atlassian.net` enter `mycompany` in this field
 * **API Key** - this is the key you created in the previous steps
 * **Username** - Your JIRA username or email address
 
