@@ -39,6 +39,6 @@ From this screen, enter the following details:
 * **API Key** - this is the key you created in the previous steps
 * **Username** - Your JIRA username or email address
 
-To configure who can see and use the JIRa app, head to the "Permissions" tab and select those users and/or groups you'd like to have access.
+To configure who can see and use the JIRA app, head to the "Permissions" tab and select those users and/or groups you'd like to have access.
 
 When you're happy, click "Install".
