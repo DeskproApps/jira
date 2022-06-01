@@ -25,7 +25,7 @@ labelled it "Deskpro JIRA App"
 
 [![](/docs/assets/setup/jira-setup-05.png)](/docs/assets/setup/jira-setup-05.png)
 
-After creating the API token, reveal it by clicking the "eye" icon. Copy the API for a later step. It's **important that you keep your secret API token safe**.
+After creating the API token, reveal it by clicking the "eye" icon. Copy the API key for a later step. It's **important that you keep your secret API token safe**.
 
 [![](/docs/assets/setup/jira-setup-06.png)](/docs/assets/setup/jira-setup-06.png)
 
