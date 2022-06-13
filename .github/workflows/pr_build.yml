@@ -149,5 +149,5 @@ jobs:
           docker exec "${{ steps.container.outputs.id }}" php /srv/deskpro/tools/fixtures/artisan apps:install \
             --name="${{ steps.app.outputs.name }}" \
             --settings=${{ toJSON(secrets.APP_SETTINGS) }} \
-            --permission-person-ids=1
+            --permission-person-ids=1 \
             --uninstall-instances-before-install
