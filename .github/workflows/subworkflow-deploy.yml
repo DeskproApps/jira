@@ -13,7 +13,7 @@ on:
         type: string
         description: 'The artifact name to download that contains the package build output'
         default: 'app-package'
-        required: true
+        required: false
 
 jobs:
   deploy:
