@@ -50,9 +50,22 @@ jobs:
       - name: Build
         run: yarn build
 
+      - name: Package app zip
+        working-directory: dist
+        run: |
+          zip -rq ../app.zip *
+          mv ../app.zip .
+
       - name: Upload package
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: app-package
-          path: dist
+          path: |
+            dist/app.zip
+            dist/manifest.json
           retention-days: 30
+
+  deploy:
+    uses: DeskproApps/app-template-vite/.github/workflows/subworkflow-deploy.yml@master
+    secrets: inherit
+    needs: [deskpro_app_test_and_build]
