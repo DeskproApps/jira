@@ -66,6 +66,6 @@ jobs:
           retention-days: 30
 
   deploy:
-    uses: DeskproApps/app-template-vite/.github/workflows/subworkflow-deploy.yml@master
+    uses: DeskproApps/app-template-vite/.github/workflows/subworkflow-deploy.yml@create-apps-delivery-pipeline
     secrets: inherit
     needs: [deskpro_app_test_and_build]
