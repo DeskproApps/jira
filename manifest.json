@@ -29,7 +29,7 @@
   "settings": {
     "domain": {
       "title": "Domain Prefix",
-      "description": "JIRA API domain prefix, e.g. \"mycompany\" if your domain is \"https://mycompany.atlassian.net\"",
+      "description": "E.g. \"mycompany\" if your domain is \"https://mycompany.atlassian.net\"",
       "type": "string",
       "isRequired": true,
       "isBackendOnly": false
