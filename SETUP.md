@@ -35,9 +35,9 @@ Ok, now head back to Deskpro and navigate to the "Settings" tab of the JIRA app.
 
 From this screen, enter the following details:
 
-* **Domain** - this is your company name found in your JIRA URL, e.g. for `https://mycompany.atlassian.net` enter `mycompany` in this field
+* **Domain Prefix** - this is your company name found in your JIRA URL, e.g. this will be `mycompany` if your JIRA URL is `https://mycompany.atlassian.net`
 * **API Key** - this is the key you created in the previous steps
-* **Username** - Your JIRA username or email address
+* **Email/Username** - Your JIRA user's email address or username
 
 To configure who can see and use the JIRA app, head to the "Permissions" tab and select those users and/or groups you'd like to have access.
 

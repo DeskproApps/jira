@@ -2,7 +2,7 @@
   "name": "@deskpro-apps/jira",
   "title": "JIRA",
   "description": "View Jira issues linked with Deskpro tickets to streamline communication with users",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "scope": "agent",
   "isSingleInstall": true,
   "hasDevMode": true,
@@ -28,22 +28,22 @@
   },
   "settings": {
     "domain": {
-      "title": "Domain",
-      "description": "Your JIRA API domain",
+      "title": "Domain Prefix",
+      "description": "JIRA API domain prefix, e.g. \"mycompany\" if your domain is \"https://mycompany.atlassian.net\"",
       "type": "string",
       "isRequired": true,
       "isBackendOnly": false
     },
     "username": {
-      "title": "Username",
-      "description": "Your JIRA username",
+      "title": "Email/Username",
+      "description": "JIRA user email address or username",
       "type": "string",
       "isRequired": true,
       "isBackendOnly": true
     },
     "api_key": {
       "title": "API Key",
-      "description": "Your JIRA user's API key",
+      "description": "JIRA user's API key, please follow the app setup guide to get this",
       "type": "string",
       "isRequired": true,
       "isBackendOnly": true
@@ -51,7 +51,7 @@
   },
   "proxy": {
     "whitelist": [{
-      "url": "https://(.*).atlassian.net/rest/api/.*",
+      "url": "https://(.*)/rest/api/.*",
       "methods": ["GET", "POST", "PUT", "DELETE"],
       "timeout": 30
     }]

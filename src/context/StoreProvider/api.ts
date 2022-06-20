@@ -15,7 +15,7 @@ import {match} from "ts-pattern";
 import {useAdfToPlainText} from "../../hooks";
 
 // JIRA REST API Base URL
-const API_BASE_URL = "https://__domain__.atlassian.net/rest/api/3";
+const API_BASE_URL = "__domain__rest/api/2";
 
 // Key for search dependency caching (milliseconds)
 const SEARCH_DEPS_CACHE_TTL = 5 * (60 * 1000); // 5 Minutes
