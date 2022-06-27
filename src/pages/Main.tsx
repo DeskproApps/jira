@@ -23,6 +23,7 @@ import {
 } from "../utils";
 import { ReplyBoxNoteSelection } from "../types";
 import { useLoadLinkedIssues, useWhenNoLinkedItems } from "../hooks";
+import { ViewPermissions } from "./ViewPermissions";
 
 export const Main: FC = () => {
   const { client } = useDeskproAppClient();
@@ -164,6 +165,7 @@ export const Main: FC = () => {
         .with(["home", __], () => dispatch({ type: "changePage", page: "home" }))
         .with(["edit", __], () => dispatch({ type: "changePage", page: "edit", params: { issueKey: payload } }))
         .with([__, { action: "unlink", issueKey: __ }], () => unlinkTicket(payload))
+        .with([__, { action: "viewPermissions" }], () => dispatch({ type: "changePage", page: "view_permissions" }))
         .otherwise(() => {})
       ;
     },
@@ -177,6 +179,7 @@ export const Main: FC = () => {
       .with("create", () => <Create {...state.pageParams} />)
       .with("edit", () => <Edit {...state.pageParams} />)
       .with("comment", () => <Comment {...state.pageParams} />)
+      .with("view_permissions", () => <ViewPermissions {...state.pageParams} />)
       .otherwise(() => <Home {...state.pageParams} />)
   ;
 

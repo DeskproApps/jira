@@ -16,6 +16,7 @@ export type Page =
   | "create"
   | "edit"
   | "comment"
+  | "view_permissions"
 ;
 
 export interface State {

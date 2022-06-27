@@ -37,6 +37,22 @@ export const addLinkCommentToIssue = async (client: IDeskproClient, key: string,
 ;
 
 /**
+ * Get the status of all required Jira permissions
+ */
+export const getMyPermissions = async (client: IDeskproClient) => {
+  const required = [
+    "BROWSE_PROJECTS",
+    "CREATE_ISSUES",
+    "EDIT_ISSUES",
+    "ASSIGN_ISSUES",
+    "ADD_COMMENTS",
+    "MANAGE_WATCHERS",
+  ];
+
+  return request(client, "GET", `${API_BASE_URL}/mypermissions?permissions=${required.join(",")}`);
+};
+
+/**
  * Get list of comments for a given issue key
  */
 export const getIssueComments = async (client: IDeskproClient, key: string): Promise<JiraComment[]> => {

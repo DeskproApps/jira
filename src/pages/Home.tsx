@@ -23,6 +23,10 @@ export const Home: FC = () => {
 
   useEffect(() => {
     client?.registerElement("addIssue", { type: "plus_button" });
+    client?.registerElement("homeContextMenu", { type: "menu", items: [
+      { title: "View Permissions", payload: { action: "viewPermissions" }, },
+    ] });
+
     client?.deregisterElement("home");
     client?.deregisterElement("edit");
     client?.deregisterElement("viewContextMenu");

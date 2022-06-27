@@ -21,6 +21,7 @@ export const Create: FC = () => {
 
     useEffect(() => {
         client?.deregisterElement("edit");
+        client?.deregisterElement("homeContextMenu");
     }, [client, state]);
 
     const onSubmit = (data: IssueFormData, _helpers: FormikHelpers<any>, meta: Record<string, IssueMeta>) => {

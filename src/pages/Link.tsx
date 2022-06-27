@@ -32,6 +32,7 @@ export const Link: FC = () => {
   useEffect(() => {
     client?.deregisterElement("addIssue");
     client?.deregisterElement("edit");
+    client?.deregisterElement("homeContextMenu");
     client?.registerElement("home", { type: "home_button" });
   }, [client]);
 

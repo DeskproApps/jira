@@ -43,6 +43,7 @@ export const Edit: FC<EditProps> = ({ issueKey }: EditProps) => {
 
     useEffect(() => {
         client?.registerElement("home", { type: "home_button" });
+        client?.deregisterElement("homeContextMenu");
         client?.deregisterElement("edit");
         client?.deregisterElement("viewContextMenu");
     }, [client, issueKey]);

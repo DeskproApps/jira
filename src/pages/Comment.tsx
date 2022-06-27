@@ -33,6 +33,7 @@ export const Comment: FC<CommentProps> = ({ issueKey }: CommentProps) => {
         client.deregisterElement("edit");
         client.deregisterElement("addIssue");
         client.deregisterElement("viewContextMenu");
+        client.deregisterElement("homeContextMenu");
     }, [issueKey]);
 
     const initialValues: CommentFormValues = {
