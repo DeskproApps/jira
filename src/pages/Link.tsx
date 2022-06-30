@@ -78,6 +78,9 @@ export const Link: FC = () => {
 
     const ticketId = state.context?.data.ticket.id as string;
 
+    const commentOnNote = state.context.settings?.default_comment_on_ticket_note === true;
+    const commentOnReply = state.context.settings?.default_comment_on_ticket_reply === true;
+
     setIsLinkIssuesLoading(true);
 
     const updates = selected.map(async (key: string) => {
@@ -86,11 +89,11 @@ export const Link: FC = () => {
       return client
           .getEntityAssociation("linkedJiraIssues", ticketId)
           .set(key, issue)
-          .then(() => client?.setState(ticketReplyNotesSelectionStateKey(ticketId, issue.id), {
+          .then(async () => commentOnNote && client?.setState(ticketReplyNotesSelectionStateKey(ticketId, issue.id), {
             id: issue.id,
             selected: true,
           }))
-          .then(() => client?.setState(ticketReplyEmailsSelectionStateKey(ticketId, issue.id), {
+          .then(async () => commentOnReply && client?.setState(ticketReplyEmailsSelectionStateKey(ticketId, issue.id), {
             id: issue.id,
             selected: true,
           }))

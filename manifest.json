@@ -2,7 +2,7 @@
   "name": "@deskpro-apps/jira",
   "title": "JIRA",
   "description": "View Jira issues linked with Deskpro tickets to streamline communication with users",
-  "version": "1.0.3",
+  "version": "1.0.5",
   "scope": "agent",
   "isSingleInstall": true,
   "hasDevMode": true,
@@ -47,6 +47,20 @@
       "type": "string",
       "isRequired": true,
       "isBackendOnly": true
+    },
+    "default_comment_on_ticket_reply": {
+      "title": "Ticket reply as Jira comment?",
+      "description": "When a Jira issue is linked to a Deskpro ticket, would you like to automatically add Deskpro replies as Jira comments?",
+      "type": "boolean",
+      "isRequired": false,
+      "isBackendOnly": false
+    },
+    "default_comment_on_ticket_note": {
+      "title": "Ticket note as Jira comment?",
+      "description": "When a Jira issue is linked to a Deskpro ticket, would you like to automatically add Deskpro notes as Jira comments?",
+      "type": "boolean",
+      "isRequired": false,
+      "isBackendOnly": false
     }
   },
   "proxy": {
