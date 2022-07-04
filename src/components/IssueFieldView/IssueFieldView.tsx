@@ -1,7 +1,7 @@
-import type { FC } from "react";
+import type {FC, ReactElement} from "react";
 import { IssueMeta } from "../../types";
-import map from "./map";
 import { Property } from "@deskpro/app-sdk";
+import map from "./map";
 
 interface IssueFieldViewProps {
     meta: IssueMeta;
@@ -19,7 +19,7 @@ export const IssueFieldView: FC<IssueFieldViewProps> = ({ value, meta }: IssueFi
 
     return (
         <Property title={meta.name}>
-            {field}
+            {field as ReactElement}
         </Property>
     );
 };

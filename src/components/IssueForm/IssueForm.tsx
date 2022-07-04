@@ -57,8 +57,13 @@ export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, apiError
         labels.forEach((labels) => labels.forEach((l: string) => extraLabels.push(l)));
     }
 
+    const initialSummary = state?.context?.settings.ticket_subject_as_issue_summary
+        ? `[Ticket #${state?.context?.data.ticket.id}] ${state?.context?.data.ticket.subject}`
+        : ""
+    ;
+
     const initialValues = values ?? {
-        summary: "",
+        summary: initialSummary,
         description: "",
         issueTypeId: "",
         projectId: "",

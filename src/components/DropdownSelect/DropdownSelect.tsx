@@ -1,4 +1,4 @@
-import { FC } from "react";
+import {FC, useState} from "react";
 import {
   DivAsInputWithDisplay,
   Dropdown,
@@ -18,14 +18,23 @@ export interface DropdownSelectProps {
 }
 
 export const DropdownSelect: FC<DropdownSelectProps> = ({ helpers, id, placeholder, value, options }: DropdownSelectProps) => {
+  const [input, setInput] = useState<string>("");
+
   const selectedValue = options
     .filter((o) => o.value === value)[0]
     ?.label ?? ""
   ;
 
+  const filteredOptions = options.filter(
+      (opt) => (opt.label as string).toLowerCase().includes(input.toLowerCase())
+  );
+
   return (
     <Dropdown
-      options={options}
+      showInternalSearch
+      options={filteredOptions}
+      inputValue={input}
+      onInputChange={setInput}
       onSelectOption={(option) => {
         helpers.setTouched(true);
         helpers.setValue(option.value);

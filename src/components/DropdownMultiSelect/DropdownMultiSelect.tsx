@@ -1,4 +1,4 @@
-import { FC } from "react";
+import {FC, useState} from "react";
 import {
   DivAsInputWithDisplay,
   Dropdown,
@@ -27,6 +27,7 @@ export interface DropdownMultiSelectProps {
 
 export const DropdownMultiSelect: FC<DropdownMultiSelectProps> = ({ helpers, id, placeholder, values, options }: DropdownMultiSelectProps) => {
   const { theme: { colors } } = useDeskproAppTheme();
+  const [input, setInput] = useState<string>("");
   const vals = (Array.isArray(values) ? values : []);
 
   const valLabels = vals.map((v) => {
@@ -37,9 +38,18 @@ export const DropdownMultiSelect: FC<DropdownMultiSelectProps> = ({ helpers, id,
     ;
   });
 
+  const fixedOptions = options.filter((o) => !vals.includes(o.value));
+
+  const filteredOptions = fixedOptions.filter(
+      (opt) => (opt.label as string).toLowerCase().includes(input.toLowerCase())
+  );
+
   return (
     <Dropdown
-      options={options.filter((o) => !vals.includes(o.value))}
+      showInternalSearch
+      inputValue={input}
+      onInputChange={setInput}
+      options={filteredOptions}
       onSelectOption={(option) => {
         helpers.setTouched(true);
         helpers.setValue(sortedUniq([...vals, option.value]));

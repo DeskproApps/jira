@@ -51,7 +51,7 @@ export type Action =
 ;
 
 export interface TicketContext extends Context {
-  data: { ticket: { id: string, permalinkUrl: string } }
+  data: { ticket: { id: string, permalinkUrl: string, subject: string; } }
 }
 
 export interface IssueItem {
