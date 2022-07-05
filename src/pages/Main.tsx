@@ -13,7 +13,13 @@ import { Page } from "../context/StoreProvider/types";
 import { ErrorBlock } from "../components/Error/ErrorBlock";
 import { useDebouncedCallback } from "use-debounce";
 import { Create } from "./Create";
-import {addIssueComment, addUnlinkCommentToIssue} from "../context/StoreProvider/api";
+import {
+  addIssueComment,
+  addUnlinkCommentToIssue,
+  getIssueByKey,
+  getRemoteLinks,
+  removeRemoteLink
+} from "../context/StoreProvider/api";
 import { Edit } from "./Edit";
 import { Comment } from "./Comment";
 import {
@@ -140,7 +146,7 @@ export const Main: FC = () => {
     dispatch({ type: "unlinkIssue", key: issueKey });
 
     client?.getEntityAssociation("linkedJiraIssues", contextData.ticket.id).delete(issueKey)
-        .then(() => addUnlinkCommentToIssue(client, issueKey, contextData.ticket.id, state.context?.data.ticket.permalinkUrl as string))
+        .then(() => removeRemoteLink(client, issueKey, contextData.ticket.id))
         .then(() => dispatch({ type: "changePage", page: "home" }))
     ;
   };

@@ -28,13 +28,41 @@ export const getIssueByKey = async (client: IDeskproClient, key: string) =>
 ;
 
 /**
- * Add "linked" comment to JIRA issue
+ * Get an issue's remote links
  */
-export const addLinkCommentToIssue = async (client: IDeskproClient, key: string, ticketId: string, url: string) =>
-    request(client, "POST", `${API_BASE_URL}/issue/${key}/comment`, {
-      body: backlinkCommentDoc(ticketId, url),
+export const getRemoteLinks = async (client: IDeskproClient, key: string) =>
+    request(client, "GET", `${API_BASE_URL}/issue/${key}/remotelink`)
+;
+
+/**
+ * Add remote link
+ */
+export const addRemoteLink = async (client: IDeskproClient, key: string, ticketId: string, subject: string, url: string) =>
+    request(client, "POST", `${API_BASE_URL}/issue/${key}/remotelink`, {
+      globalId: remoteLinkGlobalId(ticketId),
+      object: {
+        url,
+        title: `Deskpro #${ticketId}`,
+        summary: subject,
+      },
     })
 ;
+
+/**
+ * Remove remote link
+ */
+export const removeRemoteLink = async (client: IDeskproClient, key: string, ticketId: string) =>
+    request(client, "DELETE", `${API_BASE_URL}/issue/${key}/remotelink?globalId=${remoteLinkGlobalId(ticketId)}`).catch(console.warn)
+;
+
+/**
+ * Add "linked" comment to JIRA issue
+ */
+export const addLinkCommentToIssue = async (client: IDeskproClient, key: string, ticketId: string, url: string) => {
+  return request(client, "POST", `${API_BASE_URL}/issue/${key}/comment`, {
+    body: backlinkCommentDoc(ticketId, url),
+  });
+};
 
 /**
  * Get the status of all required Jira permissions
@@ -531,6 +559,8 @@ const combineCustomFieldValueAndMeta = (values: any, meta: any) => Object.keys(m
 }), {});
 
 const isCustomFieldKey = (key: string): boolean => /^customfield_[0-9]+$/.test(key);
+
+const remoteLinkGlobalId = (ticketId: string) => `deskpro_ticket_${ticketId}`;
 
 /**
  * Format fields when sending values to API

@@ -14,7 +14,7 @@ import { useDebouncedCallback } from "use-debounce";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useLoadLinkedIssues, useSetAppTitle } from "../hooks";
 import { SearchResultItem } from "../components/SearchResultItem/SearchResultItem";
-import { addLinkCommentToIssue, getIssueByKey, searchIssues } from "../context/StoreProvider/api";
+import {addLinkCommentToIssue, addRemoteLink, getIssueByKey, searchIssues} from "../context/StoreProvider/api";
 import { CreateLinkIssue } from "../components/CreateLinkIssue/CreateLinkIssue";
 import {ticketReplyEmailsSelectionStateKey, ticketReplyNotesSelectionStateKey} from "../utils";
 
@@ -100,10 +100,11 @@ export const Link: FC = () => {
       ;
     });
 
-    updates.push(...selected.map((key: string) => addLinkCommentToIssue(
+    updates.push(...selected.map((key: string) => addRemoteLink(
         client,
         key,
         state.context?.data.ticket.id as string,
+        state.context?.data.ticket.subject as string,
         state.context?.data.ticket.permalinkUrl as string
     )));
 

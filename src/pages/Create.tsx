@@ -1,7 +1,7 @@
 import {FC, useEffect, useState} from "react";
 import {CreateLinkIssue} from "../components/CreateLinkIssue/CreateLinkIssue";
 import {IssueForm} from "../components/IssueForm/IssueForm";
-import {addLinkCommentToIssue, createIssue, getIssueByKey} from "../context/StoreProvider/api";
+import {addLinkCommentToIssue, addRemoteLink, createIssue, getIssueByKey} from "../context/StoreProvider/api";
 import {useDeskproAppClient} from "@deskpro/app-sdk";
 import {IssueFormData, InvalidRequestResponseError} from "../context/StoreProvider/types";
 import {useLoadLinkedIssues, useSetAppTitle} from "../hooks";
@@ -42,10 +42,11 @@ export const Create: FC = () => {
 
                 return issue.key;
             })
-            .then((key) => addLinkCommentToIssue(
+            .then((key) => addRemoteLink(
                 client,
                 key,
                 state.context?.data.ticket.id as string,
+                state.context?.data.ticket.subject as string,
                 state.context?.data.ticket.permalinkUrl as string
             ))
             .then(() => loadIssues())
