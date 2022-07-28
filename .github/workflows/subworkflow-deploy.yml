@@ -9,11 +9,34 @@ on:
         default: ${{ github.ref }}
         required: false
 
+      deskpro-docker-repository:
+        type: string
+        description: 'Deskpro docker repository'
+        required: false
+        default: 'registry.deskprodemo.com/deskpro/deskpro-product-dev'
+
+      mysql-docker-repository:
+        type: string
+        description: 'MySQL docker repository'
+        required: false
+        default: 'registry.deskprodemo.com/deskpro/deskpro-mysql-dev'
+
       artifact-name:
         type: string
         description: 'The artifact name to download that contains the package build output'
         default: 'app-package'
         required: false
+
+    secrets:
+      DESKPRO_SERVICE_TOKEN: { required: true}
+      DEMO_SERVER_SSH_KEY: { required: true}
+      DEMO_SERVER_SSH_USER: { required: true}
+      DEMO_SERVER_SSH_HOST: { required: true}
+      DOCKER_REPO_USERNAME: { required: true}
+      DOCKER_REPO_TOKEN: { required: true}
+      DESKPRO_LICENSE_KEY: { required: true}
+      DESKPRO_DEMO_FQDN: { required: true}
+      APP_SETTINGS: { required: true}
 
 jobs:
   deploy:
@@ -49,8 +72,12 @@ jobs:
         with:
           compose-project-path: compose
 
-          registry-username: ${{ secrets.DOCKERHUB_USERNAME }}
-          registry-password: ${{ secrets.DOCKERHUB_TOKEN }}
+          deskpro-docker-repository: ${{ inputs.deskpro-docker-repository }}
+          mysql-docker-repository: ${{ inputs.mysql-docker-repository }}
+
+          registry-url: registry.deskprodemo.com
+          registry-username: ${{ secrets.DOCKER_REPO_USERNAME }}
+          registry-password: ${{ secrets.DOCKER_REPO_TOKEN }}
 
           license-key: ${{ secrets.DESKPRO_LICENSE_KEY }}
           vhost-domain: ${{ secrets.DESKPRO_DEMO_FQDN }}
