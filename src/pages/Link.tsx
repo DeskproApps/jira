@@ -14,9 +14,9 @@ import { useDebouncedCallback } from "use-debounce";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useLoadLinkedIssues, useSetAppTitle } from "../hooks";
 import { SearchResultItem } from "../components/SearchResultItem/SearchResultItem";
-import {addLinkCommentToIssue, addRemoteLink, getIssueByKey, searchIssues} from "../context/StoreProvider/api";
+import { addRemoteLink, getIssueByKey, searchIssues } from "../context/StoreProvider/api";
 import { CreateLinkIssue } from "../components/CreateLinkIssue/CreateLinkIssue";
-import {ticketReplyEmailsSelectionStateKey, ticketReplyNotesSelectionStateKey} from "../utils";
+import { ticketReplyEmailsSelectionStateKey, ticketReplyNotesSelectionStateKey } from "../utils";
 
 export const Link: FC = () => {
   const searchInputRef = useRef<HTMLInputElement>(null);

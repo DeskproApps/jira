@@ -29,7 +29,7 @@ export const useWhenNoLinkedItems = (onNoLinkedItems: () => void) => {
         .list()
         .then((items) => items.length === 0 && onNoLinkedItems())
     ;
-  }, [client, state.context?.data.ticket.id]);
+  }, [client, state.context?.data.ticket.id, onNoLinkedItems]);
 };
 
 export const useLoadLinkedIssues = () => {
@@ -171,7 +171,7 @@ export const useLoadDataDependencies = () => {
     getIssueDependencies(client)
         .then((deps) => dispatch({ type: "loadDataDependencies", deps }))
     ;
-  }, [client, dispatch, getIssueDependencies]);
+  }, [client, dispatch]);
 };
 
 export const useFindIssueComments = (issueKey: string): JiraComment[]|null => {

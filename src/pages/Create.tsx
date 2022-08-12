@@ -1,7 +1,7 @@
 import {FC, useEffect, useState} from "react";
 import {CreateLinkIssue} from "../components/CreateLinkIssue/CreateLinkIssue";
 import {IssueForm} from "../components/IssueForm/IssueForm";
-import {addLinkCommentToIssue, addRemoteLink, createIssue, getIssueByKey} from "../context/StoreProvider/api";
+import {addRemoteLink, createIssue, getIssueByKey} from "../context/StoreProvider/api";
 import {useDeskproAppClient} from "@deskpro/app-sdk";
 import {IssueFormData, InvalidRequestResponseError} from "../context/StoreProvider/types";
 import {useLoadLinkedIssues, useSetAppTitle} from "../hooks";
