@@ -26,7 +26,7 @@ import { FieldType, IssueMeta } from "../../types";
 import { CustomField } from "../IssueFieldForm/map";
 import { DropdownMultiSelect } from "../DropdownMultiSelect/DropdownMultiSelect";
 import {AttachmentsField} from "../AttachmentsField/AttachmentsField";
-import { isNeedPriority } from "../../utils";
+import { isNeedPriority, isNeedField } from "../../utils";
 
 export interface IssueFormProps {
     onSubmit: (values: any, formikHelpers: FormikHelpers<any>, meta: Record<string, IssueMeta>) => void | Promise<any>;
@@ -174,11 +174,24 @@ export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, apiError
         return buildCustomFieldMeta(issueType.fields);
     };
 
-    const submit = (values: any, helpers: FormikHelpers<any>) => onSubmit(
-        values,
-        helpers,
-        getCustomFields(values.projectId, values.issueTypeId)
-    );
+    const submit = (values: any, helpers: FormikHelpers<any>) => {
+        const { labels, priority, ...data } = values;
+        const is = ((state, projectId, issueTypeId) => {
+            return (fieldName: string) => {
+                return isNeedField({ state, fieldName, projectId, issueTypeId })
+            }
+        })(state, values.projectId, values.issueTypeId);
+
+        return onSubmit(
+            {
+                ...data,
+                ...(!is("labels") ? {} : { labels }),
+                ...(!is("priority") ? {} : { priority }),
+            },
+            helpers,
+            getCustomFields(values.projectId, values.issueTypeId)
+        )
+    };
 
     return (
         <IntlProvider locale="en">
@@ -186,6 +199,7 @@ export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, apiError
                 initialValues={initialValues}
                 onSubmit={submit}
                 validationSchema={schema}
+
             >
                 {({ values, submitForm, resetForm, errors, submitCount }) => (
                     <Stack gap={10} vertical>
@@ -314,25 +328,32 @@ export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, apiError
                                 )}
                             </FormikField>
                         </div>
-                        <div className="create-form-field">
-                            <FormikField<string[]> name="labels">
-                                {([field, , helpers], { id, error }) => (
-                                    <Label
-                                        htmlFor={id}
-                                        label="Labels"
-                                        error={error}
-                                    >
-                                        <DropdownMultiSelect
-                                            helpers={helpers}
-                                            options={buildLabelOptions()}
-                                            id={id}
-                                            placeholder="Select values"
-                                            values={field.value}
-                                        />
-                                    </Label>
-                                )}
-                            </FormikField>
-                        </div>
+                        {isNeedField({
+                            state,
+                            fieldName: "labels",
+                            projectId: values.projectId,
+                            issueTypeId: values.issueTypeId,
+                        }) && (
+                            <div className="create-form-field">
+                                <FormikField<string[]> name="labels">
+                                    {([field, , helpers], { id, error }) => (
+                                        <Label
+                                            htmlFor={id}
+                                            label="Labels"
+                                            error={error}
+                                        >
+                                            <DropdownMultiSelect
+                                                helpers={helpers}
+                                                options={buildLabelOptions()}
+                                                id={id}
+                                                placeholder="Select values"
+                                                values={field.value}
+                                            />
+                                        </Label>
+                                    )}
+                                </FormikField>
+                            </div>
+                        )}
                         {Object.values(getCustomFields(values.projectId, values.issueTypeId)).map((meta, idx: number) => (
                             <CustomField meta={meta} key={idx} apiErrors={apiErrors} extraLabels={extraLabels} />
                         ))}

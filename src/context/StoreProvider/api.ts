@@ -9,7 +9,7 @@ import {
 } from "./types";
 import {backlinkCommentDoc, paragraphDoc, removeBacklinkCommentDoc} from "./adf";
 import cache from "js-cache";
-import {omit, orderBy} from "lodash";
+import { omit, orderBy } from "lodash";
 import {FieldType, IssueMeta} from "../../types";
 import {match} from "ts-pattern";
 import {useAdfToPlainText} from "../../hooks";
@@ -320,7 +320,7 @@ export const createIssue = async (client: IDeskproClient, data: IssueFormData, m
       reporter: {
         id: data.reporterUserId,
       },
-      labels: data.labels,
+      ...(!data.labels ? {} : { labels: data.labels }),
       ...(!data.priority ? {} : { priority: { id: data.priority } }),
       ...customFields,
     },
