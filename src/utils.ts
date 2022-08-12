@@ -21,32 +21,6 @@ export const getDateFromValue = (value: unknown): Date => {
     }
 };
 
-export const isNeedPriority = (
-    state: State,
-    selectedProjects: JiraProject["id"],
-    issueTypeId: JiraIssueType["id"],
-): boolean => {
-    const projects = get(state, ["dataDependencies", "createMeta", "projects"], null);
-
-    if (!Array.isArray(projects) || projects.length === 0) {
-        return false;
-    }
-
-    if (!selectedProjects) {
-        return false;
-    }
-
-    const project = (projects).find(({ id }: JiraProject) => id === selectedProjects);
-
-    if (!project) {
-        return false;
-    }
-
-    const issueType = project.issuetypes.find(({ id }: JiraIssueType) => id === issueTypeId);
-
-    return has(issueType, ["fields", "priority"]);
-};
-
 export const isNeedField = ({ state, fieldName, projectId, issueTypeId }: {
     state: State,
     fieldName: string,
