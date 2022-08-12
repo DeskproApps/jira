@@ -2,7 +2,6 @@ import {FC, useState} from "react";
 import {
   DivAsInputWithDisplay,
   Dropdown,
-  DropdownProps,
   dropdownRenderOptions,
   DropdownTargetProps,
   DropdownValueType, Infinite
