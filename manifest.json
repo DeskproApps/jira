@@ -2,7 +2,7 @@
   "name": "@deskpro-apps/jira",
   "title": "JIRA",
   "description": "View Jira issues linked with Deskpro tickets to streamline communication with users",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "scope": "agent",
   "isSingleInstall": true,
   "hasDevMode": true,
