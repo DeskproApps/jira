@@ -1,4 +1,4 @@
-import {DeskproAppProvider, useDeskproAppTheme} from "@deskpro/app-sdk";
+import {DeskproAppProvider} from "@deskpro/app-sdk";
 import { StoreProvider } from "./context/StoreProvider/StoreProvider";
 import { Main } from "./pages/Main";
 import "./App.css";

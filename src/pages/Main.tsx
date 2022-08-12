@@ -13,13 +13,7 @@ import { Page } from "../context/StoreProvider/types";
 import { ErrorBlock } from "../components/Error/ErrorBlock";
 import { useDebouncedCallback } from "use-debounce";
 import { Create } from "./Create";
-import {
-  addIssueComment,
-  addUnlinkCommentToIssue,
-  getIssueByKey,
-  getRemoteLinks,
-  removeRemoteLink
-} from "../context/StoreProvider/api";
+import { addIssueComment, removeRemoteLink } from "../context/StoreProvider/api";
 import { Edit } from "./Edit";
 import { Comment } from "./Comment";
 import {

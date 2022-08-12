@@ -53,7 +53,7 @@ export const View: FC<ViewProps> = ({ issueKey }: ViewProps) => {
 
   useEffect(() => {
     loadIssueAttachments(issueKey);
-  }, [issueKey]);
+  }, [issueKey, loadIssueAttachments]);
 
   const attachments = useMemo(
     () => state.linkedIssueAttachments ? findAttachmentsByKey(issueKey) : [],

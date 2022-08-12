@@ -54,11 +54,11 @@ export const Edit: FC<EditProps> = ({ issueKey }: EditProps) => {
 
     useEffect(() => {
         loadIssueAttachments(issueKey);
-    }, [issueKey]);
+    }, [issueKey, loadIssueAttachments]);
 
     const attachments = useMemo(
         () => findAttachmentsByKey(issueKey),
-        [issueKey]
+        [issueKey, findAttachmentsByKey]
     );
 
     if (!issue) {
