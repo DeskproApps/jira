@@ -321,9 +321,7 @@ export const createIssue = async (client: IDeskproClient, data: IssueFormData, m
         id: data.reporterUserId,
       },
       labels: data.labels,
-      priority: {
-        id: data.priority,
-      },
+      ...(!data.priority ? {} : { priority: { id: data.priority } }),
       ...customFields,
     },
   };

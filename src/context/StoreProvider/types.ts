@@ -26,6 +26,7 @@ export interface State {
   linkIssueSearchResults?: { loading: boolean, list: IssueSearchItem[] };
   linkedIssuesResults?: { loading: boolean, list: IssueItem[] };
   linkedIssueAttachments?: { loading: boolean, list: { [key: string]: IssueAttachment[] } };
+  // ToDo: need typings
   dataDependencies?: any;
   hasGeneratedIssueFormSuccessfully?: boolean;
   isUnlinkingIssue?: boolean;

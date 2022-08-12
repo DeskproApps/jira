@@ -26,6 +26,7 @@ import { FieldType, IssueMeta } from "../../types";
 import { CustomField } from "../IssueFieldForm/map";
 import { DropdownMultiSelect } from "../DropdownMultiSelect/DropdownMultiSelect";
 import {AttachmentsField} from "../AttachmentsField/AttachmentsField";
+import { isNeedPriority } from "../../utils";
 
 export interface IssueFormProps {
     onSubmit: (values: any, formikHelpers: FormikHelpers<any>, meta: Record<string, IssueMeta>) => void | Promise<any>;
@@ -146,7 +147,7 @@ export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, apiError
 
         const issueType = project.issuetypes.filter((issueType: any) => issueType.id === issueTypeId)[0] as JiraIssueType;
 
-        return (issueType.fields?.priority.allowedValues ?? []).map((priority: any, idx: number) => ({
+        return (issueType.fields?.priority?.allowedValues ?? []).map((priority: any, idx: number) => ({
             key: `${idx}`,
             label: priority.name,
             value: priority.id,
@@ -284,7 +285,11 @@ export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, apiError
                                 )}
                             </FormikField>
                         </div>
-                        {(values.projectId && values.issueTypeId) && (
+                        {(
+                            values.projectId
+                            && values.issueTypeId
+                            && isNeedPriority(state, values.projectId, values.issueTypeId)
+                        ) && (
                             <div className="create-form-field">
                                 <FormikField<string> name="priority">
                                     {([field, , helpers], { id, error }) => (
