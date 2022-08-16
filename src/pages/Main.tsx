@@ -1,4 +1,4 @@
-import { FC, useEffect } from "react";
+import { FC, useEffect, useCallback } from "react";
 import { __, match } from "ts-pattern";
 import {
   Context,
@@ -34,7 +34,10 @@ export const Main: FC = () => {
     console.error(state._error);
   }
 
-  useWhenNoLinkedItems(() => dispatch({ type: "changePage", page: "link" }));
+  useWhenNoLinkedItems(
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      useCallback(() => dispatch({ type: "changePage", page: "link" }), [])
+  );
 
   useEffect(() => {
     client?.registerElement("refresh", { type: "refresh_button" });

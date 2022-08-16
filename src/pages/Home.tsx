@@ -47,7 +47,8 @@ export const Home: FC = () => {
     if (state.linkedIssuesResults === undefined) {
       loadLinkedIssues();
     }
-  }, [state.context?.data, state.linkedIssuesResults, loadLinkedIssues]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.context?.data, state.linkedIssuesResults]);
 
   const loading = state.linkedIssuesResults?.loading || state.linkedIssuesResults?.loading === undefined;
 

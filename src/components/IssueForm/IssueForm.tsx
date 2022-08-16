@@ -176,7 +176,7 @@ export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, apiError
 
     const submit = (values: any, helpers: FormikHelpers<any>) => {
         const { labels, priority, assigneeUserId, reporterUserId, ...data } = values;
-        const is = ((state, projectId, issueTypeId) => {
+        const isNeed = ((state, projectId, issueTypeId) => {
             return (fieldName: string) => {
                 return isNeedField({ state, fieldName, projectId, issueTypeId })
             }
@@ -185,10 +185,10 @@ export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, apiError
         return onSubmit(
             {
                 ...data,
-                ...(!is("labels") ? {} : { labels }),
-                ...(!is("priority") ? {} : { priority }),
-                ...(is("assignee") ? {} : { assigneeUserId }),
-                ...(is("reporter") ? {} : { reporterUserId })
+                ...(!isNeed("labels") ? {} : { labels }),
+                ...(!isNeed("priority") ? {} : { priority }),
+                ...(!isNeed("assignee") ? {} : { assigneeUserId }),
+                ...(!isNeed("reporter") ? {} : { reporterUserId })
             },
             helpers,
             getCustomFields(values.projectId, values.issueTypeId)
