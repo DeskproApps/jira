@@ -9,7 +9,7 @@ import {
 } from "./types";
 import {backlinkCommentDoc, paragraphDoc, removeBacklinkCommentDoc} from "./adf";
 import cache from "js-cache";
-import {omit, orderBy} from "lodash";
+import { omit, orderBy } from "lodash";
 import {FieldType, IssueMeta} from "../../types";
 import {match} from "ts-pattern";
 import {useAdfToPlainText} from "../../hooks";
@@ -317,20 +317,13 @@ export const createIssue = async (client: IDeskproClient, data: IssueFormData, m
         id: data.projectId,
       },
       description: paragraphDoc(data.description),
-      reporter: {
-        id: data.reporterUserId,
-      },
-      labels: data.labels,
-      priority: {
-        id: data.priority,
-      },
+      ...(!data.labels ? {} : { labels: data.labels }),
+      ...(!data.priority ? {} : { priority: { id: data.priority } }),
+      ...(!data.assigneeUserId ? {} : { assignee: { id: data.assigneeUserId } }),
+      ...(!data.reporterUserId ? {} : { reporter: { id: data.reporterUserId } }),
       ...customFields,
     },
   };
-
-  if (data.assigneeUserId) {
-    body.fields.assignee = { id: data.assigneeUserId };
-  }
 
    const res = await request(client, "POST", `${API_BASE_URL}/issue`, body);
 
@@ -383,20 +376,13 @@ export const updateIssue = async (client: IDeskproClient, issueKey: string, data
         id: data.projectId,
       },
       description: paragraphDoc(data.description),
-      reporter: {
-        id: data.reporterUserId,
-      },
-      labels: data.labels,
-      priority: {
-        id: data.priority,
-      },
+      ...(!data.labels ? {} : { labels: data.labels }),
+      ...(!data.priority ? {} : { priority: { id: data.priority } }),
+      ...(!data.assigneeUserId ? {} : { assignee: { id: data.assigneeUserId } }),
+      ...(!data.reporterUserId ? {} : { reporter: { id: data.reporterUserId } }),
       ...customFields,
     },
   };
-
-  if (data.assigneeUserId) {
-    body.fields.assignee = { id: data.assigneeUserId };
-  }
 
   const res = await request(client, "PUT", `${API_BASE_URL}/issue/${issueKey}`, body);
 

@@ -1,6 +1,8 @@
 import { parseISO } from "date-fns";
-import {State} from "./context/StoreProvider/types";
-import {IDeskproClient} from "@deskpro/app-sdk";
+import { get, has } from "lodash";
+import { IDeskproClient } from "@deskpro/app-sdk";
+import { State } from "./context/StoreProvider/types";
+import { JiraIssueType, JiraProject } from "./components/IssueForm/types";
 
 export const getDateFromValue = (value: unknown): Date => {
     if (typeof value === "string") {
@@ -17,6 +19,29 @@ export const getDateFromValue = (value: unknown): Date => {
     } else {
         throw new Error();
     }
+};
+
+export const isNeedField = ({ state, fieldName, projectId, issueTypeId }: {
+    state: State,
+    fieldName: string,
+    projectId: JiraProject["id"],
+    issueTypeId: JiraIssueType["id"],
+}): boolean => {
+    const projects = get(state, ["dataDependencies", "createMeta", "projects"], null);
+
+    if (!Array.isArray(projects) || projects.length === 0) {
+        return false;
+    }
+
+    const project = (projects).find(({ id }: JiraProject) => id === projectId);
+
+    if (!project) {
+        return false;
+    }
+
+    const issueType = project.issuetypes.find(({ id }: JiraIssueType) => id === issueTypeId);
+
+    return has(issueType, ["fields", fieldName]);
 };
 
 export const registerReplyBoxNotesAdditionsTargetAction = (client: IDeskproClient, state: State) => {

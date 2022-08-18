@@ -53,7 +53,8 @@ export const View: FC<ViewProps> = ({ issueKey }: ViewProps) => {
 
   useEffect(() => {
     loadIssueAttachments(issueKey);
-  }, [issueKey, loadIssueAttachments]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [issueKey]);
 
   const attachments = useMemo(
     () => state.linkedIssueAttachments ? findAttachmentsByKey(issueKey) : [],

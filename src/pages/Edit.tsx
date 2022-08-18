@@ -54,7 +54,8 @@ export const Edit: FC<EditProps> = ({ issueKey }: EditProps) => {
 
     useEffect(() => {
         loadIssueAttachments(issueKey);
-    }, [issueKey, loadIssueAttachments]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [issueKey]);
 
     const attachments = useMemo(
         () => findAttachmentsByKey(issueKey),
