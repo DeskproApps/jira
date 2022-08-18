@@ -82,7 +82,7 @@ export const View: FC<ViewProps> = ({ issueKey }: ViewProps) => {
           </div>
           <Property title="Issue Key">
             {issue.key}
-            <ExternalLink href={`https://${domain}.atlassian.net/browse/${issue.projectKey}`} />
+            <ExternalLink href={`https://${domain}.atlassian.net/browse/${issue.key}`} />
           </Property>
           {issue.description && (
             <Property title="Description">
