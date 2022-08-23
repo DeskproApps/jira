@@ -84,7 +84,7 @@ export const getMyPermissions = async (client: IDeskproClient) => {
  * Get list of comments for a given issue key
  */
 export const getIssueComments = async (client: IDeskproClient, key: string): Promise<JiraComment[]> => {
-  const data = await request(client, "GET", `${API_BASE_URL}/issue/${key}/comment`);
+  const data = await request(client, "GET", `${API_BASE_URL}/issue/${key}/comment?expand=renderedBody`);
 
   if (!data?.comments || !Array.isArray(data.comments)) {
     return [];
@@ -95,6 +95,7 @@ export const getIssueComments = async (client: IDeskproClient, key: string): Pro
     created: new Date(comment.created),
     updated: new Date(comment.updated),
     body: comment.body,
+    renderedBody: comment.renderedBody,
     author: {
       accountId: comment.author.accountId,
       displayName: comment.author.displayName,
