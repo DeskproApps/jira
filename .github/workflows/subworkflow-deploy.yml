@@ -52,7 +52,7 @@ jobs:
             -H "Accept: application/vnd.github.VERSION.raw" \
             -H "Authorization: token ${{ secrets.DESKPRO_SERVICE_TOKEN }}" \
             -o compose/docker-compose.yml \
-            https://api.github.com/repos/deskpro/deskpro-product/contents/docker/compose/demo/docker-compose.yml
+            https://api.github.com/repos/deskpro/deskpro-product/contents/docker/compose/deskpro-demo/docker-compose.yml
 
       - name: Create Docker SSH context
         uses: deskpro/gh-actions/create-ssh-docker-context@master
