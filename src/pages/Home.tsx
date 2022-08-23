@@ -1,6 +1,7 @@
 import { ChangeEvent, FC, useEffect, useMemo, useRef, useState } from "react";
 import { useStore } from "../context/StoreProvider/hooks";
 import {
+  H3,
   IconButton,
   Input,
   Stack,
@@ -67,14 +68,19 @@ export const Home: FC = () => {
         />
       </Stack>
       <HorizontalDivider style={{ marginTop: "8px", marginBottom: "8px" }} />
-      {loading ?  <LoadingSpinner /> : linkedIssues.map((item, idx) => (
-        <LinkedIssueResultItem
-          key={idx}
-          item={item}
-          jiraDomain={state.context?.settings.domain as string}
-          onView={() => dispatch({ type: "changePage", page: "view", params: { issueKey: item.key } })}
-        />
-      ))}
+      {loading
+          ? <LoadingSpinner />
+          : (Array.isArray(linkedIssues) && linkedIssues.length > 0)
+          ? linkedIssues.map((item, idx) => (
+            <LinkedIssueResultItem
+              key={idx}
+              item={item}
+              jiraDomain={state.context?.settings.domain as string}
+              onView={() => dispatch({ type: "changePage", page: "view", params: { issueKey: item.key } })}
+            />
+          ))
+          : <H3>No linked issues found.</H3>
+      }
     </>
   );
 };
