@@ -137,4 +137,5 @@ export interface JiraComment {
     displayName: string;
     avatarUrl: string;
   };
+  renderedBody: string
 }

@@ -1,6 +1,6 @@
 import {FC, Fragment} from "react";
 import {H1, H4, HorizontalDivider, Spinner, Stack, useDeskproAppTheme} from "@deskpro/app-sdk";
-import {useAdfToAnchoredText, useFindIssueComments} from "../../hooks";
+import { useFindIssueComments } from "../../hooks";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {useStore} from "../../context/StoreProvider/hooks";
@@ -8,7 +8,6 @@ import {JiraComment} from "../../context/StoreProvider/types";
 import "./CommentsList.css";
 import {ExternalLink} from "../ExternalLink/ExternalLink";
 import ReactTimeAgo from "react-time-ago";
-import truncate from "html-truncate";
 
 interface CommentsListProps {
     domain: string;
@@ -19,7 +18,6 @@ export const CommentsList: FC<CommentsListProps> = ({ issueKey, domain }: Commen
     const [, dispatch] = useStore();
     const { theme } = useDeskproAppTheme();
     const comments = useFindIssueComments(issueKey);
-    const adfToAnchoredText = useAdfToAnchoredText();
 
     if (!comments) {
         return (<Spinner size="small" />);
@@ -60,7 +58,7 @@ export const CommentsList: FC<CommentsListProps> = ({ issueKey, domain }: Commen
                         <div
                             className="comment-list-item-body"
                             style={{ color: theme.colors.grey100 }}
-                            dangerouslySetInnerHTML={{ __html: truncate(adfToAnchoredText(comment.body), 200) }}
+                            dangerouslySetInnerHTML={{ __html: comment.renderedBody }}
                         />
                         <HorizontalDivider style={{ width: "100%" }} />
                     </Fragment>
