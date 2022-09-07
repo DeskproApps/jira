@@ -44,6 +44,41 @@ export const isNeedField = ({ state, fieldName, projectId, issueTypeId }: {
     return has(issueType, ["fields", fieldName]);
 };
 
+export const isRequiredField = ({ state, fieldName, projectId, issueTypeId }: {
+    state: State,
+    fieldName: string,
+    projectId: JiraProject["id"],
+    issueTypeId: JiraIssueType["id"],
+}): boolean => {
+    const projects = get(state, ["dataDependencies", "createMeta", "projects"], null);
+
+    if (!Array.isArray(projects) || projects.length === 0) {
+        return false;
+    }
+
+    const project = (projects).find(({ id }: JiraProject) => id === projectId);
+
+    if (!project) {
+        return false;
+    }
+
+    const issueType = project.issuetypes.find(({ id }: JiraIssueType) => id === issueTypeId);
+
+    return get(issueType, ["fields", fieldName, "required"]);
+};
+
+export const normalize = (source: undefined|any[], fieldName = "id") => {
+    if (!Array.isArray(source)) {
+        return {};
+    }
+
+    return source.reduce((acc, item) => {
+        const key = item[fieldName];
+        acc[key] = item;
+        return acc;
+    }, {});
+};
+
 export const registerReplyBoxNotesAdditionsTargetAction = (client: IDeskproClient, state: State) => {
     const ticketId = state?.context?.data.ticket.id;
     const linkedIssues = (state.linkedIssuesResults?.list ?? []);

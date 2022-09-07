@@ -42,7 +42,7 @@ export const Link: FC = () => {
       return;
     }
 
-    searchIssues(client, q)
+    searchIssues(client, q, { withSubtask: true })
       .then((list) => dispatch({ type: "linkIssueSearchList", list }))
     ;
   },500);

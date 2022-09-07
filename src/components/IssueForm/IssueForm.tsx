@@ -1,4 +1,6 @@
 import { FC } from "react";
+import { orderBy, uniq } from "lodash";
+import { IntlProvider } from "react-intl";
 import { Formik, FormikHelpers } from "formik";
 import {
     Button,
@@ -9,15 +11,13 @@ import {
     Label,
     LoadingSpinner,
     Stack,
-    TextArea
+    TextArea,
 } from "@deskpro/app-sdk";
-import { IntlProvider } from "react-intl";
 import "./IssueForm.css";
 import { useStore } from "../../context/StoreProvider/hooks";
 import { schema } from "./validation";
 import { ErrorBlock } from "../Error/ErrorBlock";
 import { useLoadDataDependencies } from "../../hooks";
-import { orderBy, uniq } from "lodash";
 import { JiraIssueType, JiraProject, JiraUser } from "./types";
 import { DropdownSelect } from "../DropdownSelect/DropdownSelect";
 import {AttachmentFile, IssueFormData} from "../../context/StoreProvider/types";
@@ -26,7 +26,8 @@ import { FieldType, IssueMeta } from "../../types";
 import { CustomField } from "../IssueFieldForm/map";
 import { DropdownMultiSelect } from "../DropdownMultiSelect/DropdownMultiSelect";
 import {AttachmentsField} from "../AttachmentsField/AttachmentsField";
-import { isNeedField } from "../../utils";
+import { DropdownWithSearch } from "../DropdownWithSearch/DropdownWithSearch";
+import { isNeedField, isRequiredField } from "../../utils";
 
 export interface IssueFormProps {
     onSubmit: (values: any, formikHelpers: FormikHelpers<any>, meta: Record<string, IssueMeta>) => void | Promise<any>;
@@ -74,6 +75,7 @@ export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, apiError
         priority: "",
         customFields: {},
         attachments: [],
+        parentKey: "",
     } as IssueFormData;
 
     const projects = orderBy(
@@ -103,8 +105,7 @@ export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, apiError
             label: `${user.displayName}`,
             value: user.accountId,
             type: "value" as const,
-        })) as DropdownValueType<any>[]
-    ;
+        })) as DropdownValueType<any>[];
 
     const buildIssueTypeOptions = (projectId: string) => {
         const { projects } =  state.dataDependencies.createMeta;
@@ -210,6 +211,10 @@ export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, apiError
                         }
                     })(state, values.projectId, values.issueTypeId);
 
+                    const isRequired = ((state, projectId, issueTypeId) => (fieldName: string) => {
+                        return isRequiredField({ state, fieldName, projectId, issueTypeId })
+                    })(state, values.projectId, values.issueTypeId);
+
                     return (
                         <Stack gap={10} vertical>
                             {Object.values({...errors, ...apiErrors}).length > 0 && submitCount > 0 && <ErrorBlock text={Object.values({...errors, ...apiErrors}) as string|string[]} />}
@@ -238,6 +243,22 @@ export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, apiError
                                                     disabled={type === "update"}
                                                     helpers={helpers}
                                                     options={buildIssueTypeOptions(values.projectId)}
+                                                    id={id}
+                                                    placeholder="Select value"
+                                                    value={field.value}
+                                                />
+                                            </Label>
+                                        )}
+                                    </FormikField>
+                                </div>
+                            )}
+                            {values.projectId && isRequired("parent") && (
+                                <div className="create-form-field">
+                                    <FormikField<string> name="parentKey">
+                                        {([field, , helpers], { id, error }) => (
+                                            <Label htmlFor={id} label="Parent" error={error}>
+                                                <DropdownWithSearch
+                                                    helpers={helpers}
                                                     id={id}
                                                     placeholder="Select value"
                                                     value={field.value}
