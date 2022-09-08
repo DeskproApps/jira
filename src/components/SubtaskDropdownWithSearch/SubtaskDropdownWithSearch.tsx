@@ -95,8 +95,7 @@ export const SubtaskDropdownWithSearch: FC<DropdownWithSearchProps> = ({ helpers
         type: "value" as const,
       })))
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [parents]);
+  }, [parents, isDirtySearch]);
 
   useEffect(() => {
     if (loading) {
