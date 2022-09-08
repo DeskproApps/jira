@@ -84,6 +84,12 @@ export const View: FC<ViewProps> = ({ issueKey }: ViewProps) => {
             {issue.key}
             <ExternalLink href={`https://${domain}.atlassian.net/browse/${issue.key}`} />
           </Property>
+          {issue.parentKey && (
+            <Property title="Parent">
+              {issue.parentKey}
+              <ExternalLink href={`https://${domain}.atlassian.net/browse/${issue.parentKey}`} />
+            </Property>
+          )}
           {issue.description && (
             <Property title="Description">
               {adfToPlainText(issue.description)}

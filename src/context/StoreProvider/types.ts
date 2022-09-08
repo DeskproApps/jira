@@ -55,6 +55,11 @@ export interface TicketContext extends Context {
   data: { ticket: { id: string, permalinkUrl: string, subject: string; } }
 }
 
+export interface SearchParams {
+  withSubtask?: boolean;
+  projectId?: string;
+}
+
 export interface IssueItem {
   id: number;
   key: string;
@@ -81,6 +86,7 @@ export interface IssueItem {
   description?: ADFEntity;
   labels?: string[];
   customFields: Record<string, { value: any, meta: IssueMeta }>;
+  parentKey?: string;
 }
 
 export interface IssueSearchItem extends IssueItem {
@@ -107,6 +113,7 @@ export interface IssueFormData {
   priority: string;
   customFields: Record<string, any>;
   attachments: AttachmentFile[];
+  parentKey: string;
 }
 
 export interface AttachmentFile {
