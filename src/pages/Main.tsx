@@ -36,7 +36,7 @@ export const Main: FC = () => {
 
   useWhenNoLinkedItems(
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      useCallback(() => dispatch({ type: "changePage", page: "create" }), [])
+      useCallback(() => dispatch({ type: "changePage", page: "link" }), [])
   );
 
   useEffect(() => {

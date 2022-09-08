@@ -57,6 +57,7 @@ export interface TicketContext extends Context {
 
 export interface SearchParams {
   withSubtask?: boolean;
+  projectId?: string;
 }
 
 export interface IssueItem {
@@ -85,6 +86,7 @@ export interface IssueItem {
   description?: ADFEntity;
   labels?: string[];
   customFields: Record<string, { value: any, meta: IssueMeta }>;
+  parentKey?: string;
 }
 
 export interface IssueSearchItem extends IssueItem {

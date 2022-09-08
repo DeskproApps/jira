@@ -26,7 +26,7 @@ import { FieldType, IssueMeta } from "../../types";
 import { CustomField } from "../IssueFieldForm/map";
 import { DropdownMultiSelect } from "../DropdownMultiSelect/DropdownMultiSelect";
 import {AttachmentsField} from "../AttachmentsField/AttachmentsField";
-import { DropdownWithSearch } from "../DropdownWithSearch/DropdownWithSearch";
+import { SubtaskDropdownWithSearch } from "../SubtaskDropdownWithSearch/SubtaskDropdownWithSearch";
 import { isNeedField, isRequiredField } from "../../utils";
 
 export interface IssueFormProps {
@@ -257,7 +257,8 @@ export const IssueForm: FC<IssueFormProps> = ({ onSubmit, values, type, apiError
                                     <FormikField<string> name="parentKey">
                                         {([field, , helpers], { id, error }) => (
                                             <Label htmlFor={id} label="Parent" error={error}>
-                                                <DropdownWithSearch
+                                                <SubtaskDropdownWithSearch
+                                                    projectId={values.projectId}
                                                     helpers={helpers}
                                                     id={id}
                                                     placeholder="Select value"

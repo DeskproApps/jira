@@ -1,4 +1,5 @@
 import {FC, useEffect, useMemo, useState} from "react";
+import get from "lodash/get";
 import { IssueForm } from "../components/IssueForm/IssueForm";
 import {
     buildCustomFieldMeta,
@@ -129,6 +130,7 @@ export const Edit: FC<EditProps> = ({ issueKey }: EditProps) => {
                 [key]: formatCustomFieldValueForSet(editMeta[key], issue.fields[key] ?? null),
             };
         }, {}),
+        parentKey: get(issue, ["fields", "parent", "key"], ""),
     };
 
     return (

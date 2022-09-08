@@ -1,4 +1,4 @@
-import {FC, useEffect, useState} from "react";
+import { FC, useEffect, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import isEmpty from "lodash/isEmpty";
 import values from "lodash/values";
@@ -10,6 +10,7 @@ import {
   Dropdown,
   DropdownValueType,
   DropdownHeaderType,
+  useDeskproAppTheme,
   useDeskproAppClient,
   DropdownTargetProps,
   dropdownRenderOptions,
@@ -29,11 +30,31 @@ export interface DropdownWithSearchProps {
   placeholder?: string;
   value?: any;
   disabled?: boolean;
+  projectId: string;
 }
 
-export const DropdownWithSearch: FC<DropdownWithSearchProps> = ({ helpers, id, placeholder, value, ...props }) => {
+const NoFound = () => {
+  const { theme } = useDeskproAppTheme();
+  return (
+      <span style={{ color: theme.colors.grey80 }}>
+        No issues found.
+      </span>
+  );
+}
+
+const SearchForParent = () => {
+  const { theme } = useDeskproAppTheme();
+  return (
+      <span style={{ color: theme.colors.grey80 }}>
+        Search for a parent issue.
+      </span>
+  );
+};
+
+export const SubtaskDropdownWithSearch: FC<DropdownWithSearchProps> = ({ helpers, id, placeholder, value, projectId, ...props }) => {
   const { client } = useDeskproAppClient();
   const [loading, setLoading] = useState<boolean>(false);
+  const [isDirtySearch, setIsDirtySearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [parents, setParents] = useState<Record<string, any>>([]);
   const [parentOptions, setParentOptions] = useState<DropdownValueType<any>[] | DropdownHeaderType[]>([]);
@@ -42,11 +63,11 @@ export const DropdownWithSearch: FC<DropdownWithSearchProps> = ({ helpers, id, p
     const issue = get(parents, [value], null);
 
     if (isEmpty(issue)) {
-      return "";
+      return value ? value : "";
     } else {
       return `[${issue.key}] ${issue.summary}`;
     }
-  }
+  };
 
   const debouncedSearch = useDebouncedCallback<(v: string) => void>((q) => {
     if (!q || !client) {
@@ -55,7 +76,7 @@ export const DropdownWithSearch: FC<DropdownWithSearchProps> = ({ helpers, id, p
     }
 
     setLoading(true);
-    searchIssues(client, q)
+    searchIssues(client, q, { projectId })
         .then((stories) => setParents(normalize(stories, "key")))
         .finally(() => setLoading(false));
   }, 500);
@@ -64,7 +85,7 @@ export const DropdownWithSearch: FC<DropdownWithSearchProps> = ({ helpers, id, p
     if (isEmpty(parents)) {
       setParentOptions([{
         type: "header",
-        label: "No issues found.",
+        label: isDirtySearch ? <NoFound/> : <SearchForParent/>,
       }]);
     } else {
       setParentOptions(values(parents).map((issue) => ({
@@ -74,6 +95,7 @@ export const DropdownWithSearch: FC<DropdownWithSearchProps> = ({ helpers, id, p
         type: "value" as const,
       })))
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [parents]);
 
   useEffect(() => {
@@ -94,6 +116,7 @@ export const DropdownWithSearch: FC<DropdownWithSearchProps> = ({ helpers, id, p
       onInputChange={(e) => {
         setSearchQuery(e);
         debouncedSearch(e);
+        !isDirtySearch && setIsDirtySearch(true);
       }}
       onSelectOption={(option) => {
         helpers.setTouched(true);

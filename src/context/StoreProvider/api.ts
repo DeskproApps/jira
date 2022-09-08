@@ -10,7 +10,7 @@ import {
 } from "./types";
 import {backlinkCommentDoc, paragraphDoc, removeBacklinkCommentDoc} from "./adf";
 import cache from "js-cache";
-import { omit, orderBy } from "lodash";
+import { omit, orderBy, get } from "lodash";
 import {FieldType, IssueMeta} from "../../types";
 import {match} from "ts-pattern";
 import {useAdfToPlainText} from "../../hooks";
@@ -133,7 +133,7 @@ export const searchIssues = async (
     q: string,
     params: SearchParams = {},
 ): Promise<IssueSearchItem[]> => {
-  const url = `${API_BASE_URL}/issue/picker?query=${q}&currentJQL=&showSubTasks=${params.withSubtask ? "true" : "false"}`;
+  const url = `${API_BASE_URL}/issue/picker?query=${q}&currentJQL=&showSubTasks=${params.withSubtask ? "true" : "false"}${params.projectId ? `&currentProjectId=${params.projectId}` : ""}`;
   const { sections } = await request(client, "GET", url);
   const { issues: searchIssues } = sections.filter((s: { id: string }) => s.id === "cs")[0];
   const keys = (searchIssues ?? []).map((i: { key: string }) => i.key);
@@ -275,6 +275,7 @@ export const listLinkedIssues = async (client: IDeskproClient, keys: string[]): 
         extractCustomFieldValues(issue.fields),
         buildCustomFieldMeta(issue.editmeta.fields),
     ),
+    parentKey: get(issues, [issue.key, "fields", "parent", "key"], null),
   } as IssueItem));
 };
 
@@ -388,6 +389,7 @@ export const updateIssue = async (client: IDeskproClient, issueKey: string, data
       ...(!data.priority ? {} : { priority: { id: data.priority } }),
       ...(!data.assigneeUserId ? {} : { assignee: { id: data.assigneeUserId } }),
       ...(!data.reporterUserId ? {} : { reporter: { id: data.reporterUserId } }),
+      ...(!data.parentKey ? {} : { parent: { key: data.parentKey } }),
       ...customFields,
     },
   };
