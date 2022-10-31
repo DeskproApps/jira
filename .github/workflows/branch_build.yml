@@ -51,7 +51,7 @@ jobs:
         run: pnpm run lint
 
       - name: Type check
-        run: pnpm run tsc --noemit
+        run: pnpm tsc --noemit
 
       - name: Run tests
         run: pnpm run test:coverage
