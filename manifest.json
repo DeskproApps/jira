@@ -5,6 +5,7 @@
   "version": "1.0.0",
   "scope": "agent",
   "isSingleInstall": false,
+  "hasDevMode": true,
   "targets": [{
     "target": "ticket_sidebar",
     "entrypoint": "index.html"
@@ -20,9 +21,9 @@
   },
   "proxy": {
     "whitelist": [{
-      "url": "https://example.com/.*",
-      "methods": ["GET", "POST", "PUT"],
-      "timeout": 10
+      "url": "https://jsonplaceholder.typicode.com/.*",
+      "methods": ["GET"],
+      "timeout": 20
     }]
   }
 }
