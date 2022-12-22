@@ -50,12 +50,11 @@ jobs:
       - name: Build
         run: yarn build
 
-      - name: Upload package
-        uses: actions/upload-artifact@v2
-        with:
-          name: app-package
-          path: dist
-          retention-days: 1
+      - name: Package app zip
+        working-directory: dist
+        run: |
+          zip -rq ../app.zip *
+          mv ../app.zip .
 
       - name: Read manifest
         id: read_manifest
