@@ -44,8 +44,8 @@ jobs:
       - name: Type check
         run: yarn tsc --noemit
 
-      - name: Run tests
-        run: yarn test:coverage
+#      - name: Run tests
+#        run: yarn test:coverage
 
       - name: Build
         run: yarn build
@@ -86,7 +86,7 @@ jobs:
           prerelease: false
 
       - name: Upload release asset
-        id: upload-release-asset
+        id: upload_release_asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
