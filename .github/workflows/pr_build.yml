@@ -65,37 +65,6 @@ jobs:
             dist/manifest.json
           retention-days: 1
 
-      - name: Read manifest
-        id: read_manifest
-        run: |
-          content=`cat ./manifest.json`
-          content="${content//'%'/'%25'}"
-          content="${content//$'\n'/'%0A'}"
-          content="${content//$'\r'/'%0D'}"
-          echo "::set-output name=manifest::$content"
-
-      - name: Create release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ fromJson(steps.read_manifest.outputs.manifest).version }}
-          release_name: ${{ fromJson(steps.read_manifest.outputs.manifest).version }}
-          draft: false
-          prerelease: false
-
-      - name: Upload release asset
-        id: upload_release_asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./app.zip
-          asset_name: app.zip
-          asset_content_type: application/zip
-
   deploy:
     uses: DeskproApps/app-template-vite/.github/workflows/subworkflow-deploy.yml@master
     secrets: inherit
