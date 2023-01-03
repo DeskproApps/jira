@@ -6,17 +6,17 @@ TODO: Include a summary of app functionality and a screenshot
 Basic Usage
 ---
 
-We recommend using [Yarn](https://yarnpkg.com/) to manage this project. First, start by installing the project 
+We recommend using [PNPM](https://pnpm.io/) to manage this project. First, start by installing the project 
 dependencies from inside the project directory `app-template-vite`.
 
 ```bash
-yarn install
+pnpm install
 ```
 
 Then, run the development server.
 
 ```bash
-yarn start
+pnpm run start
 ```
 
 You should now be able to view the bare-bones app in your browser.
@@ -31,5 +31,5 @@ We've included `jest` to run your tests. It will look anywhere in `/src` for tes
 You can run all tests using:
 
 ```bash
-yarn test
+pnpm run test
 ```
