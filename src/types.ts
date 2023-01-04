@@ -122,3 +122,13 @@ export interface ReplyBoxNoteSelection {
 export interface ReplyBoxOnReply {
     note: string;
 }
+
+export type Settings = {
+    domain?: string,
+    username?: string,
+    api_key?: string,
+    verify_settings?: string,
+    default_comment_on_ticket_reply?: string,
+    default_comment_on_ticket_note?: string,
+    ticket_subject_as_issue_summary?: string,
+};

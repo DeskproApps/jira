@@ -127,3 +127,11 @@ export const registerReplyBoxEmailsAdditionsTargetAction = (client: IDeskproClie
 
 export const ticketReplyNotesSelectionStateKey = (ticketId: string, issueId: string|number) => `tickets/${ticketId}/notes/selection/${issueId}`;
 export const ticketReplyEmailsSelectionStateKey = (ticketId: string, issueId: string|number) => `tickets/${ticketId}/emails/selection/${issueId}`;
+
+export const toBase64 = (payload: string): string => {
+    if (window && typeof window.btoa === 'function') {
+        return window.btoa(payload);
+    }
+
+    throw new Error('no base64 encoding method available');
+}
