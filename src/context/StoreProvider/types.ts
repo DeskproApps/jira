@@ -17,6 +17,7 @@ export type Page =
   | "edit"
   | "comment"
   | "view_permissions"
+  | "verify_settings"
 ;
 
 export interface State {
@@ -146,3 +147,23 @@ export interface JiraComment {
   };
   renderedBody: string
 }
+
+export type User = {
+  "self": string,
+  "key": string,
+  "accountId": string,
+  "accountType": "atlassian",
+  "name": string,
+  "emailAddress": string,
+  "displayName": string,
+  "avatarUrls": {
+    "48x48": string,
+    "24x24": string,
+    "16x16": string,
+    "32x32": string,
+  },
+  "active": boolean,
+  "timeZone": string,
+  "groups": object,
+  "applicationRoles": object,
+};

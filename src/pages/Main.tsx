@@ -24,6 +24,7 @@ import {
 import { ReplyBoxNoteSelection } from "../types";
 import { useLoadLinkedIssues, useWhenNoLinkedItems } from "../hooks";
 import { ViewPermissions } from "./ViewPermissions";
+import { VerifySettings } from "./VerifySettings";
 
 export const Main: FC = () => {
   const { client } = useDeskproAppClient();
@@ -173,9 +174,17 @@ export const Main: FC = () => {
       ;
     },
     onTargetAction: (a) => debounceTargetAction(a as TargetAction),
-  }, [state.context?.data]);
+  }, [client, state.context?.data]);
+
+  useEffect(() => {
+    const queryParams = new URLSearchParams(window.location.search);
+    const page = queryParams.get("page") as Page|null;
+
+    page && dispatch({ type: "changePage", page })
+  }, [dispatch]);
 
   const page = match<Page|undefined>(state.page)
+      .with("verify_settings", () => <VerifySettings {...state.pageParams} />)
       .with("home", () => <Home {...state.pageParams} />)
       .with("link", () => <Link {...state.pageParams} />)
       .with("view", () => <View {...state.pageParams} />)
