@@ -121,9 +121,13 @@ export const View: FC<ViewProps> = ({ issueKey }: ViewProps) => {
           <Property title="Assignee">
             {issue.assigneeId ? (
                 <div style={{ position: "relative" }}>
-                  <img src={issue.assigneeAvatarUrl} width={18} height={18} alt="" className="user-avatar" />
+                  {issue.assigneeAvatarUrl && (
+                      <img src={issue.assigneeAvatarUrl} width={18} height={18} alt="" className="user-avatar" />
+                  )}
                   <span className="user-name">{issue.assigneeName}</span>
-                  <ExternalLink href={`https://${domain}.atlassian.net/jira/people/${issue.assigneeId}`} />
+                  {issue.assigneeId && (
+                      <ExternalLink href={`https://${domain}.atlassian.net/jira/people/${issue.assigneeId}`} />
+                  )}
                 </div>
             ) : (
                 <span style={{ color: theme.colors.grey80 }}>None</span>
@@ -131,9 +135,13 @@ export const View: FC<ViewProps> = ({ issueKey }: ViewProps) => {
           </Property>
           <Property title="Reporter">
             <div style={{ position: "relative" }}>
-              <img src={issue.reporterAvatarUrl} width={18} height={18} alt="" className="user-avatar" />
+              {issue.reporterAvatarUrl && (
+                  <img src={issue.reporterAvatarUrl} width={18} height={18} alt="" className="user-avatar" />
+              )}
               <span className="user-name">{issue.reporterName}</span>
-              <ExternalLink href={`https://${domain}.atlassian.net/jira/people/${issue.reporterId}`} />
+              {issue.reporterId && (
+                  <ExternalLink href={`https://${domain}.atlassian.net/jira/people/${issue.reporterId}`} />
+              )}
             </div>
           </Property>
           {(issue.labels && issue.labels.length > 0) && (

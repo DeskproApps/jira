@@ -15,5 +15,6 @@ module.exports = {
       { ignoreRestSiblings: true, argsIgnorePattern: "^_" },
     ],
     "no-undef": 0,
+    "no-console": "error",
   },
 };

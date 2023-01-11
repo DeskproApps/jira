@@ -110,14 +110,14 @@ export const Edit: FC<EditProps> = ({ issueKey }: EditProps) => {
             name: a.filename,
             size: a.sizeBytes,
         } as AttachmentFile)),
-        summary: issue.fields.summary,
-        description: adfToPlainText(issue.fields.description),
-        issueTypeId: issue.fields.issuetype.id,
-        projectId: issue.fields.project.id,
-        reporterUserId: issue.fields.reporter.accountId,
-        assigneeUserId: issue.fields.assignee?.accountId,
-        labels: issue.fields.labels ?? [],
-        priority: issue.fields.priority.id,
+        summary: get(issue, ["fields", "summary"], ""),
+        description: adfToPlainText(get(issue, ["fields", "description"])),
+        issueTypeId: get(issue, ["fields", "issuetype", "id"], ""),
+        projectId: get(issue, ["fields", "project", "id"], ""),
+        reporterUserId: get(issue, ["fields", "reporter", "accountId"], ""),
+        assigneeUserId: get(issue, ["fields", "assignee", "accountId"], ""),
+        labels: get(issue, ["fields", "labels"], []) || [],
+        priority: get(issue, ["fields", "priority", "id"], ""),
         customFields: Object.keys(editMeta).reduce((fields, key) => {
             const value = formatCustomFieldValueForSet(editMeta[key], issue.fields[key] ?? null);
 
