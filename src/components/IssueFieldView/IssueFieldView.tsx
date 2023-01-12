@@ -13,6 +13,7 @@ export const IssueFieldView: FC<IssueFieldViewProps> = ({ value, meta }: IssueFi
 
     if (field === null) {
         // Inform us of the missing map then gracefully do not attempt to render the field
+        // eslint-disable-next-line no-console
         console.warn(`Could not render field view, mapping missing for JIRA field type ${meta.type}`);
         return (<></>);
     }

@@ -53,6 +53,7 @@ export const addRemoteLink = async (client: IDeskproClient, key: string, ticketI
  * Remove remote link
  */
 export const removeRemoteLink = async (client: IDeskproClient, key: string, ticketId: string) =>
+    // eslint-disable-next-line no-console
     request(client, "DELETE", `${API_BASE_URL}/issue/${key}/remotelink?globalId=${remoteLinkGlobalId(ticketId)}`).catch(console.warn)
 ;
 
@@ -181,12 +182,12 @@ export const searchIssues = async (
     keyHtml: searchIssue.keyHtml,
     summary: searchIssue.summaryText,
     summaryHtml: searchIssue.summary,
-    status: issues[searchIssue.key].fields.status.name,
-    projectKey: issues[searchIssue.key].fields.project.key,
-    projectName: issues[searchIssue.key].fields.project.name,
-    reporterId: issues[searchIssue.key].fields.reporter.accountId,
-    reporterName: issues[searchIssue.key].fields.reporter.displayName,
-    reporterAvatarUrl: issues[searchIssue.key].fields.reporter.avatarUrls["24x24"],
+    status: get(issues, [searchIssue.key, "fields", "status", "name"], "-"),
+    projectKey: get(issues, [searchIssue.key, "fields", "project", "key"], ""),
+    projectName: get(issues, [searchIssue.key, "fields", "project", "name"], "-"),
+    reporterId: get(issues, [searchIssue.key, "fields", "reporter", "accountId"], ""),
+    reporterName: get(issues, [searchIssue.key, "fields", "reporter", "displayName"], "-"),
+    reporterAvatarUrl: get(issues, [searchIssue.key, "fields", "reporter", "avatarUrls", "24x24"], ""),
     epicKey: epics[epicKeys[searchIssue.key]] ? epics[epicKeys[searchIssue.key]].key : undefined,
     epicName: epics[epicKeys[searchIssue.key]] ? epics[epicKeys[searchIssue.key]].fields.summary : undefined,
   } as IssueSearchItem));
@@ -249,16 +250,16 @@ export const listLinkedIssues = async (client: IDeskproClient, keys: string[]): 
   return (fullIssues ?? []).map((issue: any) => ({
     id: issue.id,
     key: issue.key,
-    summary: issue.fields.summary,
-    status: issues[issue.key].fields.status.name,
-    projectKey: issues[issue.key].fields.project.key,
-    projectName: issues[issue.key].fields.project.name,
-    reporterId: issues[issue.key].fields.reporter.accountId,
-    reporterName: issues[issue.key].fields.reporter.displayName,
-    reporterAvatarUrl: issues[issue.key].fields.reporter.avatarUrls["24x24"],
-    assigneeId: issues[issue.key].fields.assignee?.accountId,
-    assigneeName: issues[issue.key].fields.assignee?.displayName,
-    assigneeAvatarUrl: issues[issue.key].fields.assignee?.avatarUrls["24x24"],
+    summary: get(issue, ["fields", "summary"], "-"),
+    status: get(issues, [issue.key, "fields", "status", "name"], "-"),
+    projectKey: get(issues, [issue.key, "fields", "project", "key"], "-"),
+    projectName: get(issues, [issue.key, "fields", "project", "name"], "-"),
+    reporterId: get(issues, [issue.key, "fields", "reporter", "accountId"], ""),
+    reporterName: get(issues, [issue.key, "fields", "reporter", "displayName"], "-"),
+    reporterAvatarUrl: get(issues, [issue.key, "fields", "reporter", "avatarUrls", "24x24"], ""),
+    assigneeId: get(issues, [issue.key, "fields", "assignee", "accountId"], ""),
+    assigneeName: get(issues, [issue.key, "fields", "assignee", "displayName"], "-"),
+    assigneeAvatarUrl: get(issues, [issue.key, "fields", "assignee", "avatarUrls", "24x24"], ""),
     epicKey: epics[epicKeys[issue.key]] ? epics[epicKeys[issue.key]].key : undefined,
     epicName: epics[epicKeys[issue.key]] ? epics[epicKeys[issue.key]].fields.summary : undefined,
     sprints: (sprints[issue.key] ?? []).map((sprint: any) => ({
@@ -266,7 +267,7 @@ export const listLinkedIssues = async (client: IDeskproClient, keys: string[]): 
       sprintName: sprint.name,
       sprintState: sprint.state,
     })),
-    description: issues[issue.key].fields.description,
+    description: get(issues, [issue.key, "fields", "description"], "-"),
     labels: issues[issue.key].fields.labels ?? [],
     priority: issues[issue.key].fields.priority.name,
     priorityId: issues[issue.key].fields.priority.id,

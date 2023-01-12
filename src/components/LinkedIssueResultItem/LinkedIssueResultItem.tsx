@@ -56,9 +56,13 @@ export const LinkedIssueResultItem: FC<LinkedIssueResultItemProps> = ({ jiraDoma
           </Property>
           <Property title="Reporter">
             <div style={{ position: "relative" }}>
-              <img src={item.reporterAvatarUrl} width={18} height={18} alt="" className="user-avatar" />
+              {item.reporterAvatarUrl && (
+                  <img src={item.reporterAvatarUrl} width={18} height={18} alt="" className="user-avatar" />
+              )}
               <span className="user-name">{item.reporterName}</span>
-              <ExternalLink href={`https://${jiraDomain}.atlassian.net/jira/people/${item.reporterId}`} />
+              {item.reporterId && (
+                  <ExternalLink href={`https://${jiraDomain}.atlassian.net/jira/people/${item.reporterId}`} />
+              )}
             </div>
           </Property>
         </Stack>

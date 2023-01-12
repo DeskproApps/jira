@@ -32,6 +32,7 @@ export const Main: FC = () => {
   const [state, dispatch] = useStore();
 
   if (state._error) {
+    // eslint-disable-next-line no-console
     console.error(state._error);
   }
 
