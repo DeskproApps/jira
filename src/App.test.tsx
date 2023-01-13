@@ -21,7 +21,7 @@ jest.mock("@deskpro/app-sdk", () => ({
       !!hooks.onChange && hooks.onChange(deskproAppEventsObj);
       !!hooks.onShow && hooks.onShow(deskproAppEventsObj);
       !!hooks.onReady && hooks.onReady(deskproAppEventsObj);
-      /* eslint-disable react-hooks/exhaustive-deps */
+      /* eslint-disable-next-line react-hooks/exhaustive-deps */
     }, deps);
   },
   useInitialisedDeskproAppClient: (
