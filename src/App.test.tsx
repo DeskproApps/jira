@@ -5,7 +5,10 @@ import fetch from "node-fetch";
 
 jest.mock("@deskpro/app-sdk", () => ({
   ...jest.requireActual("@deskpro/app-sdk"),
-  useDeskproAppEvents: (hooks: any, deps: [] = []) => {
+  useDeskproAppEvents: (
+    hooks: { [key: string]: (param: Record<string, unknown>) => void },
+    deps: [] = []
+  ) => {
     const deskproAppEventsObj = {
       data: {
         ticket: {
@@ -15,12 +18,15 @@ jest.mock("@deskpro/app-sdk", () => ({
       },
     };
     React.useEffect(() => {
-      hooks.onChange && hooks.onChange(deskproAppEventsObj);
-      hooks.onShow && hooks.onShow(deskproAppEventsObj);
-      hooks.onReady && hooks.onReady(deskproAppEventsObj);
+      !!hooks.onChange && hooks.onChange(deskproAppEventsObj);
+      !!hooks.onShow && hooks.onShow(deskproAppEventsObj);
+      !!hooks.onReady && hooks.onReady(deskproAppEventsObj);
+      /* eslint-disable react-hooks/exhaustive-deps */
     }, deps);
   },
-  useInitialisedDeskproAppClient: (callback: any) => {
+  useInitialisedDeskproAppClient: (
+    callback: (param: Record<string, unknown>) => void
+  ) => {
     callback({
       registerElement: () => {},
       deregisterElement: () => {},

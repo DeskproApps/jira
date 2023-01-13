@@ -54,7 +54,7 @@ jobs:
         run: pnpm tsc --noemit
 
       - name: Run tests
-        run: yarn test:coverage
+        run: pnpm test:coverage
 
       - name: Build
         run: pnpm run build
