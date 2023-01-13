@@ -44,7 +44,7 @@ export const Main = () => {
         "https://jsonplaceholder.typicode.com/posts"
       );
 
-      const posts = await response.json().catch(console.log);
+      const posts = await response.json();
 
       setExamplePosts(posts.slice(0, 3));
     })()
