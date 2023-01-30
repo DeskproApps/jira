@@ -9,8 +9,8 @@ specifiers:
   '@testing-library/react': ^13.4.0
   '@testing-library/user-event': ^14.4.3
   '@types/jest': ^27.4.0
-  '@types/react': ^17.0.33
-  '@types/react-dom': ^17.0.10
+  '@types/react': ^18.0.27
+  '@types/react-dom': ^18.0.10
   '@types/styled-components': ^5.1.23
   '@types/testing-library__jest-dom': ^5.14.3
   '@typescript-eslint/eslint-plugin': 5.6.0
@@ -50,8 +50,8 @@ devDependencies:
   '@testing-library/react': 13.4.0_biqbaboplfbrettd7655fr4n2y
   '@testing-library/user-event': 14.4.3_gzufz4q333be4gqfrvipwvqt6a
   '@types/jest': 27.4.0
-  '@types/react': 17.0.37
-  '@types/react-dom': 17.0.11
+  '@types/react': 18.0.27
+  '@types/react-dom': 18.0.10
   '@types/styled-components': 5.1.25
   '@types/testing-library__jest-dom': 5.14.5
   '@typescript-eslint/eslint-plugin': 5.6.0_pyb44nakh4rltd7nagt5msswmy
@@ -1442,7 +1442,7 @@ packages:
   /@types/hoist-non-react-statics/3.3.1:
     resolution: {integrity: sha512-iMIqiko6ooLrTh1joXodJK5X9xeEALT1kM5G3ZLhD3hszxBdIEd5C75U834D9mLcINgD4OyZf5uQXjkuYydWvA==}
     dependencies:
-      '@types/react': 18.0.21
+      '@types/react': 18.0.27
       hoist-non-react-statics: 3.3.2
 
   /@types/istanbul-lib-coverage/2.0.4:
@@ -1495,28 +1495,14 @@ packages:
   /@types/prop-types/15.7.4:
     resolution: {integrity: sha512-rZ5drC/jWjrArrS8BR6SIr4cWpW09RNTYt9AMZo3Jwwif+iacXAqgVjm0B0Bv/S1jhDXKHqRVNCbACkJ89RAnQ==}
 
-  /@types/react-dom/17.0.11:
-    resolution: {integrity: sha512-f96K3k+24RaLGVu/Y2Ng3e1EbZ8/cVJvypZWd7cy0ofCBaf2lcM46xNhycMZ2xGwbBjRql7hOlZ+e2WlJ5MH3Q==}
-    dependencies:
-      '@types/react': 18.0.21
-    dev: true
-
   /@types/react-dom/18.0.10:
     resolution: {integrity: sha512-E42GW/JA4Qv15wQdqJq8DL4JhNpB3prJgjgapN3qJT9K2zO5IIAQh4VXvCEDupoqAwnz0cY4RlXeC/ajX5SFHg==}
     dependencies:
-      '@types/react': 18.0.21
+      '@types/react': 18.0.27
     dev: true
 
-  /@types/react/17.0.37:
-    resolution: {integrity: sha512-2FS1oTqBGcH/s0E+CjrCCR9+JMpsu9b69RTFO+40ua43ZqP5MmQ4iUde/dMjWR909KxZwmOQIFq6AV6NjEG5xg==}
-    dependencies:
-      '@types/prop-types': 15.7.4
-      '@types/scheduler': 0.16.2
-      csstype: 3.1.0
-    dev: true
-
-  /@types/react/18.0.21:
-    resolution: {integrity: sha512-7QUCOxvFgnD5Jk8ZKlUAhVcRj7GuJRjnjjiY/IUBWKgOlnvDvTMLD4RTF7NPyVmbRhNrbomZiOepg7M/2Kj1mA==}
+  /@types/react/18.0.27:
+    resolution: {integrity: sha512-3vtRKHgVxu3Jp9t718R9BuzoD4NcQ8YJ5XRzsSKxNDiDonD2MXIT1TmSkenxuCycZJoQT5d2vE8LwWJxBC1gmA==}
     dependencies:
       '@types/prop-types': 15.7.4
       '@types/scheduler': 0.16.2
@@ -1533,7 +1519,7 @@ packages:
     resolution: {integrity: sha512-fgwl+0Pa8pdkwXRoVPP9JbqF0Ivo9llnmsm+7TCI330kbPIFd9qv1Lrhr37shf4tnxCOSu+/IgqM7uJXLWZZNQ==}
     dependencies:
       '@types/hoist-non-react-statics': 3.3.1
-      '@types/react': 18.0.21
+      '@types/react': 18.0.27
       csstype: 3.1.0
     dev: true
 
@@ -4369,7 +4355,7 @@ packages:
       '@formatjs/intl-displaynames': 5.4.3
       '@formatjs/intl-listformat': 6.5.3
       '@types/hoist-non-react-statics': 3.3.1
-      '@types/react': 18.0.21
+      '@types/react': 18.0.27
       hoist-non-react-statics: 3.3.2
       intl-messageformat: 9.13.0
       react: 18.2.0
