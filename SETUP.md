@@ -42,3 +42,24 @@ From this screen, enter the following details:
 To configure who can see and use the JIRA app, head to the "Permissions" tab and select those users and/or groups you'd like to have access.
 
 When you're happy, click "Install".
+
+Permissions
+---
+
+When you first view the JIRA app alongside a ticket, it's best to check that you have configured the correct permissions 
+in JIRA itself. To help you do this, we provide a utility that shows which permissions are necessary for the app to operate correctly.
+Open the app alongside a ticket in Deskpro, and go to the home screen by clicking the "house" icon at the top of the app.
+
+Next, click the context menu (it has three vertical dots) at the top right of the home screen, then click "View Permissions".
+
+You should then see the following screen:
+
+[![](/docs/assets/setup/jira-setup-08.png)](/docs/assets/setup/jira-setup-08.png)
+
+This shows a list of JIRA permissions that you need to give to the user that owns the API key you generated during the app setup process.
+
+The green ticks show that permissions are granted, and the red crosses indicate permissions that are required but aren't yet granted in JIRA.
+
+If you see any red ticks, you must login to JIRA and follow their 
+<a href="https://support.atlassian.com/jira-work-management/docs/how-do-jira-permissions-work/" target="_blank">permissions guide</a> to grant the 
+missing permissions.
