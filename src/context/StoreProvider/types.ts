@@ -167,3 +167,13 @@ export type User = {
   "groups": object,
   "applicationRoles": object,
 };
+
+export type SearchResponse<T> = {
+  nextPage: string,
+  self: string,
+  isLast: boolean,
+  maxResults: number,
+  startAt: number,
+  total: number,
+  values: T[],
+};
