@@ -14,6 +14,7 @@ import { omit, orderBy, get } from "lodash";
 import {FieldType, IssueMeta} from "../../types";
 import {match} from "ts-pattern";
 import {useAdfToPlainText} from "../../hooks";
+import { fetchAll } from "../../utils";
 
 // JIRA REST API Base URL
 const API_BASE_URL = "https://__domain__.atlassian.net/rest/api/3";
@@ -432,13 +433,14 @@ export const updateIssue = async (client: IDeskproClient, issueKey: string, data
 
 export const getIssueDependencies = async (client: IDeskproClient) => {
   const cache_key = "data_deps";
+  const requestWithFetchAll = fetchAll(request);
 
   if (!cache.get(cache_key)) {
     const dependencies = [
       request(client, "GET", `${API_BASE_URL}/issue/createmeta?expand=projects.issuetypes.fields`),
-      request(client, "GET", `${API_BASE_URL}/project/search?maxResults=999`),
+      requestWithFetchAll(client, "GET", `${API_BASE_URL}/project/search`),
       request(client, "GET", `${API_BASE_URL}/users/search?maxResults=999`),
-      request(client, "GET", `${API_BASE_URL}/label?maxResults=999`),
+      requestWithFetchAll(client, "GET", `${API_BASE_URL}/label`),
     ];
 
     const [
@@ -450,9 +452,9 @@ export const getIssueDependencies = async (client: IDeskproClient) => {
 
     const resolved = {
       createMeta,
-      projects: projects.values ?? [],
+      projects: projects || [],
       users,
-      labels: labels.values ?? [],
+      labels: labels || [],
     };
 
     cache.set(cache_key, resolved, SEARCH_DEPS_CACHE_TTL);
