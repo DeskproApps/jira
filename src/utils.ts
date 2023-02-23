@@ -136,7 +136,7 @@ export const toBase64 = (payload: string): string => {
     throw new Error('no base64 encoding method available');
 }
 
-export const retryUntilPagination = <T>(fn: (...args: any) => Promise<SearchResponse<T>>) => {
+export const fetchAll = <T>(fn: (...args: any) => Promise<SearchResponse<T>>) => {
     const MAX = 50;
 
     return async (client: IDeskproClient, method: string, baseUrl: string) => {
