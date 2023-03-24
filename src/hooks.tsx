@@ -148,7 +148,7 @@ export const parseJiraDescription = (description: ADFEntity): any => {
                   href={node.text}
                   target="_blank"
                 >
-                  {node.text};
+                  {node.text}
                 </StyledLink>
               );
             }
@@ -158,7 +158,7 @@ export const parseJiraDescription = (description: ADFEntity): any => {
                   href={c}
                   target="_blank"
                 >
-                  {c};
+                  {c}
                 </StyledLink>
               ) : <P1>{c}</P1>
 
@@ -172,7 +172,7 @@ export const parseJiraDescription = (description: ADFEntity): any => {
                 href={node.attrs?.url}
                 target="_blank"
               >
-                {node.attrs?.url};
+                {node.attrs?.url}
               </StyledLink>
             );
         }
