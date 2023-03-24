@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import {
+  P1,
   useDeskproAppClient,
   useInitialisedDeskproAppClient,
 } from "@deskpro/app-sdk";
@@ -139,26 +140,44 @@ export const parseJiraDescription = (description: ADFEntity): any => {
   if (!description) return;
 
   return map(description, (node) => {
-    switch (node.type) {
-      case "text":
-        if(testUrlRegex.test(node.text || "")) {
-          return (
-          <StyledLink href={node.text} target="_blank">
-            {node.text}&nbsp;
-          </StyledLink>
-          )
+        switch (node.type) {
+          case "text":
+            if (testUrlRegex.test(node.text || "")) {
+              return (
+                <StyledLink
+                  href={node.text}
+                  target="_blank"
+                >
+                  {node.text};
+                </StyledLink>
+              );
+            }
+            return node.text?.split("\n").reduce((a: JSX.Element[],c) => {
+              const item = testUrlRegex.test(c || "") ? (
+                <StyledLink
+                  href={c}
+                  target="_blank"
+                >
+                  {c};
+                </StyledLink>
+              ) : <P1>{c}</P1>
+
+              return [...a, item]
+            }, [])
+          case "hardBreak":
+            return <br />;
+          case "inlineCard":
+            return (
+              <StyledLink
+                href={node.attrs?.url}
+                target="_blank"
+              >
+                {node.attrs?.url};
+              </StyledLink>
+            );
         }
-        return node.text;
-      case "hardBreak":
-        return <br />;
-      case "inlineCard":
-        return (
-          <StyledLink href={node.attrs?.url} target="_blank">
-            {node.attrs?.url}&nbsp;
-          </StyledLink>
-        );
-    }
-  });
+      })
+  
 };
 
 export const useAdfToPlainText = () => {

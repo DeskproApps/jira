@@ -76,7 +76,7 @@ export const View: FC<ViewProps> = ({ issueKey }: ViewProps) => {
   return (
     <>
       <Stack align="start" gap={10}>
-        <Stack gap={10} vertical>
+        <Stack gap={10} style={{width:"100%"}} vertical>
           <div
             style={{
               display: "flex",
@@ -105,7 +105,7 @@ export const View: FC<ViewProps> = ({ issueKey }: ViewProps) => {
             </Property>
           )}
           {issue.description && (
-            <Property title="Description">
+            <Property style={{width:"100%"}} childrenStyle={{width:"100%"}} title="Description">
               {parseJiraDescription(issue.description)}
             </Property>
           )}
