@@ -1,5 +1,5 @@
 import React, {ChangeEvent, FC, useRef, useState} from "react";
-import {AttachmentTag, Button, Stack} from "@deskpro/app-sdk";
+import {AnyIcon, AttachmentTag, Button, Stack} from "@deskpro/app-sdk";
 import {faFile} from "@fortawesome/free-regular-svg-icons";
 import {faPlus} from "@fortawesome/free-solid-svg-icons";
 import {omit} from "lodash";
@@ -84,7 +84,7 @@ export const AttachmentsField: FC<AttachmentsFieldProps> = ({ onFiles, existing 
                         onClose={() => remove(name)}
                     />
                 ))}
-                <Button text={"Add"} icon={faPlus} minimal style={{ marginLeft: "6px" }} onClick={add} />
+                <Button text={"Add"} icon={faPlus as AnyIcon} minimal style={{ marginLeft: "6px" }} onClick={add} />
             </Stack>
         </>
     );

@@ -5,7 +5,8 @@ import {
   DropdownTargetProps,
   DropdownValueType, Stack, Icon, useDeskproAppTheme,
   dropdownRenderOptions,
-  Infinite
+  Infinite,
+  AnyIcon
 } from "@deskpro/app-sdk";
 import { faCaretDown, faTimes, faHandPointer, faExternalLinkAlt } from "@fortawesome/free-solid-svg-icons";
 import { FieldHelperProps } from "formik";
@@ -56,8 +57,8 @@ export const DropdownMultiSelect: FC<DropdownMultiSelectProps> = ({ helpers, id,
       }}
       fetchMoreText="Fetch more"
       autoscrollText="Autoscroll"
-      selectedIcon={faHandPointer}
-      externalLinkIcon={faExternalLinkAlt}
+      selectedIcon={faHandPointer as AnyIcon}
+      externalLinkIcon={faExternalLinkAlt as AnyIcon}
       optionsRenderer={(
         opts,
         handleSelectOption,
@@ -82,8 +83,8 @@ export const DropdownMultiSelect: FC<DropdownMultiSelectProps> = ({ helpers, id,
                 setActiveSubItem,
                 "Fetch more",
                 "Autoscroll",
-                  faHandPointer,
-                  faExternalLinkAlt,
+                  faHandPointer as AnyIcon,
+                  faExternalLinkAlt as AnyIcon,
                 hideIcons,
                 0
               )
@@ -103,14 +104,14 @@ export const DropdownMultiSelect: FC<DropdownMultiSelectProps> = ({ helpers, id,
                 <Label color={color ?? colors.grey20} key={idx} onClick={() => helpers.setValue(vals.filter((v) => v !== val))}>
                   <Stack align="center">
                     <span style={{ marginRight: "4px" }}>{label}</span>
-                    <Icon icon={faTimes} />
+                    <Icon icon={faTimes as AnyIcon} />
                   </Stack>
                 </Label>
               ))}
             </Stack>
           }
           variant="inline"
-          rightIcon={faCaretDown}
+          rightIcon={faCaretDown as AnyIcon}
           ref={targetRef}
           {...targetProps}
           isVisibleRightIcon

@@ -8,7 +8,7 @@ import {
   HorizontalDivider,
   H3,
   Checkbox,
-  Button, useDeskproAppClient
+  Button, useDeskproAppClient, AnyIcon
 } from "@deskpro/app-sdk";
 import { useDebouncedCallback } from "use-debounce";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -124,8 +124,8 @@ export const Link: FC = () => {
           ref={searchInputRef}
           value={searchQuery}
           onChange={(e: ChangeEvent<HTMLInputElement>) => search(e.target.value)}
-          leftIcon={state.linkIssueSearchResults?.loading ? <FontAwesomeIcon icon={faSpinner} spin /> : faSearch}
-          rightIcon={<IconButton icon={faTimes} onClick={clear} minimal />}
+          leftIcon={state.linkIssueSearchResults?.loading ? <FontAwesomeIcon icon={faSpinner} spin /> : faSearch as AnyIcon}
+          rightIcon={<IconButton icon={faTimes as AnyIcon} onClick={clear} minimal />}
         />
       </Stack>
       <HorizontalDivider style={{ marginTop: "8px", marginBottom: "8px" }} />

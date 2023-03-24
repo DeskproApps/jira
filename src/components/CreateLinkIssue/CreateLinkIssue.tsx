@@ -1,6 +1,6 @@
 import { FC } from "react";
 import "./CreateLinkIssue.css";
-import { Button, Stack, useDeskproAppTheme } from "@deskpro/app-sdk";
+import { AnyIcon, Button, Stack, useDeskproAppTheme } from "@deskpro/app-sdk";
 import { faSearch, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { useStore } from "../../context/StoreProvider/hooks";
 
@@ -17,7 +17,7 @@ export const CreateLinkIssue: FC<CreateLinkIssueProps> = ({ selected }: CreateLi
       <Button
         text="Find Issue"
         intent="secondary"
-        icon={faSearch}
+        icon={faSearch as AnyIcon}
         size="large"
         className={`create-link-link ${selected === "create" && "unselected"}`}
         onClick={() => dispatch({ type: "changePage", page: "link" })}
@@ -25,7 +25,7 @@ export const CreateLinkIssue: FC<CreateLinkIssueProps> = ({ selected }: CreateLi
       <Button
         text="Create Issue"
         intent="secondary"
-        icon={faPlus}
+        icon={faPlus as AnyIcon}
         size="large"
         className={`create-link-create ${selected === "link" && "unselected"}`}
         onClick={() => dispatch({ type: "changePage", page: "create" })}
