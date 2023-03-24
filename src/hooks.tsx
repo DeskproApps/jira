@@ -17,6 +17,7 @@ import {
 } from "./context/StoreProvider/types";
 import { ADFEntity, reduce, map } from "@atlaskit/adf-utils";
 import { StyledLink } from "./styles";
+import { testUrlRegex } from "./utils";
 
 export const useSetAppTitle = (title: string): void => {
   const { client } = useDeskproAppClient();
@@ -136,9 +137,17 @@ export const useFindLinkedIssueAttachmentsByKey = () => {
 
 export const parseJiraDescription = (description: ADFEntity): any => {
   if (!description) return;
+
   return map(description, (node) => {
     switch (node.type) {
       case "text":
+        if(testUrlRegex.test(node.text || "")) {
+          return (
+          <StyledLink href={node.text} target="_blank">
+            {node.text}&nbsp;
+          </StyledLink>
+          )
+        }
         return node.text;
       case "hardBreak":
         return <br />;
