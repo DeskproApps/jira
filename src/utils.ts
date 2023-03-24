@@ -4,6 +4,8 @@ import { IDeskproClient } from "@deskpro/app-sdk";
 import { State, SearchResponse } from "./context/StoreProvider/types";
 import { JiraIssueType, JiraProject } from "./components/IssueForm/types";
 
+export const testUrlRegex = /^https?:\/\/[^\s$.?#].[^\s]*$/;
+
 export const getDateFromValue = (value: unknown): Date => {
     if (typeof value === "string") {
         return parseISO(value);

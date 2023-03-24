@@ -14,7 +14,6 @@
   "dependencies": {
     "@atlaskit/adf-utils": "14.4.0",
     "@deskpro/app-sdk": "^1.2.8",
-    "@types/html-truncate": "^1.2.2",
     "date-fns": "^2.28.0",
     "html-truncate": "^1.2.2",
     "iframe-resizer": "4.3.2",
@@ -26,12 +25,14 @@
     "react-dom": "^17.0.2",
     "react-intl": "^5.24.6",
     "react-time-ago": "^7.1.9",
+    "styled-components": "^5.3.9",
     "ts-pattern": "3.3.5",
-    "styled-components": "^5.3.5",
     "use-debounce": "7.0.1",
     "yup": "0.31.1"
   },
   "devDependencies": {
+    "@types/html-truncate": "^1.2.2",
+    "@types/styled-components": "^5.1.26",
     "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^12.1.2",
     "@types/jest": "^27.4.0",
