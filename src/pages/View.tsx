@@ -110,7 +110,7 @@ export const View: FC<ViewProps> = ({ issueKey }: ViewProps) => {
               childrenStyle={{ width: "100%" }}
               title="Description"
             >
-              <Stack gap={2} wrap="wrap">
+              <Stack gap={2} wrap="wrap" style={{ wordBreak: "break-all" }}>
                 {parseJiraDescription(issue.description)}
               </Stack>
             </Property>
