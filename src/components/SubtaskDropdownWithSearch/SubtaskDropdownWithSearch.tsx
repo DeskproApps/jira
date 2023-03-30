@@ -15,6 +15,7 @@ import {
   DropdownTargetProps,
   dropdownRenderOptions,
   DivAsInputWithDisplay,
+  AnyIcon,
 } from "@deskpro/app-sdk";
 import {
   faCaretDown,
@@ -123,8 +124,8 @@ export const SubtaskDropdownWithSearch: FC<DropdownWithSearchProps> = ({ helpers
       }}
       fetchMoreText="Fetch more"
       autoscrollText="Autoscroll"
-      selectedIcon={faHandPointer}
-      externalLinkIcon={faExternalLinkAlt}
+      selectedIcon={faHandPointer as AnyIcon}
+      externalLinkIcon={faExternalLinkAlt as AnyIcon}
       optionsRenderer={(
         opts,
         handleSelectOption,
@@ -149,8 +150,8 @@ export const SubtaskDropdownWithSearch: FC<DropdownWithSearchProps> = ({ helpers
                 setActiveSubItem,
                   "Fetch more",
                   "Autoscroll",
-                  faHandPointer,
-                  faExternalLinkAlt,
+                  faHandPointer as AnyIcon,
+                  faExternalLinkAlt as AnyIcon,
                 hideIcons,
                 0
               )
@@ -166,7 +167,7 @@ export const SubtaskDropdownWithSearch: FC<DropdownWithSearchProps> = ({ helpers
           placeholder={placeholder}
           value={getIssueTitle()}
           variant="inline"
-          rightIcon={faCaretDown}
+          rightIcon={faCaretDown as AnyIcon}
           ref={targetRef}
           {...targetProps}
           isVisibleRightIcon

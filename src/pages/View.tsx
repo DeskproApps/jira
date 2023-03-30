@@ -1,19 +1,21 @@
 import { FC, useEffect, useMemo } from "react";
 import {
-  useAdfToPlainText, useFindLinkedIssueAttachmentsByKey,
+  parseJiraDescription,
+  useFindLinkedIssueAttachmentsByKey,
   useFindLinkedIssueByKey,
   useLoadLinkedIssueAttachment,
-  useSetAppTitle
+  useSetAppTitle,
 } from "../hooks";
 import {
   H1,
   Pill,
-  Property, Spinner,
+  Property,
+  Spinner,
   Stack,
   HorizontalDivider,
   AttachmentTag,
   useDeskproAppClient,
-  useDeskproAppTheme
+  useDeskproAppTheme,
 } from "@deskpro/app-sdk";
 import { ExternalLink } from "../components/ExternalLink/ExternalLink";
 import { useStore } from "../context/StoreProvider/hooks";
@@ -33,7 +35,6 @@ export const View: FC<ViewProps> = ({ issueKey }: ViewProps) => {
   const loadIssueAttachments = useLoadLinkedIssueAttachment();
   const findAttachmentsByKey = useFindLinkedIssueAttachmentsByKey();
   const findByKey = useFindLinkedIssueByKey();
-  const adfToPlainText = useAdfToPlainText();
 
   useSetAppTitle(issueKey);
 
@@ -41,33 +42,33 @@ export const View: FC<ViewProps> = ({ issueKey }: ViewProps) => {
     client?.registerElement("home", { type: "home_button" });
     client?.registerElement("edit", { type: "edit_button", payload: issueKey });
     client?.deregisterElement("homeContextMenu");
-    client?.registerElement("viewContextMenu", { type: "menu", items: [
-      { title: "Unlink Ticket", payload: { action: "unlink", issueKey }, },
-    ] });
+    client?.registerElement("viewContextMenu", {
+      type: "menu",
+      items: [
+        { title: "Unlink Ticket", payload: { action: "unlink", issueKey } },
+      ],
+    });
   }, [client, issueKey]);
 
-  const issue = useMemo(
-    () => findByKey(issueKey),
-    [issueKey, findByKey]
-  );
+  const issue = useMemo(() => findByKey(issueKey), [issueKey, findByKey]);
 
   useEffect(() => {
     loadIssueAttachments(issueKey);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [issueKey]);
 
   const attachments = useMemo(
-    () => state.linkedIssueAttachments ? findAttachmentsByKey(issueKey) : [],
+    () => (state.linkedIssueAttachments ? findAttachmentsByKey(issueKey) : []),
     [issueKey, findAttachmentsByKey, state.linkedIssueAttachments]
   );
 
   if (state.isUnlinkingIssue) {
-    return (<></>);
+    return <></>;
   }
 
   if (!issue) {
     dispatch({ type: "error", error: "Issue not found" });
-    return (<></>);
+    return <></>;
   }
 
   const domain = state.context?.settings.domain as string;
@@ -75,34 +76,57 @@ export const View: FC<ViewProps> = ({ issueKey }: ViewProps) => {
   return (
     <>
       <Stack align="start" gap={10}>
-        <Stack gap={10} vertical>
-          <div style={{ display: "flex", alignItems: "start", marginBottom: "-6px" }}>
+        <Stack gap={10} style={{ width: "100%" }} vertical>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "start",
+              marginBottom: "-6px",
+            }}
+          >
             <H1 style={{ marginRight: "1px" }}>{issue.summary}</H1>
-            <ExternalLink href={`https://${domain}.atlassian.net/browse/${issue.key}`} style={{ position: "relative", top: "-4px" }} />
+            <ExternalLink
+              href={`https://${domain}.atlassian.net/browse/${issue.key}`}
+              style={{ position: "relative", top: "-4px" }}
+            />
           </div>
           <Property title="Issue Key">
             {issue.key}
-            <ExternalLink href={`https://${domain}.atlassian.net/browse/${issue.key}`} />
+            <ExternalLink
+              href={`https://${domain}.atlassian.net/browse/${issue.key}`}
+            />
           </Property>
           {issue.parentKey && (
             <Property title="Parent">
               {issue.parentKey}
-              <ExternalLink href={`https://${domain}.atlassian.net/browse/${issue.parentKey}`} />
+              <ExternalLink
+                href={`https://${domain}.atlassian.net/browse/${issue.parentKey}`}
+              />
             </Property>
           )}
           {issue.description && (
-            <Property title="Description">
-              {adfToPlainText(issue.description)}
+            <Property
+              style={{ width: "100%" }}
+              childrenStyle={{ width: "100%" }}
+              title="Description"
+            >
+              <Stack gap={2} wrap="wrap" style={{ wordBreak: "break-all" }}>
+                {parseJiraDescription(issue.description)}
+              </Stack>
             </Property>
           )}
           <Property title="Project">
             {issue.projectName}
-            <ExternalLink href={`https://${domain}.atlassian.net/browse/${issue.projectKey}`} />
+            <ExternalLink
+              href={`https://${domain}.atlassian.net/browse/${issue.projectKey}`}
+            />
           </Property>
           {issue.epicKey && (
             <Property title="Epic">
               {issue.epicName}
-              <ExternalLink href={`https://${domain}.atlassian.net/browse/${issue.epicKey}`} />
+              <ExternalLink
+                href={`https://${domain}.atlassian.net/browse/${issue.epicKey}`}
+              />
             </Property>
           )}
           {(issue.sprints ?? []).length > 0 && (
@@ -110,84 +134,114 @@ export const View: FC<ViewProps> = ({ issueKey }: ViewProps) => {
               {(issue.sprints ?? []).map((sprint, idx) => (
                 <div key={idx}>
                   {sprint.sprintName} ({sprint.sprintState})
-                  <ExternalLink href={`https://${domain}.atlassian.net/jira/software/c/projects/${issue?.projectKey}/boards/${sprint.sprintBoardId}`} />
+                  <ExternalLink
+                    href={`https://${domain}.atlassian.net/jira/software/c/projects/${issue?.projectKey}/boards/${sprint.sprintBoardId}`}
+                  />
                 </div>
               ))}
             </Property>
           )}
-          <Property title="Status">
-            {issue.status}
-          </Property>
+          <Property title="Status">{issue.status}</Property>
           <Property title="Assignee">
             {issue.assigneeId ? (
-                <div style={{ position: "relative" }}>
-                  {issue.assigneeAvatarUrl && (
-                      <img src={issue.assigneeAvatarUrl} width={18} height={18} alt="" className="user-avatar" />
-                  )}
-                  <span className="user-name">{issue.assigneeName}</span>
-                  {issue.assigneeId && (
-                      <ExternalLink href={`https://${domain}.atlassian.net/jira/people/${issue.assigneeId}`} />
-                  )}
-                </div>
+              <div style={{ position: "relative" }}>
+                {issue.assigneeAvatarUrl && (
+                  <img
+                    src={issue.assigneeAvatarUrl}
+                    width={18}
+                    height={18}
+                    alt=""
+                    className="user-avatar"
+                  />
+                )}
+                <span className="user-name">{issue.assigneeName}</span>
+                {issue.assigneeId && (
+                  <ExternalLink
+                    href={`https://${domain}.atlassian.net/jira/people/${issue.assigneeId}`}
+                  />
+                )}
+              </div>
             ) : (
-                <span style={{ color: theme.colors.grey80 }}>None</span>
+              <span style={{ color: theme.colors.grey80 }}>None</span>
             )}
           </Property>
           <Property title="Reporter">
             <div style={{ position: "relative" }}>
               {issue.reporterAvatarUrl && (
-                  <img src={issue.reporterAvatarUrl} width={18} height={18} alt="" className="user-avatar" />
+                <img
+                  src={issue.reporterAvatarUrl}
+                  width={18}
+                  height={18}
+                  alt=""
+                  className="user-avatar"
+                />
               )}
               <span className="user-name">{issue.reporterName}</span>
               {issue.reporterId && (
-                  <ExternalLink href={`https://${domain}.atlassian.net/jira/people/${issue.reporterId}`} />
+                <ExternalLink
+                  href={`https://${domain}.atlassian.net/jira/people/${issue.reporterId}`}
+                />
               )}
             </div>
           </Property>
-          {(issue.labels && issue.labels.length > 0) && (
+          {issue.labels && issue.labels.length > 0 && (
             <Property title="Labels">
               <Stack gap={3}>
                 {issue.labels.map((label, idx) => (
-                  <Pill label={label} textColor={theme.colors.grey100} backgroundColor={theme.colors.grey10} key={idx} />
+                  <Pill
+                    label={label}
+                    textColor={theme.colors.grey100}
+                    backgroundColor={theme.colors.grey10}
+                    key={idx}
+                  />
                 ))}
               </Stack>
             </Property>
           )}
           {issue.priority && (
-              <Property title="Priority">
-                <Stack gap={3}>
-                  <img src={issue.priorityIconUrl} alt={issue.priority} height={16} />
-                  {issue.priority}
-                </Stack>
-              </Property>
+            <Property title="Priority">
+              <Stack gap={3}>
+                <img
+                  src={issue.priorityIconUrl}
+                  alt={issue.priority}
+                  height={16}
+                />
+                {issue.priority}
+              </Stack>
+            </Property>
           )}
-          {state.linkedIssueAttachments?.loading && (
-            <Spinner size="small" />
-          )}
-          {(!state.linkedIssueAttachments?.loading && attachments.length > 0) && (
+          {state.linkedIssueAttachments?.loading && <Spinner size="small" />}
+          {!state.linkedIssueAttachments?.loading && attachments.length > 0 && (
             <Property title="Attachments">
               <Stack gap={3} vertical>
                 {attachments.map((attachment, idx) => (
-                    <AttachmentTag
-                        key={idx}
-                        target="_blank"
-                        download
-                        href={attachment.url}
-                        filename={attachment.filename}
-                        fileSize={attachment.sizeBytes}
-                        icon={faFile}
-                        maxWidth="244px"
-                    />
+                  <AttachmentTag
+                    key={idx}
+                    target="_blank"
+                    download
+                    href={attachment.url}
+                    filename={attachment.filename}
+                    fileSize={attachment.sizeBytes}
+                    icon={faFile}
+                    maxWidth="244px"
+                  />
                 ))}
               </Stack>
             </Property>
           )}
           {Object.keys(issue.customFields).map((key: string, idx: number) => (
-              <IssueFieldView meta={issue.customFields[key].meta} value={issue.customFields[key].value} key={idx} />
+            <IssueFieldView
+              meta={issue.customFields[key].meta}
+              value={issue.customFields[key].value}
+              key={idx}
+            />
           ))}
           <Stack vertical gap={10} style={{ width: "100%" }}>
             <HorizontalDivider style={{ width: "100%" }} />
-            <CommentsList issueKey={issueKey} domain={state.context?.settings.domain} />
+            <CommentsList
+              issueKey={issueKey}
+              domain={state.context?.settings.domain}
+            />
           </Stack>
         </Stack>
       </Stack>

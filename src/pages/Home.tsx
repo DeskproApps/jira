@@ -6,7 +6,7 @@ import {
   Input,
   Stack,
   LoadingSpinner,
-  HorizontalDivider, useDeskproAppClient
+  HorizontalDivider, useDeskproAppClient, AnyIcon
 } from "@deskpro/app-sdk";
 import { useLoadLinkedIssues, useSetAppTitle } from "../hooks";
 import { faSearch, faTimes } from "@fortawesome/free-solid-svg-icons";
@@ -63,8 +63,8 @@ export const Home: FC = () => {
           ref={searchInputRef}
           value={searchQuery}
           onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
-          leftIcon={faSearch}
-          rightIcon={<IconButton icon={faTimes} onClick={() => setSearchQuery("")} minimal />}
+          leftIcon={faSearch as AnyIcon}
+          rightIcon={<IconButton icon={faTimes as AnyIcon} onClick={() => setSearchQuery("")} minimal />}
         />
       </Stack>
       <HorizontalDivider style={{ marginTop: "8px", marginBottom: "8px" }} />
