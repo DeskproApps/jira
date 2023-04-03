@@ -61,6 +61,7 @@ jobs:
       - name: Bump Version
         run: |
           git config --global user.name "git log -1 --pretty=format:%an"
+          echo ${{ steps.labels.outputs.milestone }}
           git config --global user.email "$(git log -1 --pretty=format:%ae)"
           if [ "$(git log -1 --pretty=format:%ae)" = "noreply@github.com" ]; then
             echo "Skipping workflow run because previous commit was not made by workflow."

@@ -28,6 +28,9 @@ const bumpSemanticVersion = (versionString, bumpType = "patch") => {
 
 const packageJson = JSON.parse(fs.readFileSync("./manifest.json", "utf8"));
 //1
-packageJson.version = bumpSemanticVersion(packageJson.version, process.argv[2]);
+packageJson.version = bumpSemanticVersion(
+  process.argv[3] ? process.argv[3] : packageJson.version,
+  process.argv[2]
+);
 
 fs.writeFileSync("./manifest.json", JSON.stringify(packageJson));
