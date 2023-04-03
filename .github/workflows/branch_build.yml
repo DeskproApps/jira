@@ -83,12 +83,13 @@ jobs:
           elif [[ "${{ steps.labels.outputs.milestone }}" == "minor-version" ]]; then
             pnpm run bumpManifestVer minor ${{ steps.get-version.outputs.VERSION }}
           else
+            echo "a"
             pnpm run bumpManifestVer patch ${{ steps.get-version.outputs.VERSION }}
-
+          echo "b"
           git add manifest.json
-
+          echo "c"
           git commit -m "Updated Manifest"
-
+          echo "d"
           git push origin master
 
       - name: Build
