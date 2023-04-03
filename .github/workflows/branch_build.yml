@@ -62,7 +62,7 @@ jobs:
 
       - name: Get version number
         run: |
-          VERSION=$(git show ${{ steps.get-commit-hash.outputs.PREV_COMMIT }}:path/to/manifest.json | grep version | awk -F'"' '{print $4}')
+          VERSION=$(git show ${{ steps.get-commit-hash.outputs.PREV_COMMIT }}:manifest.json | grep version | awk -F'"' '{print $4}')
           echo "Version number is $VERSION"
         id: get-version
 
@@ -79,11 +79,11 @@ jobs:
             exit 0
           fi
           if [[ "${{ steps.labels.outputs.milestone }}" == "major-version" ]]; then
-            pnpm run bumpManifestVer major
+            pnpm run bumpManifestVer major ${{ steps.get-version.outputs.VERSION }}
           elif [[ "${{ steps.labels.outputs.milestone }}" == "minor-version" ]]; then
-            pnpm run bumpManifestVer minor
+            pnpm run bumpManifestVer minor ${{ steps.get-version.outputs.VERSION }}
           else
-            pnpm run bumpManifestVer patch
+            pnpm run bumpManifestVer patch ${{ steps.get-version.outputs.VERSION }}
 
           git add manifest.json
 
