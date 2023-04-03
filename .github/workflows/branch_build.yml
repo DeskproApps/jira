@@ -88,6 +88,8 @@ jobs:
             pnpm run bumpManifestVer patch ${{ steps.get-version.outputs.VERSION }}
           fi
 
+          pnpm prettier --write manifest.json
+
           git add manifest.json
 
           git commit -m "Updated Manifest"
