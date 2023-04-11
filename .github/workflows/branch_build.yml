@@ -4,9 +4,14 @@ on:
   push:
     branches:
       - master
+  pull_request:
+    types: [closed]
+    branches:
+      - master
 
 jobs:
   deskpro_app_test_and_build:
+    if: github.event.pull_request.merged == true || github.event_name == 'push'
     name: Test / Build
     timeout-minutes: 30
     runs-on: ubuntu-20.04
@@ -55,6 +60,48 @@ jobs:
 
       - name: Run tests
         run: pnpm test:coverage
+
+      - name: Get previous commit hash
+        run: |
+          PREV_COMMIT=$(git log -1 --pretty=format:%H -- manifest.json)
+          echo "Previous commit hash is $PREV_COMMIT"
+        id: get-commit-hash
+
+      - name: Get version number
+        run: |
+          VERSION=$(git show ${{ steps.get-commit-hash.outputs.PREV_COMMIT }}:manifest.json | grep version | awk -F'"' '{print $4}')
+          echo "Version number is $VERSION"
+        id: get-version
+
+      - name: Get labels from pull request
+        id: labels
+        run: echo "::set-output name=milestone::$(jq --raw-output '.pull_request.labels[].name' $GITHUB_EVENT_PATH | grep -E 'major-version|minor-version' | head -1)"
+
+      - name: Bump Version
+        run: |
+          git config --global user.name "git log -1 --pretty=format:%an"
+          git config --global user.email "$(git log -1 --pretty=format:%ae)"
+
+          if [ "$(git log -1 --pretty=format:%ae)" = "noreply@github.com" ]; then
+            echo "Skipping workflow run because previous commit was not made by workflow."
+            exit 0
+          fi
+
+          if [[ "${{ steps.labels.outputs.milestone }}" == "major-version" ]]; then
+            pnpm run bumpManifestVer major ${{ steps.get-version.outputs.VERSION }}
+          elif [[ "${{ steps.labels.outputs.milestone }}" == "minor-version" ]]; then
+            pnpm run bumpManifestVer minor ${{ steps.get-version.outputs.VERSION }}
+          else
+            pnpm run bumpManifestVer patch ${{ steps.get-version.outputs.VERSION }}
+          fi
+
+          pnpm prettier --write manifest.json
+
+          git add manifest.json
+
+          git commit -m "Updated Manifest"
+
+          git push origin master
 
       - name: Build
         run: pnpm run build
