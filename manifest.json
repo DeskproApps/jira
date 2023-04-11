@@ -2,14 +2,11 @@
   "name": "@deskpro-apps/my-app",
   "title": "My App",
   "description": "My Deskpro app",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "scope": "agent",
   "isSingleInstall": false,
   "hasDevMode": true,
-  "targets": [{
-    "target": "ticket_sidebar",
-    "entrypoint": "index.html"
-  }],
+  "targets": [{ "target": "ticket_sidebar", "entrypoint": "index.html" }],
   "settings": {
     "example": {
       "title": "Example Setting",
@@ -20,10 +17,12 @@
     }
   },
   "proxy": {
-    "whitelist": [{
-      "url": "https://jsonplaceholder.typicode.com/.*",
-      "methods": ["GET"],
-      "timeout": 20
-    }]
+    "whitelist": [
+      {
+        "url": "https://jsonplaceholder.typicode.com/.*",
+        "methods": ["GET"],
+        "timeout": 20
+      }
+    ]
   }
 }
