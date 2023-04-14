@@ -2,6 +2,7 @@ name: PR Build
 
 on:
   pull_request:
+    types: [closed]
     branches:
       - master
 
@@ -76,3 +77,21 @@ jobs:
 
       - name: Build
         run: pnpm run build
+      - name: Package app zip
+        working-directory: dist
+        run: |
+          zip -rq ../app.zip *
+          mv ../app.zip .
+      - name: Upload package
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-package
+          path: |
+            dist/app.zip
+            dist/manifest.json
+          retention-days: 1
+
+  deploy:
+    uses: DeskproApps/app-template-vite/.github/workflows/subworkflow-deploy.yml@master
+    secrets: inherit
+    needs: [deskpro_app_test_and_build]
