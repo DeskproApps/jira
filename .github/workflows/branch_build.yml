@@ -79,10 +79,8 @@ jobs:
 
           milestone=""
           if [[ -n "$pull_request_number" ]]; then
-            labels=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                        "https://api.github.com/repos/${{ github.repository }}/pulls/${pull_request_number}/labels" \
-                        | jq -r '.[].name')
-            milestone=$(echo "$labels" | grep -E 'major-version|minor-version' | head -1)
+            labels=$(git show -s --pretty=format:'%b' "$commit_sha" | grep -oE 'major-version|minor-version' | head -1)
+            milestone=$(echo "$labels" | head -1)
           fi
 
           # Set the milestone as an output
