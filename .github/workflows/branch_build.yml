@@ -68,13 +68,11 @@ jobs:
           echo "Version number is $VERSION"
         id: get-version
 
-      - name: Access pull request metadata
+      - name: Get version labels
         id: labels
         run: |
-          # Get the commit SHA of the latest commit in the push
           commit_sha=$(git rev-parse HEAD)
 
-          # Get the pull request number associated with the commit
           pull_request_number=$(git log --format='%s' -n 1 | grep -oP '(?<=Merge pull request #)\d+' || true)
 
           milestone=""
@@ -82,13 +80,10 @@ jobs:
           if [[ -n "$pull_request_number" ]]; then
             pull_request_info=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
               "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${pull_request_number}")
-            # Extract the labels from the pull request information
 
             milestone=$(echo "$pull_request_info" | jq -r '.labels[].name' | grep -E 'major-version|minor-version' | head -1)
-
           fi
 
-          # Set the milestone as an output
           echo "::set-output name=milestone::${milestone}"
 
       - name: Bump Version
