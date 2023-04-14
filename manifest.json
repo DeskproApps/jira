@@ -2,11 +2,16 @@
   "name": "@deskpro-apps/my-app",
   "title": "My Appp",
   "description": "My Deskpro app",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "scope": "agent",
   "isSingleInstall": false,
   "hasDevMode": true,
-  "targets": [{ "target": "ticket_sidebar", "entrypoint": "index.html" }],
+  "targets": [
+    {
+      "target": "ticket_sidebar",
+      "entrypoint": "index.html"
+    }
+  ],
   "settings": {
     "example": {
       "title": "Example Setting",
@@ -20,7 +25,9 @@
     "whitelist": [
       {
         "url": "https://jsonplaceholder.typicode.com/.*",
-        "methods": ["GET"],
+        "methods": [
+          "GET"
+        ],
         "timeout": 20
       }
     ]
