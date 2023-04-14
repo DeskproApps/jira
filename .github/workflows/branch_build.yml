@@ -83,9 +83,9 @@ jobs:
             pull_request_info=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
               "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${pull_request_number}")
             # Extract the labels from the pull request information
-            echo ${pull_request_info}
+
             milestone=$(echo "$pull_request_info" | jq -r '.labels[].name' | grep -E 'major-version|minor-version' | head -1)
-            echo ${milestone}
+
           fi
 
           # Set the milestone as an output
