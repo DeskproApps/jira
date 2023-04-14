@@ -76,13 +76,15 @@ jobs:
 
           # Get the pull request number associated with the commit
           pull_request_number=$(git log --format='%s' -n 1 | grep -oP '(?<=Merge pull request #)\d+' || true)
-
+          echo ${pull_request_number}
           milestone=""
           if [[ -n "$pull_request_number" ]]; then
+            echo ${git show -s --pretty=format:'%b' "$commit_sha"}
             labels=$(git show -s --pretty=format:'%b' "$commit_sha" | grep -oE 'major-version|minor-version' | head -1)
+            echo ${labels}
             milestone=$(echo "$labels" | head -1)
           fi
-
+          echo ${milestone}
           # Set the milestone as an output
           echo "::set-output name=milestone::${milestone}"
 
