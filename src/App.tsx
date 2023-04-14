@@ -7,7 +7,7 @@ import { Main } from "./pages/Main";
 function App() {
   return (
     <DeskproAppProvider>
-      <Main/>
+      <Main />
     </DeskproAppProvider>
   );
 }

@@ -4,14 +4,11 @@ on:
   push:
     branches:
       - master
-  pull_request:
-    types: [closed]
-    branches:
-      - master
 
 jobs:
   deskpro_app_test_and_build:
-    if: github.event.pull_request.merged == true || github.event_name == 'push'
+    permissions:
+      contents: write
     name: Test / Build
     timeout-minutes: 30
     runs-on: ubuntu-20.04
@@ -40,7 +37,6 @@ jobs:
         shell: bash
         run: |
           echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-
       - uses: actions/cache@v3
         name: Setup pnpm cache
         with:
@@ -48,7 +44,6 @@ jobs:
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --strict-peer-dependencies
 
@@ -73,9 +68,23 @@ jobs:
           echo "Version number is $VERSION"
         id: get-version
 
-      - name: Get labels from pull request
+      - name: Get version labels
         id: labels
-        run: echo "::set-output name=milestone::$(jq --raw-output '.pull_request.labels[].name' $GITHUB_EVENT_PATH | grep -E 'major-version|minor-version' | head -1)"
+        run: |
+          commit_sha=$(git rev-parse HEAD)
+
+          pull_request_number=$(git log --format='%s' -n 1 | grep -oP '(?<=Merge pull request #)\d+' || true)
+
+          milestone=""
+
+          if [[ -n "$pull_request_number" ]]; then
+            pull_request_info=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${pull_request_number}")
+
+            milestone=$(echo "$pull_request_info" | jq -r '.labels[].name' | grep -E 'major-version|minor-version' | head -1)
+          fi
+
+          echo "::set-output name=milestone::${milestone}"
 
       - name: Bump Version
         run: |
@@ -111,7 +120,6 @@ jobs:
         run: |
           zip -rq ../app.zip *
           mv ../app.zip .
-
       - name: Read manifest
         id: read_manifest
         run: |
@@ -120,7 +128,6 @@ jobs:
           content="${content//$'\n'/'%0A'}"
           content="${content//$'\r'/'%0D'}"
           echo "::set-output name=manifest::$content"
-
       - name: Create release
         id: create_release
         uses: actions/create-release@v1
