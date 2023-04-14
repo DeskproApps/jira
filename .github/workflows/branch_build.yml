@@ -79,7 +79,7 @@ jobs:
           echo ${pull_request_number}
           milestone=""
           if [[ -n "$pull_request_number" ]]; then
-            echo ${git show -s --pretty=format:'%b' "$commit_sha"}
+            echo $(git show -s --pretty=format:'%b' "$commit_sha")
             labels=$(git show -s --pretty=format:'%b' "$commit_sha" | grep -oE 'major-version|minor-version' | head -1)
             echo ${labels}
             milestone=$(echo "$labels" | head -1)
