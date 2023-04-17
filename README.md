@@ -3,6 +3,10 @@ My App
 
 TODO: Include a summary of app functionality and a screenshot
 
+Pull Requests
+===
+To specify the semantic version bump of your pull request, choose the `major-version` for a major version update, `minor-version` for a minor version update, and none for a patch update.
+
 Basic Usage
 ---
 
