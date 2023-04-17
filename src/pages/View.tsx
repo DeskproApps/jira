@@ -16,6 +16,7 @@ import {
   AttachmentTag,
   useDeskproAppClient,
   useDeskproAppTheme,
+  AnyIcon,
 } from "@deskpro/app-sdk";
 import { ExternalLink } from "../components/ExternalLink/ExternalLink";
 import { useStore } from "../context/StoreProvider/hooks";
@@ -222,7 +223,7 @@ export const View: FC<ViewProps> = ({ issueKey }: ViewProps) => {
                     href={attachment.url}
                     filename={attachment.filename}
                     fileSize={attachment.sizeBytes}
-                    icon={faFile}
+                    icon={faFile as AnyIcon}
                     maxWidth="244px"
                   />
                 ))}

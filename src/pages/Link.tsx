@@ -124,6 +124,7 @@ export const Link: FC = () => {
           ref={searchInputRef}
           value={searchQuery}
           onChange={(e: ChangeEvent<HTMLInputElement>) => search(e.target.value)}
+          //@ts-ignore
           leftIcon={state.linkIssueSearchResults?.loading ? <FontAwesomeIcon icon={faSpinner} spin /> : faSearch as AnyIcon}
           rightIcon={<IconButton icon={faTimes as AnyIcon} onClick={clear} minimal />}
         />
