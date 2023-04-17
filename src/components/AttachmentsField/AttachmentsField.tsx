@@ -78,7 +78,7 @@ export const AttachmentsField: FC<AttachmentsFieldProps> = ({ onFiles, existing 
                         key={idx}
                         filename={files[name].name}
                         fileSize={files[name].size}
-                        icon={faFile}
+                        icon={faFile as AnyIcon}
                         maxWidth="244px"
                         withClose
                         onClose={() => remove(name)}

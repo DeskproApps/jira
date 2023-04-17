@@ -14,6 +14,7 @@ export const ExternalLink: FC<ExternalLinkProps> = ({ href, style }: ExternalLin
 
   return (
     <a href={href} target="_blank" style={{ color: theme.colors.grey40, ...(style ?? {}) }} className="external-link">
+              {/*@ts-ignore*/}
       <FontAwesomeIcon icon={faExternalLinkAlt} size="xs" />
     </a>
   );

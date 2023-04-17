@@ -1,3 +1,4 @@
+//@ts-nocheck
 import {
     useInitialisedDeskproAppClient,
     LoadingSpinner,
@@ -59,6 +60,7 @@ export const ViewPermissions = () => {
                             {permission.havePermission ? (
                                 <FontAwesomeIcon icon={faCheckCircle} color={theme.colors.green100} />
                             ) : (
+                                
                                 <FontAwesomeIcon icon={faTimesCircle} color={theme.colors.red100} />
                             )}
                         </Stack>

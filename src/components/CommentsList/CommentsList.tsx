@@ -1,5 +1,5 @@
 import {FC, Fragment} from "react";
-import {H1, H4, HorizontalDivider, Spinner, Stack, useDeskproAppTheme} from "@deskpro/app-sdk";
+import {AnyIcon, H1, H4, HorizontalDivider, Spinner, Stack, useDeskproAppTheme} from "@deskpro/app-sdk";
 import { useFindIssueComments } from "../../hooks";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -28,7 +28,8 @@ export const CommentsList: FC<CommentsListProps> = ({ issueKey, domain }: Commen
             <Stack>
                 <H1>Comments ({comments.length})</H1>
                 <FontAwesomeIcon
-                    icon={faPlus}
+                    //@ts-ignore
+                    icon={faPlus as AnyIcon}
                     color={theme.colors.grey80}
                     size="xs"
                     onClick={() => dispatch({ type: "changePage", page: "comment",  params: { issueKey } })}
