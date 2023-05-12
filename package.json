@@ -4,7 +4,7 @@
   "scripts": {
     "start": "vite",
     "build": "rimraf ./dist/* && tsc && vite build",
-    "build:package": "yarn build && yarn package",
+    "build:package": "pnpm build && pnpm package",
     "package": "rimraf ./build/* && node ./bin/package.js",
     "serve": "vite preview",
     "lint": "eslint --max-warnings 0 --ext ts,tsx ./src",
@@ -15,7 +15,7 @@
   "dependencies": {
     "@atlaskit/adf-utils": "14.4.0",
     "@deskpro/app-sdk": "^1.2.13",
-    "@deskpro/deskpro-ui": "^6.6.0",
+    "@deskpro/deskpro-ui": "4.7.0",
     "@fortawesome/free-regular-svg-icons": "^6.4.0",
     "@fortawesome/free-solid-svg-icons": "^6.4.0",
     "@fortawesome/react-fontawesome": "^0.2.0",
