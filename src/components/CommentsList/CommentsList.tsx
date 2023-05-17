@@ -5,6 +5,7 @@ import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {useStore} from "../../context/StoreProvider/hooks";
 import {JiraComment} from "../../context/StoreProvider/types";
+import { addBlankTargetToLinks } from "../../utils";
 import "./CommentsList.css";
 import {ExternalLink} from "../ExternalLink/ExternalLink";
 import ReactTimeAgo from "react-time-ago";
@@ -59,7 +60,7 @@ export const CommentsList: FC<CommentsListProps> = ({ issueKey, domain }: Commen
                         <div
                             className="comment-list-item-body"
                             style={{ color: theme.colors.grey100 }}
-                            dangerouslySetInnerHTML={{ __html: comment.renderedBody }}
+                            dangerouslySetInnerHTML={{ __html: addBlankTargetToLinks(comment.renderedBody) }}
                         />
                         <HorizontalDivider style={{ width: "100%" }} />
                     </Fragment>

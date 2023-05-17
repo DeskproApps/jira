@@ -5,7 +5,8 @@ import {
   Dropdown,
   dropdownRenderOptions,
   DropdownTargetProps,
-  DropdownValueType, Infinite
+  DropdownValueType,
+  Infinite,
 } from "@deskpro/app-sdk";
 import { faCaretDown, faHandPointer, faExternalLinkAlt } from "@fortawesome/free-solid-svg-icons";
 import { FieldHelperProps } from "formik";
@@ -17,6 +18,7 @@ export interface DropdownSelectProps {
   placeholder?: string;
   value?: any;
   disabled?: boolean;
+  containerMaxHeight?: number;
 }
 
 export const DropdownSelect: FC<DropdownSelectProps> = ({ helpers, id, placeholder, value, options, ...props }: DropdownSelectProps) => {
