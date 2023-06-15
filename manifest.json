@@ -3,10 +3,11 @@
   "title": "JIRA",
   "description": "View Jira issues linked with Deskpro tickets to streamline communication with users",
   "appStoreUrl": "https://www.deskpro.com/product-embed/apps/jira",
-  "version": "1.0.24",
+  "version": "1.0.25",
   "scope": "agent",
   "isSingleInstall": true,
   "hasDevMode": true,
+  "serveUrl": "https://apps-cdn.deskpro-service.com/__name__/__version__",
   "targets": [
     {
       "target": "ticket_sidebar",
