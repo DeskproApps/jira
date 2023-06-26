@@ -19,6 +19,7 @@ import * as React from "react";
 
 export const Main = () => {
   const [ticketContext, setTicketContext] = useState<Context | null>(null);
+  
   const [examplePosts, setExamplePosts] = useState<
     { id: string; title: string }[]
   >([]);
@@ -49,6 +50,11 @@ export const Main = () => {
       setExamplePosts(posts.slice(0, 3));
     })()
   );
+
+  useInitialisedDeskproAppClient((client) => {
+    // If this is a "global" target app, then we can set the width of the app using CSS units
+    client.setWidth("50vw");
+  });
 
   // If we don't have a ticket context yet, show a loading spinner
   if (ticketContext === null) {
