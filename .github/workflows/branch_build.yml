@@ -182,16 +182,15 @@ jobs:
           customHeaders: '{"Content-Type": "application/json", "x-api-key": "${{ secrets.APP_REGISTRY_KEY }}"}'
           data: '{"repositoryUrl": "${{ github.server_url }}/${{ github.repository }}", "type": "github"}'
 
-#      - name: Create product pull request
-#        uses: paygoc6/action-pull-request-another-repo@v1.0.1
-#        env:
-#          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
-#        with:
-#          source_folder: 'source-folder'
-#          destination_repo: 'user-name/repository-name'
-#          destination_folder: 'folder-name'
-#          destination_base_branch: 'branch-name'
-#          destination_head_branch: 'branch-name'
-#          user_email: 'user-name@paygo.com.br'
-#          user_name: 'user-name'
-#          pull_request_reviewers: 'reviewers'
+      - name: Create product pull request
+        uses: paygoc6/action-pull-request-another-repo@v1.0.1
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          source_folder: ./dist/${{ steps.create_package_filename.outputs.packageFilename }}.zip
+          destination_repo: deskpro/deskpro-product
+          destination_folder: tools/fixtures/resources/custom_app_packages
+          destination_head_branch: apps-update-${{ steps.create_package_filename.outputs.packageFilename }}-${{ fromJson(steps.read_manifest.outputs.manifest).version }}
+          user_email: ashley.dawson@deskpro.com
+          user_name: AshleyDawson
+          pull_request_reviewers: AshleyDawson
