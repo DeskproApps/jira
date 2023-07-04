@@ -185,7 +185,7 @@ jobs:
       - name: Create product pull request
         uses: paygoc6/action-pull-request-another-repo@v1.0.1
         env:
-          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+          API_TOKEN_GITHUB: ${{ secrets.TEST_GH_TOKEN }}
         with:
           source_folder: ./dist/${{ steps.create_package_filename.outputs.packageFilename }}.zip
           destination_repo: deskpro/deskpro-product
