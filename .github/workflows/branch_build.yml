@@ -152,7 +152,7 @@ jobs:
           (cd ./dist && mv app.zip ${{ steps.create_package_filename.outputs.packageFilename }}.zip)
 
       - name: Move package
-        id: rename_app_package
+        id: move_app_package
         run: |
           mkdir ./release && cp ./dist/${{ steps.create_package_filename.outputs.packageFilename }}.zip ./release/${{ steps.create_package_filename.outputs.packageFilename }}.zip
 
