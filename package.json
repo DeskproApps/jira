@@ -14,19 +14,21 @@
     "bumpManifestVer": "node ./bin/bumpManifestVer.js"
   },
   "dependencies": {
-    "@deskpro/app-sdk": "1.2.8",
+    "@deskpro/app-sdk": "2.0.0",
+    "@deskpro/deskpro-ui": "^7.1.0",
     "@heroicons/react": "1.0.6",
     "polished": "^4.1.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-is": "^18.2.0"
+    "react-is": "^18.2.0",
+    "styled-components": "^5.3.11"
   },
   "devDependencies": {
+    "@jest/globals": "^29.3.1",
     "@swc/core": "^1.3.45",
     "@swc/helpers": "^0.5.0",
-    "@testing-library/dom": "^9.2.0",
-    "@jest/globals": "^29.3.1",
     "@swc/jest": "^0.2.22",
+    "@testing-library/dom": "^9.2.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^14.4.3",
@@ -48,10 +50,10 @@
     "jest-environment-jsdom": "^29.3.1",
     "node-fetch": "^3.3.0",
     "prettier": "2.8.7",
+    "react-resize-observer": "^1.1.1",
     "rimraf": "^3.0.2",
     "rollup-plugin-copy": "3.4.0",
     "slugify": "^1.6.5",
-    "styled-components": "^5.3.6",
     "ts-jest": "^27.1.3",
     "typescript": "^4.4.4",
     "vite": "^2.7.2"
