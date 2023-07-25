@@ -1,22 +1,20 @@
 import { useState } from "react";
+import { H1, Stack } from "@deskpro/deskpro-ui";
 import {
   Context,
-  H1,
-  HorizontalDivider,
-  LoadingSpinner,
   Property,
   proxyFetch,
-  Stack,
+  LoadingSpinner,
+  HorizontalDivider,
   useDeskproAppEvents,
   useInitialisedDeskproAppClient,
 } from "@deskpro/app-sdk";
-import * as React from "react";
+
 /*
     Note: the following page component contains example code, please remove the contents of this component before you
     develop your app. For more information, please refer to our apps
     guides @see https://support.deskpro.com/en-US/guides/developers/anatomy-of-an-app
 */
-
 export const Main = () => {
   const [ticketContext, setTicketContext] = useState<Context | null>(null);
 
@@ -62,16 +60,14 @@ export const Main = () => {
     <>
       <H1>Ticket Data</H1>
       <Stack gap={12} vertical>
-        <Property title="Ticket ID">{ticketContext.data.ticket.id}</Property>
-        <Property title="Ticket Subject">
-          {ticketContext.data.ticket.subject}
-        </Property>
+        <Property label="Ticket ID" text={ticketContext.data.ticket.id} />
+        <Property label="Ticket Subject" text={ticketContext.data.ticket.subject}/>
       </Stack>
       <HorizontalDivider width={2} />
       <H1>Example Posts</H1>
       {examplePosts.map((post) => (
         <div key={post.id}>
-          <Property title="Post Title">{post.title}</Property>
+          <Property label="Post Title" text={post.title} />
           <HorizontalDivider width={2} />
         </div>
       ))}
