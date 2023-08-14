@@ -128,6 +128,7 @@ jobs:
           content="${content//$'\n'/'%0A'}"
           content="${content//$'\r'/'%0D'}"
           echo "manifest=$content" >> $GITHUB_OUTPUT
+          echo "manifest=$content"
 
       - name: Create safe package filename
         id: create_package_filename
