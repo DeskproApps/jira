@@ -132,39 +132,23 @@ jobs:
           packageFilename=`echo "${{ fromJson(steps.read_manifest.outputs.manifest).name }}" | iconv -t ascii//TRANSLIT | sed -r s/[~\^]+//g | sed -r s/[^a-zA-Z0-9]+/-/g | sed -r s/^-+\|-+$//g | tr A-Z a-z`
           echo "packageFilename=$packageFilename" >> $GITHUB_OUTPUT
 
-      - name: Create release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ fromJson(steps.read_manifest.outputs.manifest).version }}
-          release_name: ${{ fromJson(steps.read_manifest.outputs.manifest).version }}
-          draft: false
-          prerelease: false
-
       - name: Rename package
         id: rename_app_package
         run: |
           (cd ./dist && mv app.zip ${{ steps.create_package_filename.outputs.packageFilename }}.zip)
 
-      - name: Add app asset to release
-        id: add_app_asset_to_release
+      - name: Create release
+        id: create_release
         uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/${{ steps.create_package_filename.outputs.packageFilename }}.zip
-
-      - name: Add app manifest to release
-        id: add_app_manifest_to_release
-        uses: softprops/action-gh-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/manifest.json
+          tag_name: ${{ fromJson(steps.read_manifest.outputs.manifest).version }}
+          draft: false
+          prerelease: false
+          files: |
+            ./dist/${{ steps.create_package_filename.outputs.packageFilename }}.zip
+            ./dist/manifest.json
 
       - name: Register release with apps registry
         id: register_with_apps_registry
