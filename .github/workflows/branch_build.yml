@@ -123,12 +123,8 @@ jobs:
       - name: Read manifest
         id: read_manifest
         run: |
-          content=`cat ./manifest.json`
-          content="${content//'%'/'%25'}"
-          content="${content//$'\n'/'%0A'}"
-          content="${content//$'\r'/'%0D'}"
+          content=`cat ./manifest.json | tr -d '\n'`
           echo "manifest=$content" >> $GITHUB_OUTPUT
-          echo "manifest=$content"
 
       - name: Create safe package filename
         id: create_package_filename
