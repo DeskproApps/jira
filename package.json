@@ -10,6 +10,7 @@
     "serve": "vite preview",
     "lint": "eslint --max-warnings 0 --ext ts,tsx ./src",
     "test": "cross-env NODE_OPTIONS=--max-old-space-size=1024 jest --maxWorkers=75%",
+    "test:watch": "cross-env NODE_OPTIONS=--max-old-space-size=1024 jest --maxWorkers=75% --watch",
     "test:coverage": "cross-env NODE_OPTIONS=--max-old-space-size=1024 jest --maxWorkers=75% --coverage",
     "bumpManifestVer": "node ./bin/bumpManifestVer.js"
   },
@@ -50,6 +51,7 @@
     "eslint": "8.4.1",
     "eslint-config-prettier": "8.3.0",
     "eslint-plugin-react-hooks": "4.3.0",
+    "intersection-observer": "^0.12.2",
     "jest": "^28.1.0",
     "jest-environment-jsdom": "^29.3.1",
     "node-fetch": "^3.3.0",

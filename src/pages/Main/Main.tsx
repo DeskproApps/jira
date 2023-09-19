@@ -3,14 +3,12 @@ import { H1, Stack } from "@deskpro/deskpro-ui";
 import {
   Context,
   Property,
-  proxyFetch,
   LoadingSpinner,
   HorizontalDivider,
   useDeskproElements,
-  useQueryWithClient,
   useDeskproAppEvents,
 } from "@deskpro/app-sdk";
-import { QueryKey } from "../query";
+import { usePosts } from "./usePosts";
 
 /*
     Note: the following page component contains example code, please remove the contents of this component before you
@@ -19,17 +17,7 @@ import { QueryKey } from "../query";
 */
 export const Main = () => {
   const [ticketContext, setTicketContext] = useState<Context | null>(null);
-
-  const posts = useQueryWithClient(
-    [QueryKey.POSTS],
-    async (client) => {
-      // Use the apps proxy to fetch data from a third party
-      // API @see https://support.deskpro.com/en-US/guides/developers/app-proxy
-      const fetch = await proxyFetch(client);
-      const response = await fetch("https://jsonplaceholder.typicode.com/postss?userId=1");
-      return response.json();
-    },
-  );
+  const posts = usePosts();
 
   // Add a "refresh" button @see https://support.deskpro.com/en-US/guides/developers/app-elements
   useDeskproElements(({ registerElement }) => {
@@ -58,7 +46,7 @@ export const Main = () => {
       </Stack>
       <HorizontalDivider width={2} />
       <H1>Example Posts</H1>
-      {(posts.data || []).map((post: { id: string, title: string }) => (
+      {(posts?.data || []).map((post: { id: string, title: string }) => (
         <div key={post.id}>
           <Property label="Post Title" text={post.title} />
           <HorizontalDivider width={2} />

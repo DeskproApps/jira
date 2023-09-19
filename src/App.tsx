@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import { Main } from "./pages/Main";
+import { Main } from "./pages";
 
 const App = () => {
   return (
@@ -9,4 +9,4 @@ const App = () => {
   );
 }
 
-export default App;
+export { App };
