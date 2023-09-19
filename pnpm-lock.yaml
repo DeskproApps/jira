@@ -6,14 +6,20 @@ settings:
 
 dependencies:
   '@deskpro/app-sdk':
-    specifier: 2.0.0
-    version: 2.0.0(@babel/core@7.22.9)(@deskpro/deskpro-ui@7.1.0)(@types/react-dom@18.0.10)(@types/react@18.0.27)(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)(typescript@4.4.4)
+    specifier: 3.0.2
+    version: 3.0.2(@babel/core@7.22.9)(@deskpro/deskpro-ui@7.1.0)(@types/react-dom@18.0.10)(@types/react@18.0.27)(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)(typescript@4.4.4)
   '@deskpro/deskpro-ui':
     specifier: ^7.1.0
     version: 7.1.0(@types/web@0.0.86)(react-dom@18.2.0)(react@18.2.0)(styled-components@5.3.11)
   '@heroicons/react':
     specifier: 1.0.6
     version: 1.0.6(react@18.2.0)
+  '@tanstack/react-query':
+    specifier: ^4.35.3
+    version: 4.35.3(react-dom@18.2.0)(react@18.2.0)
+  iframe-resizer:
+    specifier: ^4.3.7
+    version: 4.3.7
   polished:
     specifier: ^4.1.1
     version: 4.1.1
@@ -23,9 +29,15 @@ dependencies:
   react-dom:
     specifier: ^18.2.0
     version: 18.2.0(react@18.2.0)
+  react-error-boundary:
+    specifier: ^4.0.11
+    version: 4.0.11(react@18.2.0)
   react-is:
     specifier: ^18.2.0
     version: 18.2.0
+  react-router-dom:
+    specifier: ^6.16.0
+    version: 6.16.0(react-dom@18.2.0)(react@18.2.0)
   styled-components:
     specifier: ^5.3.11
     version: 5.3.11(@babel/core@7.22.9)(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)
@@ -513,8 +525,8 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@deskpro/app-sdk@2.0.0(@babel/core@7.22.9)(@deskpro/deskpro-ui@7.1.0)(@types/react-dom@18.0.10)(@types/react@18.0.27)(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)(typescript@4.4.4):
-    resolution: {integrity: sha512-/8Ga7Wg2N/6muUot9vcftfuxc8sjqOBqGJ4a7Am2WwkMn8BGo3/L+vGlf7eQ5HnD3FVcyIwGLYgywqaGsxKdqA==}
+  /@deskpro/app-sdk@3.0.2(@babel/core@7.22.9)(@deskpro/deskpro-ui@7.1.0)(@types/react-dom@18.0.10)(@types/react@18.0.27)(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)(typescript@4.4.4):
+    resolution: {integrity: sha512-Vvapa0CJdRFx2YWhgsdlvfZD6Ii5c//jjAsu7X3hh9MiX7ZUERuNPuFR1WzDcKmMG4oBX/OYWCf9yJXdTeB6ng==}
     engines: {node: ^16.0.0}
     peerDependencies:
       '@deskpro/deskpro-ui': ^7
@@ -529,7 +541,7 @@ packages:
       '@fortawesome/free-regular-svg-icons': 6.4.0
       '@fortawesome/free-solid-svg-icons': 6.4.0
       '@fortawesome/react-fontawesome': 0.1.19(@fortawesome/fontawesome-svg-core@6.4.0)(react@18.2.0)
-      '@tanstack/react-query': 4.32.0(react-dom@18.2.0)(react@18.2.0)
+      '@tanstack/react-query': 4.35.3(react-dom@18.2.0)(react@18.2.0)
       '@types/jest': 29.5.3
       '@types/react': 18.0.27
       '@types/react-dom': 18.0.10
@@ -609,6 +621,7 @@ packages:
 
   /@emotion/memoize@0.7.4:
     resolution: {integrity: sha512-Ja/Vfqe3HpuzRsG1oBtWTHk2PGZ7GR+2Vz5iYGelAw8dx32K0y7PjVuxK6z1nMpZOqAFsRUPCkK1YjJ56qJlgw==}
+    requiresBuild: true
     dev: false
     optional: true
 
@@ -645,13 +658,13 @@ packages:
     resolution: {integrity: sha512-EBikYFp2JCdIfGEb5G9dyCkTGDmC57KSHhRQOC3aYxoPWVZvfWCDjZwkGYHN7Lis/fmuWl906bnNTJifDQ3sXw==}
     dependencies:
       '@formatjs/intl-localematcher': 0.2.25
-      tslib: 2.3.1
+      tslib: 2.6.1
     dev: false
 
   /@formatjs/fast-memoize@1.2.1:
     resolution: {integrity: sha512-Rg0e76nomkz3vF9IPlKeV+Qynok0r7YZjL6syLz4/urSg0IbjPZCB/iYUMNsYA643gh4mgrX3T7KEIFIxJBQeg==}
     dependencies:
-      tslib: 2.3.1
+      tslib: 2.6.1
     dev: false
 
   /@formatjs/icu-messageformat-parser@2.1.0:
@@ -659,14 +672,14 @@ packages:
     dependencies:
       '@formatjs/ecma402-abstract': 1.11.4
       '@formatjs/icu-skeleton-parser': 1.3.6
-      tslib: 2.3.1
+      tslib: 2.6.1
     dev: false
 
   /@formatjs/icu-skeleton-parser@1.3.6:
     resolution: {integrity: sha512-I96mOxvml/YLrwU2Txnd4klA7V8fRhb6JG/4hm3VMNmeJo1F03IpV2L3wWt7EweqNLES59SZ4d6hVOPCSf80Bg==}
     dependencies:
       '@formatjs/ecma402-abstract': 1.11.4
-      tslib: 2.3.1
+      tslib: 2.6.1
     dev: false
 
   /@formatjs/intl-displaynames@5.4.3:
@@ -674,7 +687,7 @@ packages:
     dependencies:
       '@formatjs/ecma402-abstract': 1.11.4
       '@formatjs/intl-localematcher': 0.2.25
-      tslib: 2.3.1
+      tslib: 2.6.1
     dev: false
 
   /@formatjs/intl-listformat@6.5.3:
@@ -682,13 +695,13 @@ packages:
     dependencies:
       '@formatjs/ecma402-abstract': 1.11.4
       '@formatjs/intl-localematcher': 0.2.25
-      tslib: 2.3.1
+      tslib: 2.6.1
     dev: false
 
   /@formatjs/intl-localematcher@0.2.25:
     resolution: {integrity: sha512-YmLcX70BxoSopLFdLr1Ds99NdlTI2oWoLbaUW2M406lxOIPzE1KQhRz2fPUkq34xVZQaihCoU29h0KK7An3bhA==}
     dependencies:
-      tslib: 2.3.1
+      tslib: 2.6.1
     dev: false
 
   /@formatjs/intl@2.2.1(typescript@4.4.4):
@@ -705,7 +718,7 @@ packages:
       '@formatjs/intl-displaynames': 5.4.3
       '@formatjs/intl-listformat': 6.5.3
       intl-messageformat: 9.13.0
-      tslib: 2.3.1
+      tslib: 2.6.1
       typescript: 4.4.4
     dev: false
 
@@ -1223,6 +1236,11 @@ packages:
     resolution: {integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==}
     dev: false
 
+  /@remix-run/router@1.9.0:
+    resolution: {integrity: sha512-bV63itrKBC0zdT27qYm6SDZHlkXwFL1xMBuhkn+X7l0+IIhNaH5wuuvZKp6eKhCD4KFhujhfhCT1YxXW6esUIA==}
+    engines: {node: '>=14.0.0'}
+    dev: false
+
   /@rollup/pluginutils@4.2.1:
     resolution: {integrity: sha512-iKnFXr7NkdZAIHiIWE+BX5ULi/ucVFYWD6TbAV+rZctiRTY2PL6tsIKhoIOaoskiWAkgu+VsbXgUVDNLHf+InQ==}
     engines: {node: '>= 8.0.0'}
@@ -1389,12 +1407,12 @@ packages:
       '@swc/core': 1.3.45(@swc/helpers@0.5.0)
     dev: true
 
-  /@tanstack/query-core@4.32.0:
-    resolution: {integrity: sha512-ei4IYwL2kmlKSlCw9WgvV7PpXi0MiswVwfQRxawhJA690zWO3dU49igaQ/UMTl+Jy9jj9dK5IKAYvbX7kUvviQ==}
+  /@tanstack/query-core@4.35.3:
+    resolution: {integrity: sha512-PS+WEjd9wzKTyNjjQymvcOe1yg8f3wYc6mD+vb6CKyZAKvu4sIJwryfqfBULITKCla7P9C4l5e9RXePHvZOZeQ==}
     dev: false
 
-  /@tanstack/react-query@4.32.0(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-B8WUMcByYAH9500ENejDCATOmEZhqjtS9wsfiQ3BNa+s+yAynY8SESI8WWHhSqUmjd0pmCSFRP6BOUGSda3QXA==}
+  /@tanstack/react-query@4.35.3(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-UgTPioip/rGG3EQilXfA2j4BJkhEQsR+KAbF+KIuvQ7j4MkgnTCJF01SfRpIRNtQTlEfz/+IL7+jP8WA8bFbsw==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
@@ -1405,7 +1423,7 @@ packages:
       react-native:
         optional: true
     dependencies:
-      '@tanstack/query-core': 4.32.0
+      '@tanstack/query-core': 4.35.3
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       use-sync-external-store: 1.2.0(react@18.2.0)
@@ -3190,6 +3208,11 @@ packages:
       safer-buffer: 2.1.2
     dev: true
 
+  /iframe-resizer@4.3.7:
+    resolution: {integrity: sha512-a3EGVScU9NtUpj6lWvGhVw3EfOw5AopRs5xGsQU385kWdgQt++OsD6PCnTV+8YkgBu/g28rLIh0EztFg9UQr1Q==}
+    engines: {node: '>=0.8.0'}
+    dev: false
+
   /ignore@4.0.6:
     resolution: {integrity: sha512-cyFDKrqc/YdcWFniJhzI42+AzS+gNwmUzOSFcRCQYwySuBBBy/KjuxWLZ/FHEH6Moq1NizMOBWyTcv8O4OZIMg==}
     engines: {node: '>= 4'}
@@ -3253,7 +3276,7 @@ packages:
       '@formatjs/ecma402-abstract': 1.11.4
       '@formatjs/fast-memoize': 1.2.1
       '@formatjs/icu-messageformat-parser': 2.1.0
-      tslib: 2.3.1
+      tslib: 2.6.1
     dev: false
 
   /is-arguments@1.1.1:
@@ -4612,6 +4635,15 @@ packages:
       react: 18.2.0
       scheduler: 0.23.0
 
+  /react-error-boundary@4.0.11(react@18.2.0):
+    resolution: {integrity: sha512-U13ul67aP5DOSPNSCWQ/eO0AQEYzEFkVljULQIjMV0KlffTAhxuDoBKdO0pb/JZ8mDhMKFZ9NZi0BmLGUiNphw==}
+    peerDependencies:
+      react: '>=16.13.1'
+    dependencies:
+      '@babel/runtime': 7.22.6
+      react: 18.2.0
+    dev: false
+
   /react-fast-compare@2.0.4:
     resolution: {integrity: sha512-suNP+J1VU1MWFKcyt7RtjiSWUjvidmQSlqu+eHslq+342xCbGTYmC0mEhPCOHxlW0CywylOC1u2DFAT+bv4dBw==}
     dev: false
@@ -4660,7 +4692,7 @@ packages:
       hoist-non-react-statics: 3.3.2
       intl-messageformat: 9.13.0
       react: 18.2.0
-      tslib: 2.3.1
+      tslib: 2.6.1
       typescript: 4.4.4
     dev: false
 
@@ -4699,6 +4731,29 @@ packages:
     dependencies:
       react: 18.2.0
     dev: true
+
+  /react-router-dom@6.16.0(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-aTfBLv3mk/gaKLxgRDUPbPw+s4Y/O+ma3rEN1u8EgEpLpPe6gNjIsWt9rxushMHHMb7mSwxRGdGlGdvmFsyPIg==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      react: '>=16.8'
+      react-dom: '>=16.8'
+    dependencies:
+      '@remix-run/router': 1.9.0
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      react-router: 6.16.0(react@18.2.0)
+    dev: false
+
+  /react-router@6.16.0(react@18.2.0):
+    resolution: {integrity: sha512-VT4Mmc4jj5YyjpOi5jOf0I+TYzGpvzERy4ckNSvSh2RArv8LLoCxlsZ2D+tc7zgjxcY34oTz2hZaeX5RVprKqA==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      react: '>=16.8'
+    dependencies:
+      '@remix-run/router': 1.9.0
+      react: 18.2.0
+    dev: false
 
   /react@18.2.0:
     resolution: {integrity: sha512-/3IjMdb2L9QbBdWiW5e3P2/npwMBaU9mHCSCUzNln0ZCYbcfTsGbTJrU/kGemdH2IWmB2ioZ+zkxtmq6g09fGQ==}
@@ -5174,7 +5229,6 @@ packages:
 
   /tslib@2.6.1:
     resolution: {integrity: sha512-t0hLfiEKfMUoqhG+U1oid7Pva4bbDPHYfJNiB7BiIjRkj1pyC++4N3huJfqY6aRH6VTB0rvtzQwjM4K6qpfOig==}
-    dev: true
 
   /tsutils@3.21.0(typescript@4.4.4):
     resolution: {integrity: sha512-mHKK3iUXL+3UF6xL5k0PEhKRUBKPBCv/+RkEOpjRWxxx27KKRBmmA60A9pgOUvMi8GKhRMPEmjBRPzs2W7O1OA==}
