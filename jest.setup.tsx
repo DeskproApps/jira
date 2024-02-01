@@ -1,5 +1,5 @@
 import "regenerator-runtime/runtime";
-import "@testing-library/jest-dom/extend-expect";
+import "@testing-library/jest-dom";
 import "intersection-observer";
 import { useQuery } from "@tanstack/react-query";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { TextDecoder, TextEncoder } from "util";
 import * as React from "react";
 import { lightTheme } from "@deskpro/deskpro-ui";
-import { mockClient } from "./testing";
+import { mockClient, mockTicketContext } from "./testing";
 import type { IDeskproClient } from "@deskpro/app-sdk";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -21,21 +21,6 @@ global.TextDecoder = TextDecoder;
 //@ts-ignore
 global.React = React;
 
-const context = {
-  type: "ticket",
-  settings: {},
-  data: {
-    ticket: {
-      id: "215",
-      subject: "Big ticket",
-      permalinkUrl: "https://permalink.url",
-    },
-    app: {},
-    env: {},
-    currentAgent: {},
-  },
-};
-
 jest.mock("@deskpro/app-sdk", () => ({
   ...jest.requireActual("@deskpro/app-sdk"),
   useDeskproAppClient: () => ({ client: mockClient }),
@@ -44,17 +29,17 @@ jest.mock("@deskpro/app-sdk", () => ({
     deps: [] = []
   ) => {
     React.useEffect(() => {
-      !!hooks.onChange && hooks.onChange(context);
-      !!hooks.onShow && hooks.onShow(context);
-      !!hooks.onReady && hooks.onReady(context);
-      !!hooks.onAdminSettingsChange && hooks.onAdminSettingsChange(context.settings);
+      !!hooks.onChange && hooks.onChange(mockTicketContext);
+      !!hooks.onShow && hooks.onShow(mockTicketContext);
+      !!hooks.onReady && hooks.onReady(mockTicketContext);
+      !!hooks.onAdminSettingsChange && hooks.onAdminSettingsChange(mockTicketContext.settings);
       /* eslint-disable-next-line react-hooks/exhaustive-deps */
     }, deps);
   },
   useInitialisedDeskproAppClient: (callback: (param: typeof mockClient) => void) => {
     callback(mockClient);
   },
-  useDeskproLatestAppContext: () => ({ context }),
+  useDeskproLatestAppContext: () => ({ context: mockTicketContext }),
   useDeskproAppTheme: () => ({ theme: lightTheme }),
   proxyFetch: async () => fetch,
   LoadingSpinner: () => <>Loading...</>,
