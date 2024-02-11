@@ -36,7 +36,7 @@ export const Edit: FC<EditProps> = ({ issueKey }: EditProps) => {
 
     const adfToPlainText = useAdfToPlainText();
 
-    const loadIssues = useLoadLinkedIssues();
+    const loadLinkedIssues = useLoadLinkedIssues();
     const loadIssueAttachments = useLoadLinkedIssueAttachment();
     const findAttachmentsByKey = useFindLinkedIssueAttachmentsByKey();
 
@@ -84,7 +84,7 @@ export const Edit: FC<EditProps> = ({ issueKey }: EditProps) => {
                     .set(issueKey, issue)
                 ;
             })
-            .then(() => loadIssues())
+            .then(() => loadLinkedIssues())
             .then(() => {
                 setLoading(false);
                 dispatch({ type: "changePage", page: "view", params: { issueKey } });

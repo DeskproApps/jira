@@ -15,7 +15,7 @@ export const Create: FC = () => {
     const [loading, setLoading] = useState<boolean>(false);
     const [apiErrors, setApiErrors] = useState<Record<string, string>>({});
 
-    const loadIssues = useLoadLinkedIssues();
+    const loadLinkedIssues = useLoadLinkedIssues();
 
     useSetAppTitle("Add Issue");
 
@@ -49,7 +49,7 @@ export const Create: FC = () => {
                 state.context?.data.ticket.subject as string,
                 state.context?.data.ticket.permalinkUrl as string
             ))
-            .then(() => loadIssues())
+            .then(() => loadLinkedIssues())
             .then(() => {
                 setLoading(false);
                 dispatch({ type: "changePage", page: "home" });

@@ -1,5 +1,10 @@
 import {FC, Fragment} from "react";
-import {AnyIcon, H1, H4, HorizontalDivider, Spinner, Stack, useDeskproAppTheme} from "@deskpro/app-sdk";
+import { AnyIcon, H1, H4, Spinner, Stack } from "@deskpro/deskpro-ui";
+import {
+  LinkIcon,
+  HorizontalDivider,
+  useDeskproAppTheme,
+} from "@deskpro/app-sdk";
 import { useFindIssueComments } from "../../hooks";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -7,8 +12,8 @@ import {useStore} from "../../context/StoreProvider/hooks";
 import {JiraComment} from "../../context/StoreProvider/types";
 import { addBlankTargetToLinks } from "../../utils";
 import "./CommentsList.css";
-import {ExternalLink} from "../ExternalLink/ExternalLink";
 import ReactTimeAgo from "react-time-ago";
+import { nbsp } from "../../constants";
 
 interface CommentsListProps {
     domain: string;
@@ -51,9 +56,9 @@ export const CommentsList: FC<CommentsListProps> = ({ issueKey, domain }: Commen
                                     />
                                     <H4>{comment.author.displayName}</H4>
                                 </Stack>
-                                <Stack gap={1} align="center">
-                                    <H4><ReactTimeAgo date={comment.created} timeStyle="twitter" /></H4>
-                                    <ExternalLink href={`https://${domain}.atlassian.net/browse/${issueKey}?focusedCommentId=${comment.id}`} style={{marginBottom: "5px"}} />
+                                <Stack gap={1} align="baseline">
+                                    <H4><ReactTimeAgo date={comment.created} timeStyle="twitter" /></H4>{nbsp}
+                                    <LinkIcon href={`https://${domain}.atlassian.net/browse/${issueKey}?focusedCommentId=${comment.id}`} />
                                 </Stack>
                             </Stack>
                         </Stack>

@@ -15,7 +15,7 @@ export const StoreProvider: FC<StoreProviderProps> = ({ children }: StoreProvide
 
   const [state, dispatch] = useStoreReducer(reducer, initialState);
 
-  if (client === null) {
+  if (!client) {
     return (<LoadingSpinner />);
   }
 

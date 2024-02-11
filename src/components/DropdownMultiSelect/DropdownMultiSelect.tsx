@@ -3,15 +3,18 @@ import {
   DivAsInputWithDisplay,
   Dropdown,
   DropdownTargetProps,
-  DropdownValueType, Stack, Icon, useDeskproAppTheme,
+  DropdownValueType,
+  Stack,
+  Icon,
   dropdownRenderOptions,
   Infinite,
   AnyIcon
-} from "@deskpro/app-sdk";
+} from "@deskpro/deskpro-ui";
+import { useDeskproAppTheme } from "@deskpro/app-sdk";
 import { faCaretDown, faTimes, faHandPointer, faExternalLinkAlt } from "@fortawesome/free-solid-svg-icons";
 import { FieldHelperProps } from "formik";
 import { Label } from "../Label/Label";
-import { sortedUniq } from "lodash";
+import { noop, sortedUniq } from "lodash";
 
 export interface DropdownMultiSelectValueType extends DropdownValueType<any> {
   valueLabel?: string;
@@ -76,18 +79,21 @@ export const DropdownMultiSelect: FC<DropdownMultiSelectProps> = ({ helpers, id,
         >
           <div style={{ maxHeight: "40vh" }}>
             {opts.map(
-              dropdownRenderOptions(
+              dropdownRenderOptions({
                 handleSelectOption,
                 activeItem,
                 activeSubItem,
                 setActiveSubItem,
-                "Fetch more",
-                "Autoscroll",
-                  faHandPointer as AnyIcon,
-                  faExternalLinkAlt as AnyIcon,
+                fetchMoreText: "Fetch more",
+                autoscrollText: "Autoscroll",
+                selectedIcon: faHandPointer as AnyIcon,
+                externalLinkIcon: faExternalLinkAlt as AnyIcon,
+                hasSelectedItems: false,
+                hasExpandableItems: false,
                 hideIcons,
-                0
-              )
+                setActiveValueIndex: noop,
+                valueOptions: [],
+              })
             )}
           </div>
         </Infinite>

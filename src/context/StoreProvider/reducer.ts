@@ -1,4 +1,4 @@
-import { __, match } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import { State, Action, StoreReducer, TicketContext } from "./types";
 
 export const initialState: State = {
@@ -7,44 +7,44 @@ export const initialState: State = {
 
 export const reducer: StoreReducer = (state: State, action: Action): State => {
   return match<[State, Action]>([state, action])
-    .with([__, { type: "changePage" }],  ([prevState, action]) => ({
+    .with([P._, { type: "changePage" }],  ([prevState, action]) => ({
       ...prevState,
       page: action.page,
       pageParams: action.params,
     }))
-    .with([__, { type: "loadContext" }],  ([prevState, action]) => ({
+    .with([P._, { type: "loadContext" }],  ([prevState, action]) => ({
       ...prevState,
       context: action.context as TicketContext,
     }))
-    .with([__, { type: "linkIssueSearchListLoading" }],  ([prevState]) => ({
+    .with([P._, { type: "linkIssueSearchListLoading" }],  ([prevState]) => ({
       ...prevState,
       linkIssueSearchResults: {
         list: [],
         loading: true,
       },
     }))
-    .with([__, { type: "linkIssueSearchList" }],  ([prevState, action]) => ({
+    .with([P._, { type: "linkIssueSearchList" }],  ([prevState, action]) => ({
       ...prevState,
       linkIssueSearchResults: {
         list: action.list,
         loading: false,
       },
     }))
-    .with([__, { type: "linkIssueSearchListReset" }],  ([prevState]) => ({
+    .with([P._, { type: "linkIssueSearchListReset" }],  ([prevState]) => ({
       ...prevState,
       linkIssueSearchResults: {
         list: [],
         loading: false,
       },
     }))
-    .with([__, { type: "linkedIssuesListLoading" }],  ([prevState]) => ({
+    .with([P._, { type: "linkedIssuesListLoading" }],  ([prevState]) => ({
       ...prevState,
       linkedIssuesResults: {
         list: [],
         loading: true,
       },
     }))
-    .with([__, { type: "linkedIssuesList" }],  ([prevState, action]) => ({
+    .with([P._, { type: "linkedIssuesList" }],  ([prevState, action]) => ({
       ...prevState,
       isUnlinkingIssue: false,
       linkedIssuesResults: {
@@ -52,14 +52,14 @@ export const reducer: StoreReducer = (state: State, action: Action): State => {
         loading: false,
       },
     }))
-    .with([__, { type: "issueAttachmentsLoading" }],  ([prevState]) => ({
+    .with([P._, { type: "issueAttachmentsLoading" }],  ([prevState]) => ({
       ...prevState,
       linkedIssueAttachments: {
         loading: true,
         list: {},
       },
     }))
-    .with([__, { type: "issueAttachments" }],  ([prevState, action]) => ({
+    .with([P._, { type: "issueAttachments" }],  ([prevState, action]) => ({
       ...prevState,
       linkedIssueAttachments: {
         loading: false,
@@ -69,19 +69,19 @@ export const reducer: StoreReducer = (state: State, action: Action): State => {
         }
       },
     }))
-    .with([__, { type: "error" }],  ([prevState, action]) => ({
+    .with([P._, { type: "error" }],  ([prevState, action]) => ({
       ...prevState,
       _error: action.error,
     }))
-    .with([__, { type: "loadDataDependencies" }],  ([prevState, action]) => ({
+    .with([P._, { type: "loadDataDependencies" }],  ([prevState, action]) => ({
       ...prevState,
       dataDependencies: action.deps,
     }))
-    .with([__, { type: "failedToGenerateIssueForm" }],  ([prevState]) => ({
+    .with([P._, { type: "failedToGenerateIssueForm" }],  ([prevState]) => ({
       ...prevState,
       hasGeneratedIssueFormSuccessfully: false,
     }))
-    .with([__, { type: "unlinkIssue" }],  ([prevState, action]) => ({
+    .with([P._, { type: "unlinkIssue" }],  ([prevState, action]) => ({
       ...prevState,
       isUnlinkingIssue: true,
       linkedIssuesResults: {
@@ -89,7 +89,7 @@ export const reducer: StoreReducer = (state: State, action: Action): State => {
         loading: false,
       },
     }))
-    .with([__, { type: "issueComments" }],  ([prevState, action]) => ({
+    .with([P._, { type: "issueComments" }],  ([prevState, action]) => ({
       ...prevState,
       issueComments: {
         ...(prevState.issueComments ?? {}),

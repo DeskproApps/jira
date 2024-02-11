@@ -1,5 +1,5 @@
 import {FC, SyntheticEvent} from "react";
-import { Input, Label } from "@deskpro/app-sdk";
+import { Input, Label } from "@deskpro/deskpro-ui";
 import { MappedFieldProps } from "../types";
 
 export const NumberField: FC<MappedFieldProps> = ({ id, meta, field, error }: MappedFieldProps) => {

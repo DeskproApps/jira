@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
+import { P5 } from "@deskpro/deskpro-ui";
 import {
-  P1,
+  Link,
   useDeskproAppClient,
+  useDeskproLatestAppContext,
   useInitialisedDeskproAppClient,
 } from "@deskpro/app-sdk";
 import {
@@ -17,12 +19,12 @@ import {
   JiraComment,
 } from "./context/StoreProvider/types";
 import { ADFEntity, reduce, map } from "@atlaskit/adf-utils";
-import { StyledLink } from "./styles";
 import { testUrlRegex } from "./utils";
 
 export const useSetAppTitle = (title: string): void => {
-  const { client } = useDeskproAppClient();
-  useEffect(() => client?.setTitle(title), [client, title]);
+  useInitialisedDeskproAppClient((client) => {
+    client.setTitle(title);
+  }, [title]);
 };
 
 export const useWhenNoLinkedItems = (onNoLinkedItems: () => void) => {
@@ -35,10 +37,7 @@ export const useWhenNoLinkedItems = (onNoLinkedItems: () => void) => {
     }
 
     client
-      .getEntityAssociation(
-        "linkedJiraIssues",
-        state.context?.data.ticket.id as string
-      )
+      .getEntityAssociation("linkedJiraIssues", state.context?.data.ticket.id as string)
       .list()
       .then((items) => items.length === 0 && onNoLinkedItems());
   }, [client, state.context?.data.ticket.id, onNoLinkedItems]);
@@ -46,20 +45,17 @@ export const useWhenNoLinkedItems = (onNoLinkedItems: () => void) => {
 
 export const useLoadLinkedIssues = () => {
   const { client } = useDeskproAppClient();
-  const [state, dispatch] = useStore();
+  const { context } = useDeskproLatestAppContext();
+  const [, dispatch] = useStore();
 
   return async () => {
-    if (!client || !state.context?.data.ticket.id) {
+    if (!client || !context?.data.ticket.id) {
       return;
     }
 
     try {
-      const keys = await client
-        .getEntityAssociation(
-          "linkedJiraIssues",
-          state.context?.data.ticket.id as string
-        )
-        .list();
+      const keys = await client.getEntityAssociation("linkedJiraIssues", context?.data.ticket.id).list();
+
       client.setBadgeCount(keys.length);
 
       const list = await listLinkedIssues(client, keys);
@@ -73,16 +69,10 @@ export const useLoadLinkedIssues = () => {
           if (item) {
             return Promise.all([
               client
-                .getEntityAssociation(
-                  "linkedJiraIssues",
-                  state.context?.data.ticket.id as string
-                )
+                .getEntityAssociation("linkedJiraIssues", context?.data.ticket.id as string)
                 .delete(id),
               client
-                .getEntityAssociation(
-                  "linkedJiraIssues",
-                  state.context?.data.ticket.id as string
-                )
+                .getEntityAssociation("linkedJiraIssues", context?.data.ticket.id as string)
                 .set(item.key),
             ]);
           }
@@ -136,7 +126,7 @@ export const useFindLinkedIssueAttachmentsByKey = () => {
     (state.linkedIssueAttachments?.list ?? {})[key] ?? [];
 };
 
-export const parseJiraDescription = (description: ADFEntity): any => {
+export const parseJiraDescription = (description?: ADFEntity): any => {
   if (!description) return;
 
   return map(description, (node) => {
@@ -144,23 +134,13 @@ export const parseJiraDescription = (description: ADFEntity): any => {
           case "text":
             if (testUrlRegex.test(node.text || "")) {
               return (
-                <StyledLink
-                  href={node.text}
-                  target="_blank"
-                >
-                  {node.text}
-                </StyledLink>
+                <Link href={node.text} target="_blank">{node.text}</Link>
               );
             }
             return node.text?.split("\n").reduce((a: JSX.Element[],c) => {
               const item = testUrlRegex.test(c || "") ? (
-                <StyledLink
-                  href={c}
-                  target="_blank"
-                >
-                  {c}
-                </StyledLink>
-              ) : <P1>{c}</P1>
+                <Link href={c} target="_blank">{c}</Link>
+              ) : <P5>{c}</P5>
 
               return [...a, item]
             }, [])
@@ -168,16 +148,11 @@ export const parseJiraDescription = (description: ADFEntity): any => {
             return <br />;
           case "inlineCard":
             return (
-              <StyledLink
-                href={node.attrs?.url}
-                target="_blank"
-              >
-                {node.attrs?.url}
-              </StyledLink>
+              <Link href={node.attrs?.url} target="_blank">{node.attrs?.url}</Link>
             );
         }
       })
-  
+
 };
 
 export const useAdfToPlainText = () => {

@@ -6,23 +6,23 @@ import {
   useLoadLinkedIssueAttachment,
   useSetAppTitle,
 } from "../hooks";
+import { P5, Pill, Stack, Spinner, AnyIcon, AttachmentTag  } from "@deskpro/deskpro-ui";
 import {
-  H1,
-  Pill,
+  Title,
+  Member,
   Property,
-  Spinner,
-  Stack,
+  LinkIcon,
   HorizontalDivider,
-  AttachmentTag,
-  useDeskproAppClient,
   useDeskproAppTheme,
-  AnyIcon,
+  useDeskproAppClient,
+  useDeskproLatestAppContext,
 } from "@deskpro/app-sdk";
-import { ExternalLink } from "../components/ExternalLink/ExternalLink";
 import { useStore } from "../context/StoreProvider/hooks";
 import { faFile } from "@fortawesome/free-regular-svg-icons";
 import { IssueFieldView } from "../components/IssueFieldView/IssueFieldView";
 import { CommentsList } from "../components/CommentsList/CommentsList";
+import { JiraIcon, DPNormalize } from "../components/common";
+import { nbsp } from "../constants";
 
 export interface ViewProps {
   issueKey: string;
@@ -32,6 +32,7 @@ export const View: FC<ViewProps> = ({ issueKey }: ViewProps) => {
   const [state, dispatch] = useStore();
   const { theme } = useDeskproAppTheme();
   const { client } = useDeskproAppClient();
+  const { context } = useDeskproLatestAppContext();
 
   const loadIssueAttachments = useLoadLinkedIssueAttachment();
   const findAttachmentsByKey = useFindLinkedIssueAttachmentsByKey();
@@ -72,179 +73,174 @@ export const View: FC<ViewProps> = ({ issueKey }: ViewProps) => {
     return <></>;
   }
 
-  const domain = state.context?.settings.domain as string;
+  const domain = context?.settings.domain as string;
 
   return (
     <>
-      <Stack align="start" gap={10}>
-        <Stack gap={10} style={{ width: "100%" }} vertical>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "start",
-              marginBottom: "-6px",
-            }}
-          >
-            <H1 style={{ marginRight: "1px" }}>{issue.summary}</H1>
-            <ExternalLink
-              href={`https://${domain}.atlassian.net/browse/${issue.key}`}
-              style={{ position: "relative", top: "-4px" }}
-            />
-          </div>
-          <Property title="Issue Key">
-            {issue.key}
-            <ExternalLink
-              href={`https://${domain}.atlassian.net/browse/${issue.key}`}
-            />
-          </Property>
-          {issue.parentKey && (
-            <Property title="Parent">
+      <Title
+        title={issue.summary}
+        icon={<JiraIcon/>}
+        link={`https://${domain}.atlassian.net/browse/${issue.key}`}
+      />
+      <Property
+        label="Issue Key"
+        text={(
+          <P5>
+            {issue.key}{nbsp}
+            <LinkIcon href={`https://${domain}.atlassian.net/browse/${issue.key}`}/>
+          </P5>
+        )}
+      />
+      {issue.parentKey && (
+        <Property
+          label="Parent"
+          text={(
+            <P5>
               {issue.parentKey}
-              <ExternalLink
-                href={`https://${domain}.atlassian.net/browse/${issue.parentKey}`}
-              />
-            </Property>
+              <LinkIcon href={`https://${domain}.atlassian.net/browse/${issue.parentKey}`}/>
+            </P5>
           )}
-          {issue.description && (
-            <Property
-              style={{ width: "100%" }}
-              childrenStyle={{ width: "100%" }}
-              title="Description"
-            >
+        />
+      )}
+      {issue.description && (
+        <Property
+          label="Description"
+          text={(
+            <DPNormalize>
               <Stack gap={2} wrap="wrap" style={{ wordBreak: "break-all" }}>
-                {parseJiraDescription(issue.description)}
+              {parseJiraDescription(issue.description)}
               </Stack>
-            </Property>
+            </DPNormalize>
           )}
-          <Property title="Project">
-            {issue.projectName}
-            <ExternalLink
-              href={`https://${domain}.atlassian.net/browse/${issue.projectKey}`}
-            />
-          </Property>
-          {issue.epicKey && (
-            <Property title="Epic">
-              {issue.epicName}
-              <ExternalLink
-                href={`https://${domain}.atlassian.net/browse/${issue.epicKey}`}
+        />
+      )}
+      <Property
+        label="Project"
+        text={(
+          <P5>
+            {issue.projectName}{nbsp}
+            <LinkIcon href={`https://${domain}.atlassian.net/browse/${issue.projectKey}`}/>
+          </P5>
+        )}
+      />
+      {issue.epicKey && (
+        <Property
+          label="Epic"
+          text={(
+            <P5>
+              {issue.epicName}{nbsp}
+              <LinkIcon href={`https://${domain}.atlassian.net/browse/${issue.epicKey}`}/>
+            </P5>
+          )}
+        />
+      )}
+      {(issue.sprints ?? []).length > 0 && (
+        <Property
+          label="Sprints"
+          text={(issue.sprints ?? []).map((sprint, idx) => (
+            <div key={idx}>
+              {sprint.sprintName} ({sprint.sprintState})
+              <LinkIcon
+                href={`https://${domain}.atlassian.net/jira/software/c/projects/${issue?.projectKey}/boards/${sprint.sprintBoardId}`}
               />
-            </Property>
-          )}
-          {(issue.sprints ?? []).length > 0 && (
-            <Property title="Sprints">
-              {(issue.sprints ?? []).map((sprint, idx) => (
-                <div key={idx}>
-                  {sprint.sprintName} ({sprint.sprintState})
-                  <ExternalLink
-                    href={`https://${domain}.atlassian.net/jira/software/c/projects/${issue?.projectKey}/boards/${sprint.sprintBoardId}`}
-                  />
-                </div>
-              ))}
-            </Property>
-          )}
-          <Property title="Status">{issue.status}</Property>
-          <Property title="Assignee">
-            {issue.assigneeId ? (
-              <div style={{ position: "relative" }}>
-                {issue.assigneeAvatarUrl && (
-                  <img
-                    src={issue.assigneeAvatarUrl}
-                    width={18}
-                    height={18}
-                    alt=""
-                    className="user-avatar"
-                  />
-                )}
-                <span className="user-name">{issue.assigneeName}</span>
-                {issue.assigneeId && (
-                  <ExternalLink
-                    href={`https://${domain}.atlassian.net/jira/people/${issue.assigneeId}`}
-                  />
-                )}
-              </div>
-            ) : (
-              <span style={{ color: theme.colors.grey80 }}>None</span>
-            )}
-          </Property>
-          <Property title="Reporter">
-            <div style={{ position: "relative" }}>
-              {issue.reporterAvatarUrl && (
-                <img
-                  src={issue.reporterAvatarUrl}
-                  width={18}
-                  height={18}
-                  alt=""
-                  className="user-avatar"
-                />
-              )}
-              <span className="user-name">{issue.reporterName}</span>
-              {issue.reporterId && (
-                <ExternalLink
-                  href={`https://${domain}.atlassian.net/jira/people/${issue.reporterId}`}
-                />
-              )}
             </div>
-          </Property>
-          {issue.labels && issue.labels.length > 0 && (
-            <Property title="Labels">
-              <Stack gap={3}>
-                {issue.labels.map((label, idx) => (
-                  <Pill
-                    label={label}
-                    textColor={theme.colors.grey100}
-                    backgroundColor={theme.colors.grey10}
-                    key={idx}
-                  />
-                ))}
-              </Stack>
-            </Property>
-          )}
-          {issue.priority && (
-            <Property title="Priority">
-              <Stack gap={3}>
-                <img
-                  src={issue.priorityIconUrl}
-                  alt={issue.priority}
-                  height={16}
-                />
-                {issue.priority}
-              </Stack>
-            </Property>
-          )}
-          {state.linkedIssueAttachments?.loading && <Spinner size="small" />}
-          {!state.linkedIssueAttachments?.loading && attachments.length > 0 && (
-            <Property title="Attachments">
-              <Stack gap={3} vertical>
-                {attachments.map((attachment, idx) => (
-                  <AttachmentTag
-                    key={idx}
-                    target="_blank"
-                    download
-                    href={attachment.url}
-                    filename={attachment.filename}
-                    fileSize={attachment.sizeBytes}
-                    icon={faFile as AnyIcon}
-                    maxWidth="244px"
-                  />
-                ))}
-              </Stack>
-            </Property>
-          )}
-          {Object.keys(issue.customFields).map((key: string, idx: number) => (
-            <IssueFieldView
-              meta={issue.customFields[key].meta}
-              value={issue.customFields[key].value}
-              key={idx}
-            />
           ))}
-          <Stack vertical gap={10} style={{ width: "100%" }}>
-            <HorizontalDivider style={{ width: "100%" }} />
-            <CommentsList
-              issueKey={issueKey}
-              domain={state.context?.settings.domain}
+        />
+      )}
+      <Property label="Status" text={issue.status}/>
+      <Property
+        label="Assignee"
+        text={issue.assigneeId ? (
+          <Stack gap={6} align="center">
+            <Member
+              name={issue.assigneeName}
+              avatarUrl={issue.assigneeAvatarUrl}
             />
+            {issue.assigneeId && (
+              <LinkIcon href={`https://${domain}.atlassian.net/jira/people/${issue.assigneeId}`}/>
+            )}
           </Stack>
-        </Stack>
+        ) : (
+          <P5 style={{ color: theme.colors.grey80 }}>None</P5>
+        )}
+      />
+      <Property
+        label="Reporter"
+        text={(
+          <Stack gap={6} align="center">
+            <Member
+              name={issue.reporterName}
+              avatarUrl={issue.reporterAvatarUrl}
+            />
+            {issue.reporterId && (
+              <LinkIcon href={`https://${domain}.atlassian.net/jira/people/${issue.reporterId}`}/>
+            )}
+          </Stack>
+        )}
+      />
+      {issue.labels && issue.labels.length > 0 && (
+        <Property
+          label="Labels"
+          text={(
+            <Stack gap={3} wrap="wrap">
+              {issue.labels.map((label, idx) => (
+                <Pill
+                  label={label}
+                  textColor={theme.colors.grey100}
+                  backgroundColor={theme.colors.grey10}
+                  key={idx}
+                />
+              ))}
+            </Stack>
+          )}
+        />
+      )}
+      {issue.priority && (
+        <Property
+          label="Priority"
+          text={(
+            <Stack gap={3}>
+              <img src={issue.priorityIconUrl} alt={issue.priority} height={16}/>
+              <P5>{issue.priority}</P5>
+            </Stack>
+          )}
+        />
+      )}
+      {state.linkedIssueAttachments?.loading && <Spinner size="small" />}
+      {!state.linkedIssueAttachments?.loading && attachments.length > 0 && (
+        <Property
+          label="Attachments"
+          text={(
+            <Stack gap={3} vertical>
+              {attachments.map((attachment, idx) => (
+                <AttachmentTag
+                  key={idx}
+                  target="_blank"
+                  download
+                  href={attachment.url}
+                  filename={attachment.filename}
+                  fileSize={attachment.sizeBytes}
+                  icon={faFile as AnyIcon}
+                  maxWidth="244px"
+                />
+              ))}
+            </Stack>
+          )}
+        />
+      )}
+      {Object.keys(issue.customFields).map((key: string, idx: number) => (
+        <IssueFieldView
+          meta={issue.customFields[key].meta}
+          value={issue.customFields[key].value}
+          key={idx}
+        />
+      ))}
+      <Stack vertical gap={10} style={{ width: "100%" }}>
+        <HorizontalDivider style={{ width: "100%" }} />
+        <CommentsList
+          issueKey={issueKey}
+          domain={context?.settings.domain}
+        />
       </Stack>
     </>
   );

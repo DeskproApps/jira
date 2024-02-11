@@ -1,20 +1,21 @@
-import { ChangeEvent, FC, useEffect, useMemo, useRef, useState } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 import { useStore } from "../context/StoreProvider/hooks";
 import {
   H3,
-  IconButton,
-  Input,
-  Stack,
+} from "@deskpro/deskpro-ui";
+import {
+  Search,
   LoadingSpinner,
-  HorizontalDivider, useDeskproAppClient, AnyIcon
+  HorizontalDivider,
+  useDeskproAppClient,
+  useDeskproLatestAppContext,
 } from "@deskpro/app-sdk";
 import { useLoadLinkedIssues, useSetAppTitle } from "../hooks";
-import { faSearch, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { LinkedIssueResultItem } from "../components/LinkedIssueResultItem/LinkedIssueResultItem";
 import {ErrorBlock} from "../components/Error/ErrorBlock";
 
 export const Home: FC = () => {
-  const searchInputRef = useRef<HTMLInputElement>(null);
+  const { context } = useDeskproLatestAppContext();
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [state, dispatch] = useStore();
   const loadLinkedIssues = useLoadLinkedIssues();
@@ -49,7 +50,7 @@ export const Home: FC = () => {
       loadLinkedIssues();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.context?.data, state.linkedIssuesResults]);
+  }, [context?.data.ticket.id, state.linkedIssuesResults]);
 
   const loading = state.linkedIssuesResults?.loading || state.linkedIssuesResults?.loading === undefined;
 
@@ -58,15 +59,7 @@ export const Home: FC = () => {
       {state.hasGeneratedIssueFormSuccessfully === false && (
           <ErrorBlock text="You cannot create issue type via this app, please visit JIRA" />
       )}
-      <Stack>
-        <Input
-          ref={searchInputRef}
-          value={searchQuery}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
-          leftIcon={faSearch as AnyIcon}
-          rightIcon={<IconButton icon={faTimes as AnyIcon} onClick={() => setSearchQuery("")} minimal />}
-        />
-      </Stack>
+      <Search onChange={setSearchQuery}/>
       <HorizontalDivider style={{ marginTop: "8px", marginBottom: "8px" }} />
       {loading
           ? <LoadingSpinner />
@@ -75,7 +68,7 @@ export const Home: FC = () => {
             <LinkedIssueResultItem
               key={idx}
               item={item}
-              jiraDomain={state.context?.settings.domain as string}
+              jiraDomain={context?.settings.domain as string}
               onView={() => dispatch({ type: "changePage", page: "view", params: { issueKey: item.key } })}
             />
           ))

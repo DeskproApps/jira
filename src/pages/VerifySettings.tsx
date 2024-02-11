@@ -1,9 +1,7 @@
 import { FC, useState, useCallback, useMemo } from "react";
 import every from "lodash/every";
+import { P1, Stack, Button } from "@deskpro/deskpro-ui";
 import {
-    P1,
-    Stack,
-    Button,
     IDeskproClient,
     useDeskproAppTheme,
     useDeskproAppClient,

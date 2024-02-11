@@ -1,9 +1,12 @@
 import { FC, useEffect, useCallback } from "react";
-import { __, match } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import {
   Context,
-  TargetAction, useDeskproAppClient,
-  useDeskproAppEvents, useInitialisedDeskproAppClient
+  TargetAction,
+  LoadingSpinner,
+  useDeskproAppClient,
+  useDeskproAppEvents,
+  useInitialisedDeskproAppClient,
 } from "@deskpro/app-sdk";
 import { useStore } from "../context/StoreProvider/hooks";
 import { Home } from "./Home";
@@ -164,13 +167,14 @@ export const Main: FC = () => {
     onShow: () => {
       client && setTimeout(() => client.resize(), 200);
     },
-    onElementEvent: (id, type, payload) => {
-      match<[string, any]>([id, payload])
-        .with(["addIssue", __], () => dispatch({ type: "changePage", page: "link" }))
-        .with(["home", __], () => dispatch({ type: "changePage", page: "home" }))
-        .with(["edit", __], () => dispatch({ type: "changePage", page: "edit", params: { issueKey: payload } }))
-        .with([__, { action: "unlink", issueKey: __ }], () => unlinkTicket(payload))
-        .with([__, { action: "viewPermissions" }], () => dispatch({ type: "changePage", page: "view_permissions" }))
+    onElementEvent: (id, type, payload: any) => {
+      match([id, payload])
+        .with(["addIssue", P._], () => dispatch({ type: "changePage", page: "link" }))
+        .with(["home", P._], () => dispatch({ type: "changePage", page: "home" }))
+        .with(["edit", P._], () => dispatch({ type: "changePage", page: "edit", params: { issueKey: payload } }))
+        .with([P._, { action: "unlink", issueKey: P._ }], () => unlinkTicket(payload))
+        // @ts-ignore
+        .with([P._, { action: "viewPermissions" }], () => dispatch({ type: "changePage", page: "view_permissions" }))
         .otherwise(() => {})
       ;
     },
@@ -183,6 +187,12 @@ export const Main: FC = () => {
 
     page && dispatch({ type: "changePage", page })
   }, [dispatch]);
+
+  if (!client) {
+    return (
+      <LoadingSpinner/>
+    );
+  }
 
   const page = match<Page|undefined>(state.page)
       .with("verify_settings", () => <VerifySettings {...state.pageParams} />)

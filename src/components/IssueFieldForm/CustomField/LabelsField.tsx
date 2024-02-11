@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { Label } from "@deskpro/app-sdk";
+import { Label } from "@deskpro/deskpro-ui";
 import { MappedFieldProps } from "../types";
 import { useStore } from "../../../context/StoreProvider/hooks";
 import { DropdownMultiSelect, DropdownMultiSelectValueType } from "../../DropdownMultiSelect/DropdownMultiSelect";
