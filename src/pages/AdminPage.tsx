@@ -1,6 +1,7 @@
 import {
   Checkbox,
   H1,
+  H2,
   LoadingSpinner,
   useDeskproAppEvents,
   useInitialisedDeskproAppClient,
@@ -34,7 +35,7 @@ export const AdminSettings = () => {
   );
 
   useEffect(() => {
-    if (hasSetSelectedSettings || !settings.mapping) return;
+    if (hasSetSelectedSettings || !settings?.mapping) return;
 
     setHasSetSelectedSettings(true);
     setSelectedSettings(JSON.parse(settings?.mapping || "{}"));
@@ -68,7 +69,19 @@ export const AdminSettings = () => {
     });
   };
 
+  if (!settings || !settings.domain || !settings.username || !settings.api_key)
+    return null;
+
   if (fieldsQuery.isLoading) return <LoadingSpinner />;
+
+  if (fieldsQuery.error) {
+    return (
+      <H2>
+        Wrong Settings. Please ensure you inserted the correct settings before
+        using field mapping
+      </H2>
+    );
+  }
 
   const fields = fieldsQuery.data;
 

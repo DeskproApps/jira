@@ -44,7 +44,7 @@ export const Main: FC = () => {
 
   useEffect(() => {
     if (!context) return;
-    const data = JSON.parse(context?.settings.mapping ?? "{}");
+    const data = JSON.parse(context?.settings?.mapping ?? "{}");
 
     if (!data) return;
     setHasMappedFields(!!data.detailView?.length);
