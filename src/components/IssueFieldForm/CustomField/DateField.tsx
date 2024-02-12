@@ -15,7 +15,7 @@ export const DateField: FC<MappedFieldProps> = ({
     //@ts-ignore
     options={{ position: "left" }}
     onChange={(dates: any[]) => {
-      helpers.setValue(dates[0]);
+      helpers.setValue(dates[0].toISOString());
       helpers.setTouched(true);
     }}
     value={field.value && getDateFromValue(field.value)}
