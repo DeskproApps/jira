@@ -1,17 +1,17 @@
-import { FC, ChangeEvent, useRef, useEffect, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { useStore } from "../context/StoreProvider/hooks";
-import { faSearch, faTimes, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import {
-  Stack,
-  Input,
-  IconButton,
-  HorizontalDivider,
   H3,
+  Stack,
+  Button,
   Checkbox,
-  Button, useDeskproAppClient, AnyIcon
+} from "@deskpro/deskpro-ui";
+import {
+  Search,
+  HorizontalDivider,
+  useDeskproAppClient,
 } from "@deskpro/app-sdk";
 import { useDebouncedCallback } from "use-debounce";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useLoadLinkedIssues, useSetAppTitle } from "../hooks";
 import { SearchResultItem } from "../components/SearchResultItem/SearchResultItem";
 import { addRemoteLink, getIssueByKey, searchIssues } from "../context/StoreProvider/api";
@@ -19,9 +19,7 @@ import { CreateLinkIssue } from "../components/CreateLinkIssue/CreateLinkIssue";
 import { ticketReplyEmailsSelectionStateKey, ticketReplyNotesSelectionStateKey } from "../utils";
 
 export const Link: FC = () => {
-  const searchInputRef = useRef<HTMLInputElement>(null);
   const [state, dispatch] = useStore();
-  const [searchQuery, setSearchQuery] = useState<string>("");
   const [selected, setSelected] = useState<string[]>([]);
   const [isLinkIssuesLoading, setIsLinkIssuesLoading] = useState<boolean>(false);
   const { client } = useDeskproAppClient();
@@ -45,22 +43,15 @@ export const Link: FC = () => {
     searchIssues(client, q, { withSubtask: true })
       .then((list) => dispatch({ type: "linkIssueSearchList", list }))
     ;
-  },500);
-
-  useEffect(
-    () => searchInputRef && searchInputRef.current?.focus(),
-    [searchInputRef]
-  );
+  }, 500);
 
   const search = (q: string) => {
-    setSearchQuery(q);
-    dispatch({ type: "linkIssueSearchListLoading" });
-    debounced(q);
-  };
-
-  const clear = () => {
-    setSearchQuery("");
-    dispatch({ type: "linkIssueSearchListReset" });
+    if (!q) {
+      dispatch({ type: "linkIssueSearchListReset" });
+    } else {
+      dispatch({ type: "linkIssueSearchListLoading" });
+      debounced(q);
+    }
   };
 
   const toggleSelection = (key: string) => {
@@ -119,16 +110,10 @@ export const Link: FC = () => {
   return (
     <>
       <CreateLinkIssue selected="link" />
-      <Stack>
-        <Input
-          ref={searchInputRef}
-          value={searchQuery}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => search(e.target.value)}
-          //@ts-ignore
-          leftIcon={state.linkIssueSearchResults?.loading ? <FontAwesomeIcon icon={faSpinner} spin /> : faSearch as AnyIcon}
-          rightIcon={<IconButton icon={faTimes as AnyIcon} onClick={clear} minimal />}
-        />
-      </Stack>
+      <Search
+        isFetching={state.linkIssueSearchResults?.loading}
+        onChange={search}
+      />
       <HorizontalDivider style={{ marginTop: "8px", marginBottom: "8px" }} />
       <Stack justify="space-between">
         <Button

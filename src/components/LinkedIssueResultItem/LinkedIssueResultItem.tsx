@@ -1,15 +1,19 @@
+import { P5, Stack } from "@deskpro/deskpro-ui";
 import {
-  H1,
-  HorizontalDivider,
+  Link,
+  Title,
+  Member,
   Property,
-  Stack, useDeskproAppTheme,
-  VerticalDivider
+  LinkIcon,
+  TwoProperties,
+  HorizontalDivider,
 } from "@deskpro/app-sdk";
-import { FC, Fragment, ReactElement } from "react";
+import { FC, Fragment, ReactElement, useCallback, MouseEventHandler } from "react";
 import { IssueItem } from "../../context/StoreProvider/types";
 import "./LinkedIssueResultItem.css";
-import { ExternalLink } from "../ExternalLink/ExternalLink";
 import { useAssociatedEntityCount } from "../../hooks";
+import { JiraIcon } from "../common";
+import { nbsp } from "../../constants";
 
 export interface LinkedIssueResultItemProps {
   jiraDomain: string;
@@ -18,56 +22,70 @@ export interface LinkedIssueResultItemProps {
   onView?: () => void;
 }
 
-export const LinkedIssueResultItem: FC<LinkedIssueResultItemProps> = ({ jiraDomain, item, checkbox, onView }: LinkedIssueResultItemProps) => {
-  const { theme } = useDeskproAppTheme();
+export const LinkedIssueResultItem: FC<LinkedIssueResultItemProps> = ({ jiraDomain, item, onView }: LinkedIssueResultItemProps) => {
   const entityCount = useAssociatedEntityCount(item.key);
+  const onClick: MouseEventHandler<HTMLAnchorElement> = useCallback((e) => {
+    e.preventDefault();
+    onView && onView();
+  }, [onView]);
 
   return (
     <Fragment>
-      <Stack align="start" gap={10}>
-        {checkbox && checkbox}
-        <Stack gap={10} vertical>
-          <div style={{ display: "flex", alignItems: "start" }}>
-            <H1 onClick={() => onView && onView()} style={{ color: theme.colors.cyan100, cursor: "pointer", marginRight: "1px" }}>{item.summary}</H1>
-            <ExternalLink href={`https://${jiraDomain}.atlassian.net/browse/${item.key}`} style={{ position: "relative", top: "-4px" }} />
-          </div>
-          <Stack align="stretch">
-            <Property title="Issue Key" width="108px">
-              <span>{item.key}</span>
-              <ExternalLink href={`https://${jiraDomain}.atlassian.net/browse/${item.key}`} />
-            </Property>
-            <VerticalDivider width={1} />
-            <Property title="Deskpro Tickets">
-              {entityCount}
-            </Property>
-          </Stack>
-          <Property title="Project">
+      <Title
+        title={<Link onClick={onClick} href="#">{item.summary}</Link>}
+        link={`https://${jiraDomain}.atlassian.net/browse/${item.key}`}
+        icon={<JiraIcon/>}
+      />
+      <TwoProperties
+        leftLabel="Issue Key"
+        leftText={(
+          <P5>
+            <span>{item.key}</span>
+            {nbsp}
+            <LinkIcon href={`https://${jiraDomain}.atlassian.net/browse/${item.key}`}/>
+          </P5>
+        )}
+        rightLabel="Deskpro Tickets"
+        rightText={entityCount}
+      />
+      <Property
+        label="Project"
+        text={(
+          <P5>
             {item.projectName}
-            <ExternalLink href={`https://${jiraDomain}.atlassian.net/browse/${item.projectKey}`} />
-          </Property>
-          {item.epicKey && (
-            <Property title="Epic">
+            {nbsp}
+            <LinkIcon href={`https://${jiraDomain}.atlassian.net/browse/${item.projectKey}`} />
+          </P5>
+        )}
+      />
+      {item.epicKey && (
+        <Property
+          label="Epic"
+          text={(
+            <P5>
               {item.epicName}
-              <ExternalLink href={`https://${jiraDomain}.atlassian.net/browse/${item.epicKey}`} />
-            </Property>
+              {nbsp}
+              <LinkIcon href={`https://${jiraDomain}.atlassian.net/browse/${item.epicKey}`} />
+            </P5>
           )}
-          <Property title="Status">
-            {item.status}
-          </Property>
-          <Property title="Reporter">
-            <div style={{ position: "relative" }}>
-              {item.reporterAvatarUrl && (
-                  <img src={item.reporterAvatarUrl} width={18} height={18} alt="" className="user-avatar" />
-              )}
-              <span className="user-name">{item.reporterName}</span>
-              {item.reporterId && (
-                  <ExternalLink href={`https://${jiraDomain}.atlassian.net/jira/people/${item.reporterId}`} />
-              )}
-            </div>
-          </Property>
-        </Stack>
-      </Stack>
-      <HorizontalDivider style={{ marginTop: "8px", marginBottom: "8px" }} />
+        />
+      )}
+      <Property label="Status" text={item.status}/>
+      <Property
+        label="Reporter"
+        text={(
+          <Stack gap={6} align="center">
+            <Member
+              name={item.reporterName}
+              avatarUrl={item.reporterAvatarUrl}
+            />
+            {item.reporterId && (
+              <LinkIcon href={`https://${jiraDomain}.atlassian.net/jira/people/${item.reporterId}`}/>
+            )}
+          </Stack>
+        )}
+      />
+      <HorizontalDivider style={{marginTop: "8px", marginBottom: "8px"}}/>
     </Fragment>
   );
 };

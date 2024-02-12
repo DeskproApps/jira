@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { Label, Radio } from "@deskpro/app-sdk";
+import { Label, Radio } from "@deskpro/deskpro-ui";
 import { MappedFieldProps } from "../types";
 import { FieldType } from "../../../types";
 

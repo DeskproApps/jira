@@ -1,14 +1,13 @@
-import {FC, useState} from "react";
-import {useSetAppTitle} from "../hooks";
+import { FC, useState } from "react";
+import { useSetAppTitle } from "../hooks";
 import {
-    Button,
-    FormikField,
-    Label,
-    Stack,
-    TextArea,
-    useDeskproAppClient,
-    useInitialisedDeskproAppClient
-} from "@deskpro/app-sdk";
+  Label,
+  Stack,
+  Button,
+  TextArea,
+  FormikField,
+} from "@deskpro/deskpro-ui";
+import { useDeskproAppClient, useInitialisedDeskproAppClient } from "@deskpro/app-sdk";
 import {useStore} from "../context/StoreProvider/hooks";
 import {IntlProvider} from "react-intl";
 import { Formik } from "formik";

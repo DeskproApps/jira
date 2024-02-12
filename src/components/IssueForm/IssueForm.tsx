@@ -3,15 +3,17 @@ import { orderBy, uniq } from "lodash";
 import { IntlProvider } from "react-intl";
 import { Formik, FormikHelpers } from "formik";
 import {
-    Button,
-    DropdownValueType,
-    FormikField,
+  Stack,
+  Label,
+  Input,
+  Button,
+  TextArea,
+  FormikField,
+  DropdownValueType,
+} from "@deskpro/deskpro-ui";
+import {
     HorizontalDivider,
-    Input,
-    Label,
     LoadingSpinner,
-    Stack,
-    TextArea,
 } from "@deskpro/app-sdk";
 import "./IssueForm.css";
 import { useStore } from "../../context/StoreProvider/hooks";

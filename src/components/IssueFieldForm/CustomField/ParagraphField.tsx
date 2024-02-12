@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { Label, TextArea } from "@deskpro/app-sdk";
+import { Label, TextArea } from "@deskpro/deskpro-ui";
 import { MappedFieldProps } from "../types";
 
 export const ParagraphField: FC<MappedFieldProps> = ({ id, meta, field, error }: MappedFieldProps) => (

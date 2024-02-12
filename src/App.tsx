@@ -1,7 +1,6 @@
 import {DeskproAppProvider} from "@deskpro/app-sdk";
 import { StoreProvider } from "./context/StoreProvider/StoreProvider";
 import { Main } from "./pages/Main";
-import "./App.css";
 
 import "flatpickr/dist/themes/light.css";
 import "tippy.js/dist/tippy.css";
@@ -15,7 +14,7 @@ import en from "javascript-time-ago/locale/en.json";
 
 TimeAgo.addDefaultLocale(en)
 
-function App() {
+const App = () => {
   return (
     <DeskproAppProvider>
       <StoreProvider>
@@ -25,4 +24,4 @@ function App() {
   );
 }
 
-export default App;
+export { App };

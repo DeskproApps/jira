@@ -1,20 +1,20 @@
 import type { FC } from "react";
 import type { MappedViewProps } from "../types";
 import { NoValue } from "../NoValue";
-import { useDeskproAppTheme } from "@deskpro/app-sdk";
-import { ExternalLink } from "../../ExternalLink/ExternalLink";
+import { P5 } from "@deskpro/deskpro-ui";
+import { Link, LinkIcon } from "@deskpro/app-sdk";
+import { nbsp } from "../../../constants";
 
 export const UrlField: FC<MappedViewProps> = ({ value }: MappedViewProps) => {
-    const { theme } = useDeskproAppTheme();
-
     if (!value) {
         return (<NoValue />);
     }
 
     return (
-        <>
-            <a href={value} target="_blank" style={{ color: theme.colors.cyan100, textDecoration: "none" }}>{value}</a>
-            <ExternalLink href={value} />
-        </>
+        <P5>
+            <Link href={value}>{value}</Link>
+            {nbsp}
+            <LinkIcon href={value} />
+        </P5>
     );
 };

@@ -1,0 +1,67 @@
+{
+  "type": "ticket",
+  "settings": {
+    "domain": "mycompany",
+    "username": "armen.tamzarian@me.com",
+    "api_key": "this-is-api-key",
+    "default_comment_on_ticket_reply": false,
+    "default_comment_on_ticket_note": false,
+    "ticket_subject_as_issue_summary":  false
+  },
+  "data": {
+    "ticket": {
+      "id": "215",
+      "permalinkUrl": "https://deskprodemo.com/app#/t/ticket/215",
+      "subject": "Big ticket",
+      "status": "awaiting_agent",
+      "creationSystem": "web.person.portal",
+      "primaryUser": {
+        "id": "1000",
+        "email": "cormac.mccarthy@example.org",
+        "emails": [
+          "cormac.mccarthy@example.org"
+        ],
+        "firstName": "Dorcas",
+        "lastName": "McCullough",
+        "displayName": "Cormac McCarthy",
+        "language": "English",
+        "locale": "en-US"
+      }
+    },
+    "app": {
+      "id": "35",
+      "instanceId": "3",
+      "name": "@deskpro-apps/jira-data-center",
+      "title": "Jira Data Center"
+    },
+    "env": {
+      "release": "0.0.0",
+      "releaseBuildTime": 0,
+      "envId": "production"
+    },
+    "currentAgent": {
+      "id": "1",
+      "emails": [
+        "admin@deskprodev.com"
+      ],
+      "primaryEmail": "admin@deskprodev.com",
+      "name": "John Doe",
+      "firstName": "John",
+      "lastName": "Doe",
+      "isAgent": true,
+      "isAdmin": true,
+      "isOnline": true,
+      "isChatOnline": true,
+      "avatarUrl": "https://deskprodev.com/file.php/63AAAAAAAAAAAAAAA0/150-10.jpg",
+      "language": "English",
+      "locale": "en-US",
+      "userGroups": [],
+      "teams": [
+        {
+          "id": "1",
+          "name": "Support"
+        }
+      ]
+    }
+  }
+}
