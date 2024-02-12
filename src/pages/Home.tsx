@@ -97,7 +97,8 @@ export const Home: FC = () => {
     state.linkedIssuesResults?.loading ||
     state.linkedIssuesResults?.loading === undefined;
 
-  if (loading) return <LoadingSpinner />;
+  if (loading || hasMappedFields === undefined) return <LoadingSpinner />;
+
   return (
     <>
       {state.hasGeneratedIssueFormSuccessfully === false && (

@@ -233,6 +233,7 @@ export const Main: FC = () => {
 
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
+
     const page = queryParams.get("page") as Page | null;
 
     page && dispatch({ type: "changePage", page });

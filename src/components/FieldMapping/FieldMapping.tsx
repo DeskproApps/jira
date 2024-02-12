@@ -17,6 +17,7 @@ export const FieldMapping = ({
     <Stack vertical gap={5}>
       {usableFields.map((field) => {
         const usedField = issue[field.key];
+
         if (!usedField)
           return (
             <Property title={field.name}>
@@ -95,7 +96,12 @@ export const FieldMapping = ({
               </Property>
             );
           case "array":
-            if (usedField.length === 0) return <H2>-</H2>;
+            if (usedField.length === 0)
+              return (
+                <Property title={field.name}>
+                  <H2>-</H2>
+                </Property>
+              );
 
             if (
               field.schema.custom ===

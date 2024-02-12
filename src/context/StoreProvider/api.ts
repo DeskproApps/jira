@@ -299,7 +299,6 @@ export const listLinkedIssues = async (
   if (!keys.length) {
     return [];
   }
-
   const issueJql = encodeURIComponent(`issueKey IN (${keys.join(",")})`);
   const { issues: fullIssues } = await request(
     client,
@@ -308,7 +307,10 @@ export const listLinkedIssues = async (
   );
 
   if (hasMappedFields) {
-    return fullIssues.map((e: { fields: string }) => e.fields);
+    return fullIssues.map((e: { fields: any; key: string }) => ({
+      ...e.fields,
+      key: e.key,
+    }));
   }
 
   const issues = (fullIssues ?? []).reduce(
