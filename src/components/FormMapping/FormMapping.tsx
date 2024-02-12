@@ -24,10 +24,10 @@ export const FormMapping = ({
   type: string;
 }) => {
   const issuetypes = useMemo(() => {
-    if (!mappedFields.length || !values.project) return [];
+    if (!values.project) return [];
 
     return createMeta.projects.find((e) => e.id === values.project)?.issuetypes;
-  }, [mappedFields, values.project, createMeta.projects]);
+  }, [values.project, createMeta.projects]);
 
   const usableFields = useMemo(() => {
     if (!values.issuetype || issuetypes?.length === 0) return [];
@@ -39,6 +39,7 @@ export const FormMapping = ({
     if (!fieldsObj) return [];
 
     return Object.keys(fieldsObj)
+      .filter((e) => mappedFields.includes(e))
       .map((fieldObjKey) => ({
         ...(fieldsObj[fieldObjKey as keyof typeof fieldsObj] ?? {}),
       }))
@@ -51,7 +52,7 @@ export const FormMapping = ({
           !field.schema.custom?.includes("integration-plugin")
         );
       });
-  }, [values.issuetype, issuetypes]);
+  }, [values.issuetype, issuetypes, mappedFields]);
 
   const priorityFields = useMemo(() => {
     if (!usableFields || usableFields.length === 0) return [];
