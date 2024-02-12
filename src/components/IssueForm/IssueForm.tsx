@@ -245,7 +245,7 @@ export const IssueForm: FC<IssueFormProps> = ({
       .filter((e) => e.startsWith("customfield_"))
       .forEach((e) => {
         if (
-          !["string", "any", "array"].includes(
+          !["string", "any", "array", "date", "datetime"].includes(
             currentIssueType?.fields[e]?.schema?.type as string
           )
         ) {

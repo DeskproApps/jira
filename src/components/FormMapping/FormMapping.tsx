@@ -39,7 +39,13 @@ export const FormMapping = ({
     if (!fieldsObj) return [];
 
     return Object.keys(fieldsObj)
-      .filter((e) => mappedFields.includes(e))
+      .filter(
+        (e) =>
+          mappedFields.includes(e) ||
+          e === "summary" ||
+          e === "description" ||
+          e === "reporter"
+      )
       .map((fieldObjKey) => ({
         ...(fieldsObj[fieldObjKey as keyof typeof fieldsObj] ?? {}),
       }))
