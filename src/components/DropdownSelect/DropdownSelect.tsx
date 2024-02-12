@@ -1,4 +1,4 @@
-import {FC, useState} from "react";
+import { FC, useState } from "react";
 import {
   AnyIcon,
   DivAsInputWithDisplay,
@@ -8,7 +8,11 @@ import {
   DropdownValueType,
   Infinite,
 } from "@deskpro/app-sdk";
-import { faCaretDown, faHandPointer, faExternalLinkAlt } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCaretDown,
+  faHandPointer,
+  faExternalLinkAlt,
+} from "@fortawesome/free-solid-svg-icons";
 import { FieldHelperProps } from "formik";
 
 export interface DropdownSelectProps {
@@ -21,16 +25,20 @@ export interface DropdownSelectProps {
   containerMaxHeight?: number;
 }
 
-export const DropdownSelect: FC<DropdownSelectProps> = ({ helpers, id, placeholder, value, options, ...props }: DropdownSelectProps) => {
+export const DropdownSelect: FC<DropdownSelectProps> = ({
+  helpers,
+  id,
+  placeholder,
+  value,
+  options,
+  ...props
+}: DropdownSelectProps) => {
   const [input, setInput] = useState<string>("");
 
-  const selectedValue = options
-    .filter((o) => o.value === value)[0]
-    ?.label ?? ""
-  ;
-
-  const filteredOptions = options.filter(
-      (opt) => (opt.label as string).toLowerCase().includes(input.toLowerCase())
+  const selectedValue =
+    options.filter((o) => o.value === value)[0]?.label ?? "";
+  const filteredOptions = options.filter((opt) =>
+    (opt.label as string).toLowerCase().includes(input.toLowerCase())
   );
 
   return (
@@ -70,10 +78,10 @@ export const DropdownSelect: FC<DropdownSelectProps> = ({ helpers, id, placehold
                 activeItem,
                 activeSubItem,
                 setActiveSubItem,
-                  "Fetch more",
-                  "Autoscroll",
-                  faHandPointer as AnyIcon,
-                  faExternalLinkAlt as AnyIcon,
+                "Fetch more",
+                "Autoscroll",
+                faHandPointer as AnyIcon,
+                faExternalLinkAlt as AnyIcon,
                 hideIcons,
                 0
               )

@@ -15,7 +15,7 @@ import {
   IssueAttachment,
   IssueItem,
   JiraComment,
-} from "./context/StoreProvider/types";
+} from "./context/StoreProvider/types/types";
 import { ADFEntity, reduce, map } from "@atlaskit/adf-utils";
 import { StyledLink } from "./styles";
 import { testUrlRegex } from "./utils";
@@ -44,12 +44,16 @@ export const useWhenNoLinkedItems = (onNoLinkedItems: () => void) => {
   }, [client, state.context?.data.ticket.id, onNoLinkedItems]);
 };
 
-export const useLoadLinkedIssues = () => {
+export const useLoadLinkedIssues = (hasMappedFields: boolean | undefined) => {
   const { client } = useDeskproAppClient();
   const [state, dispatch] = useStore();
 
   return async () => {
-    if (!client || !state.context?.data.ticket.id) {
+    if (
+      !client ||
+      !state.context?.data.ticket.id ||
+      hasMappedFields === undefined
+    ) {
       return;
     }
 
@@ -62,7 +66,7 @@ export const useLoadLinkedIssues = () => {
         .list();
       client.setBadgeCount(keys.length);
 
-      const list = await listLinkedIssues(client, keys);
+      const list = await listLinkedIssues(client, keys, hasMappedFields);
 
       const idToKeyUpdates = keys
         .filter((key) => /^[0-9]+$/.test(key.toString()))
@@ -140,44 +144,36 @@ export const parseJiraDescription = (description: ADFEntity): any => {
   if (!description) return;
 
   return map(description, (node) => {
-        switch (node.type) {
-          case "text":
-            if (testUrlRegex.test(node.text || "")) {
-              return (
-                <StyledLink
-                  href={node.text}
-                  target="_blank"
-                >
-                  {node.text}
-                </StyledLink>
-              );
-            }
-            return node.text?.split("\n").reduce((a: JSX.Element[],c) => {
-              const item = testUrlRegex.test(c || "") ? (
-                <StyledLink
-                  href={c}
-                  target="_blank"
-                >
-                  {c}
-                </StyledLink>
-              ) : <P1>{c}</P1>
-
-              return [...a, item]
-            }, [])
-          case "hardBreak":
-            return <br />;
-          case "inlineCard":
-            return (
-              <StyledLink
-                href={node.attrs?.url}
-                target="_blank"
-              >
-                {node.attrs?.url}
-              </StyledLink>
-            );
+    switch (node.type) {
+      case "text":
+        if (testUrlRegex.test(node.text || "")) {
+          return (
+            <StyledLink href={node.text} target="_blank">
+              {node.text}
+            </StyledLink>
+          );
         }
-      })
-  
+        return node.text?.split("\n").reduce((a: JSX.Element[], c) => {
+          const item = testUrlRegex.test(c || "") ? (
+            <StyledLink href={c} target="_blank">
+              {c}
+            </StyledLink>
+          ) : (
+            <P1>{c}</P1>
+          );
+
+          return [...a, item];
+        }, []);
+      case "hardBreak":
+        return <br />;
+      case "inlineCard":
+        return (
+          <StyledLink href={node.attrs?.url} target="_blank">
+            {node.attrs?.url}
+          </StyledLink>
+        );
+    }
+  });
 };
 
 export const useAdfToPlainText = () => {
