@@ -240,7 +240,7 @@ export const FormMapping = ({
                   <Label htmlFor={id} label={field.name} error={error}>
                     <DropdownMultiSelect
                       options={
-                        versionsByProjIdQuery.data.map(
+                        versionsByProjIdQuery.data?.map(
                           (e: { id: string; name: string }) => ({
                             key: e.id,
                             label: e.name,

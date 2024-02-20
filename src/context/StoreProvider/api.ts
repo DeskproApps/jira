@@ -26,7 +26,7 @@ import cache from "js-cache";
 // JIRA REST API Base URL
 const API_BASE_URL = "https://__domain__.atlassian.net/rest/api/3";
 
-const SEARCH_DEPS_CACHE_TTL = 1000 * 60 * 60 * 24;
+const SEARCH_DEPS_CACHE_TTL = 1000 * 60 * 60 * 24 * 2;
 
 // Key for search dependency caching (milliseconds)
 
@@ -642,13 +642,25 @@ export const getVersionsByProjectId = async (
   client: IDeskproClient,
   projectId: string
 ) => {
-  const res = await request(
-    client,
-    "GET",
-    `${API_BASE_URL}/project/${projectId}/versions`
-  );
+  const cache_key = "versions";
 
-  return res;
+  const cachedData = await client.getState(cache_key);
+
+  if (!cachedData[0]?.data || !(cachedData[0]?.data as string[]).length) {
+    const res = await request(
+      client,
+      "GET",
+      `${API_BASE_URL}/project/${projectId}/versions`
+    );
+
+    await client.setState(cache_key, res, {
+      expires: new Date(Date.now() + SEARCH_DEPS_CACHE_TTL),
+    });
+
+    return res;
+  }
+
+  return cachedData[0].data;
 };
 
 export const getUsers = async (client: IDeskproClient) => {
@@ -662,7 +674,7 @@ export const getUsers = async (client: IDeskproClient) => {
 };
 
 export const getLabels = async (client: IDeskproClient): Promise<string[]> => {
-  const cache_key = "data_deps";
+  const cache_key = "labels";
   const requestWithFetchAll = fetchAll(request);
 
   const cachedData = await client.getState(cache_key);
