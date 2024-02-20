@@ -7,7 +7,6 @@ import {
 import {
   getIssueAttachments,
   getIssueComments,
-  getIssueDependencies,
   listLinkedIssues,
 } from "./context/StoreProvider/api";
 import { useStore } from "./context/StoreProvider/hooks";
@@ -245,21 +244,6 @@ export const useAssociatedEntityCount = (key: string) => {
   }, [client, key]);
 
   return entityCount;
-};
-
-export const useLoadDataDependencies = () => {
-  const { client } = useDeskproAppClient();
-  const [, dispatch] = useStore();
-
-  useEffect(() => {
-    if (!client) {
-      return;
-    }
-
-    getIssueDependencies(client).then((deps) =>
-      dispatch({ type: "loadDataDependencies", deps })
-    );
-  }, [client, dispatch]);
 };
 
 export const useFindIssueComments = (

@@ -1,34 +1,34 @@
 import { IDeskproClient, proxyFetch } from "@deskpro/app-sdk";
-import {
-  ApiRequestMethod,
-  IssueFormData,
-  InvalidRequestResponseError,
-  IssueAttachment,
-  IssueItem,
-  IssueSearchItem,
-  JiraComment,
-  AttachmentFile,
-  SearchParams,
-  Field,
-} from "./types/types";
+import { get, omit, orderBy } from "lodash";
+import { match } from "ts-pattern";
+import { useAdfToPlainText } from "../../hooks";
+import { FieldType, IssueMeta } from "../../types";
 import {
   backlinkCommentDoc,
   paragraphDoc,
   removeBacklinkCommentDoc,
 } from "./adf";
-import cache from "js-cache";
-import { omit, orderBy, get } from "lodash";
-import { FieldType, IssueMeta } from "../../types";
-import { match } from "ts-pattern";
-import { useAdfToPlainText } from "../../hooks";
-import { fetchAll } from "../../utils";
 import { CreateMeta } from "./types/createMeta";
-
+import {
+  ApiRequestMethod,
+  AttachmentFile,
+  Field,
+  InvalidRequestResponseError,
+  IssueAttachment,
+  IssueFormData,
+  IssueItem,
+  IssueSearchItem,
+  JiraComment,
+  SearchParams,
+} from "./types/types";
+import { fetchAll } from "../../utils";
+import cache from "js-cache";
 // JIRA REST API Base URL
 const API_BASE_URL = "https://__domain__.atlassian.net/rest/api/3";
 
+const SEARCH_DEPS_CACHE_TTL = 1000 * 60 * 60 * 24;
+
 // Key for search dependency caching (milliseconds)
-const SEARCH_DEPS_CACHE_TTL = 5 * (60 * 1000); // 5 Minutes
 
 /**
  * Fetch a single JIRA issue by key, e.g. "DP-1"
@@ -636,6 +636,52 @@ export const getCreateMeta = async (
   );
 
   return res;
+};
+
+export const getVersionsByProjectId = async (
+  client: IDeskproClient,
+  projectId: string
+) => {
+  const res = await request(
+    client,
+    "GET",
+    `${API_BASE_URL}/project/${projectId}/versions`
+  );
+
+  return res;
+};
+
+export const getUsers = async (client: IDeskproClient) => {
+  const res = await request(
+    client,
+    "GET",
+    `${API_BASE_URL}/users/search?maxResults=999`
+  );
+
+  return res;
+};
+
+export const getLabels = async (client: IDeskproClient): Promise<string[]> => {
+  const cache_key = "data_deps";
+  const requestWithFetchAll = fetchAll(request);
+
+  const cachedData = await client.getState(cache_key);
+
+  if (!cachedData[0]?.data || !(cachedData[0]?.data as string[]).length) {
+    const res = await requestWithFetchAll(
+      client,
+      "GET",
+      `${API_BASE_URL}/label`
+    );
+
+    await client.setState(cache_key, res, {
+      expires: new Date(Date.now() + SEARCH_DEPS_CACHE_TTL),
+    });
+
+    return res as string[];
+  }
+
+  return cachedData[0].data as string[];
 };
 
 export const getIssueDependencies = async (client: IDeskproClient) => {

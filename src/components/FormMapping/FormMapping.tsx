@@ -9,6 +9,8 @@ import { DropdownMultiSelect } from "../DropdownMultiSelect/DropdownMultiSelect"
 import { SubtaskDropdownWithSearch } from "../SubtaskDropdownWithSearch/SubtaskDropdownWithSearch";
 import { AttachmentsField } from "../AttachmentsField/AttachmentsField";
 import { AttachmentFile } from "../../context/StoreProvider/types/types";
+import { getVersionsByProjectId } from "../../context/StoreProvider/api";
+import { useQueryWithClient } from "@deskpro/app-sdk";
 
 export const FormMapping = ({
   dropdownFields,
@@ -23,6 +25,13 @@ export const FormMapping = ({
   createMeta: CreateMeta;
   type: string;
 }) => {
+  const versionsByProjIdQuery = useQueryWithClient(
+    ["versionsByProjId"],
+    (client) => getVersionsByProjectId(client, values.project!),
+    {
+      enabled: !!values.project,
+    }
+  );
   const issuetypes = useMemo(() => {
     if (!values.project) return [];
 
@@ -51,11 +60,12 @@ export const FormMapping = ({
       }))
       .filter((field) => {
         return (
-          field.key !== "project" &&
-          field.key !== "issuetype" &&
-          field.name !== "Rank" &&
-          field.name !== "Parent" && //fix
-          !field.schema.custom?.includes("integration-plugin")
+          (field.key !== "project" &&
+            field.key !== "issuetype" &&
+            field.name !== "Rank" &&
+            field.name !== "Parent" && //fix
+            !field.schema.custom?.includes("integration-plugin")) ||
+          field.required
         );
       });
   }, [values.issuetype, issuetypes, mappedFields]);
@@ -223,10 +233,53 @@ export const FormMapping = ({
               </Label>
             );
 
+          case "version":
+            return (
+              <FormikField<string> name={field.key}>
+                {([formikField, , helpers], { id, error }) => (
+                  <Label htmlFor={id} label={field.name} error={error}>
+                    <DropdownMultiSelect
+                      options={
+                        versionsByProjIdQuery.data.map(
+                          (e: { id: string; name: string }) => ({
+                            key: e.id,
+                            label: e.name,
+                            value: e.id,
+                            type: "value" as const,
+                          })
+                        ) ?? []
+                      }
+                      key={id}
+                      values={(formikField.value as unknown as string[]) ?? []}
+                      id={id}
+                      helpers={helpers}
+                    />
+                  </Label>
+                )}
+              </FormikField>
+            );
+
           default:
             break;
         }
         break;
+
+      case "version":
+        return (
+          <FormikField<string> name={field.key}>
+            {([formikField, , helpers], { id, error }) => (
+              <Label htmlFor={id} label={field.name} error={error}>
+                <DropdownSelect
+                  options={dropdownFields.version}
+                  key={id}
+                  value={formikField.value}
+                  id={id}
+                  helpers={helpers}
+                />
+              </Label>
+            )}
+          </FormikField>
+        );
 
       case "user":
         return (

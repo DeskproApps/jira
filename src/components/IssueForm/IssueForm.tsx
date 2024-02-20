@@ -18,10 +18,11 @@ import { IntlProvider } from "react-intl";
 import {
   buildCustomFieldMeta,
   getCreateMeta,
+  getLabels,
+  getUsers,
 } from "../../context/StoreProvider/api";
 import { useStore } from "../../context/StoreProvider/hooks";
 import { AttachmentFile } from "../../context/StoreProvider/types/types";
-import { useLoadDataDependencies } from "../../hooks";
 import { FieldType, IssueMeta } from "../../types";
 import { isNeedField, isRequiredField } from "../../utils";
 import { AttachmentsField } from "../AttachmentsField/AttachmentsField";
@@ -33,6 +34,7 @@ import { CustomField } from "../IssueFieldForm/map";
 import { SubtaskDropdownWithSearch } from "../SubtaskDropdownWithSearch/SubtaskDropdownWithSearch";
 import "./IssueForm.css";
 import { JiraIssueType, JiraProject, JiraUser } from "./types";
+import { CreateMeta } from "../../context/StoreProvider/types/createMeta";
 
 export interface IssueFormProps {
   onSubmit: (
@@ -58,14 +60,20 @@ export const IssueForm: FC<IssueFormProps> = ({
   loading = false,
 }: IssueFormProps) => {
   const [state, dispatch] = useStore();
-
   const [mappedFields, setMappedFields] = useState<string[]>([]);
   const { context } = useDeskproLatestAppContext();
 
   const hasMappedFields = mappedFields.length > 0;
 
-  const createMetaQuery = useQueryWithClient(["createMeta"], (client) =>
-    getCreateMeta(client)
+  const createMetaQuery = useQueryWithClient(["createMeta"], (client) => {
+    return getCreateMeta(client);
+  });
+  const usersQuery = useQueryWithClient(["users"], (client) =>
+    getUsers(client)
+  );
+
+  const labelsQuery = useQueryWithClient(["labels"], (client) =>
+    getLabels(client)
   );
 
   useEffect(() => {
@@ -77,9 +85,7 @@ export const IssueForm: FC<IssueFormProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [context]);
 
-  useLoadDataDependencies();
-
-  if (!state.dataDependencies) {
+  if ([createMetaQuery, usersQuery, labelsQuery].some((e) => e.isLoading)) {
     return <LoadingSpinner />;
   }
 
@@ -116,16 +122,14 @@ export const IssueForm: FC<IssueFormProps> = ({
   };
 
   const projects = orderBy(
-    state.dataDependencies.projects ?? [],
+    createMetaQuery.data?.projects ?? [],
     (t) => t.name.toLowerCase(),
     ["asc"]
   );
 
-  const users = orderBy(
-    state.dataDependencies.users ?? [],
-    (u: JiraUser) => u.displayName,
-    ["asc"]
-  );
+  const users = orderBy(usersQuery.data ?? [], (u: JiraUser) => u.displayName, [
+    "asc",
+  ]);
 
   const projectOptions = projects.map((project: JiraProject, idx: number) => ({
     key: `${idx}`,
@@ -145,7 +149,8 @@ export const IssueForm: FC<IssueFormProps> = ({
     })) as DropdownValueType<any>[];
 
   const buildIssueTypeOptions = (projectId: string) => {
-    const { projects } = state.dataDependencies.createMeta;
+    if (!createMetaQuery.isSuccess) return [];
+    const { projects } = createMetaQuery.data as CreateMeta;
     const project =
       (projects ?? []).filter((p: JiraProject) => p.id === projectId)[0] ??
       null;
@@ -166,7 +171,7 @@ export const IssueForm: FC<IssueFormProps> = ({
   };
 
   const buildLabelOptions = () => {
-    const labels = [...(state.dataDependencies.labels ?? []), ...extraLabels];
+    const labels = [...(labelsQuery.data ?? []), ...extraLabels];
 
     return uniq(labels).map(
       (label: string, idx: number) =>
@@ -180,7 +185,8 @@ export const IssueForm: FC<IssueFormProps> = ({
   };
 
   const buildPriorityOptions = (projectId: string, issueTypeId: string) => {
-    const { projects } = state.dataDependencies.createMeta;
+    if (!createMetaQuery.isSuccess) return [];
+    const { projects } = createMetaQuery.data as CreateMeta;
 
     const project =
       (projects ?? []).filter((p: JiraProject) => p.id === projectId)[0] ??
@@ -209,7 +215,10 @@ export const IssueForm: FC<IssueFormProps> = ({
     projectId?: string,
     issueTypeId?: string
   ): Record<string, IssueMeta> => {
-    const { projects } = state.dataDependencies.createMeta;
+    if (!createMetaQuery.isSuccess) return {};
+
+    const { projects } = createMetaQuery.data as CreateMeta;
+
     const project =
       (projects ?? []).filter((p: JiraProject) => p.id === projectId)[0] ??
       null;
@@ -242,7 +251,10 @@ export const IssueForm: FC<IssueFormProps> = ({
       ?.issuetypes.find((e) => e.id === values.issuetype);
 
     Object.keys(data)
-      .filter((e) => e.startsWith("customfield_"))
+      .filter(
+        (e) =>
+          e.startsWith("customfield_") || e.toLowerCase().includes("version")
+      )
       .forEach((e) => {
         if (
           !["string", "any", "array", "date", "datetime"].includes(
@@ -282,6 +294,7 @@ export const IssueForm: FC<IssueFormProps> = ({
     <IntlProvider locale="en">
       <Formik initialValues={initialValues} onSubmit={submit}>
         {({ values, submitForm, resetForm, errors, submitCount }) => {
+          // eslint-disable-next-line react-hooks/rules-of-hooks
           const is = ((state, projectId, issueTypeId) => {
             return (fieldName: string) => {
               return isNeedField({ state, fieldName, projectId, issueTypeId });
