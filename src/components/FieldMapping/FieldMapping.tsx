@@ -114,6 +114,25 @@ export const FieldMapping = ({
               );
             }
 
+            if (
+              field.schema.items === "component" ||
+              field.schema.items === "version"
+            ) {
+              return (
+                <Property title={field.name}>
+                  <H2>{usedField.map((e) => e.name).join(",")}</H2>
+                </Property>
+              );
+            }
+
+            if (field.schema.items === "option") {
+              return (
+                <Property title={field.name}>
+                  <H2>{usedField.map((e) => e.value).join(",")}</H2>
+                </Property>
+              );
+            }
+
             return (
               <Property title={field.name}>
                 <H2>{usedField.join(",")}</H2>

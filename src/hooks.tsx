@@ -63,9 +63,10 @@ export const useLoadLinkedIssues = (hasMappedFields: boolean | undefined) => {
           state.context?.data.ticket.id as string
         )
         .list();
-      client.setBadgeCount(keys.length);
 
       const list = await listLinkedIssues(client, keys, hasMappedFields);
+
+      client.setBadgeCount(list.length);
 
       const idToKeyUpdates = keys
         .filter((key) => /^[0-9]+$/.test(key.toString()))

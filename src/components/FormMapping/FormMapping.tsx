@@ -32,6 +32,7 @@ export const FormMapping = ({
       enabled: !!values.project,
     }
   );
+
   const issuetypes = useMemo(() => {
     if (!values.project) return [];
 

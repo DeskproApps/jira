@@ -61,6 +61,7 @@ export const IssueForm: FC<IssueFormProps> = ({
 }: IssueFormProps) => {
   const [state, dispatch] = useStore();
   const [mappedFields, setMappedFields] = useState<string[]>([]);
+  const [defaultValues, setDefaultValues] = useState<any>({});
   const { context } = useDeskproLatestAppContext();
 
   const hasMappedFields = mappedFields.length > 0;
@@ -82,6 +83,7 @@ export const IssueForm: FC<IssueFormProps> = ({
 
     if (!data) return;
     setMappedFields(data.detailView ?? []);
+    setDefaultValues({ project: data.project, issuetype: data.issuetype });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [context]);
 
@@ -111,8 +113,8 @@ export const IssueForm: FC<IssueFormProps> = ({
   const initialValues = values ?? {
     summary: initialSummary,
     description: "",
-    issuetype: "",
-    project: "",
+    issuetype: defaultValues.issuetype ?? "",
+    project: defaultValues.project ?? "",
     reporter: "",
     assignee: "",
     labels: [],

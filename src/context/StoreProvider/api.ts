@@ -307,9 +307,10 @@ export const listLinkedIssues = async (
   );
 
   if (hasMappedFields) {
-    return fullIssues.map((e: { fields: any; key: string }) => ({
+    return fullIssues.map((e: { fields: any; key: string; id: string }) => ({
       ...e.fields,
       key: e.key,
+      id: e.id,
     }));
   }
 

@@ -189,7 +189,7 @@ export const toBase64 = (payload: string): string => {
 export const fetchAll = <T>(
   fn: (...args: any) => Promise<SearchResponse<T>>
 ) => {
-  const MAX = 50;
+  const MAX = 999;
 
   return async (client: IDeskproClient, method: string, baseUrl: string) => {
     const firstResponses = await fn(
