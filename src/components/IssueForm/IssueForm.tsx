@@ -113,8 +113,8 @@ export const IssueForm: FC<IssueFormProps> = ({
   const initialValues = values ?? {
     summary: initialSummary,
     description: "",
-    issuetype: defaultValues.issuetype ?? "",
-    project: defaultValues.project ?? "",
+    issuetype: (type === "create" ? defaultValues.issuetype : null) ?? "",
+    project: (type === "create" ? defaultValues.project : null) ?? "",
     reporter: "",
     assignee: "",
     labels: [],

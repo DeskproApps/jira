@@ -162,7 +162,7 @@ export const parseJiraDescription = (description: ADFEntity): any => {
             <P1>{c}</P1>
           );
 
-          return [...a, item];
+          return [...(a ?? []), item];
         }, []);
       case "hardBreak":
         return <br />;
