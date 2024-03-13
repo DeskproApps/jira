@@ -13,7 +13,7 @@ export const ExternalLink: FC<ExternalLinkProps> = ({ href, style }: ExternalLin
   const { theme } = useDeskproAppTheme();
 
   return (
-    <a href={href} target="_blank" style={{ color: theme.colors.grey40, ...(style ?? {}) }} className="external-link">
+    <a href={href} target="_blank" style={{ color: theme.colors.grey40, ...(style ?? {}) }} className="external-link" rel="noopener noreferrer">
               {/*@ts-ignore*/}
       <FontAwesomeIcon icon={faExternalLinkAlt} size="xs" />
     </a>

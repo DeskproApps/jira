@@ -13,7 +13,7 @@ export const UrlField: FC<MappedViewProps> = ({ value }: MappedViewProps) => {
 
     return (
         <>
-            <a href={value} target="_blank" style={{ color: theme.colors.cyan100, textDecoration: "none" }}>{value}</a>
+            <a href={value} target="_blank" style={{ color: theme.colors.cyan100, textDecoration: "none" }} rel="noopener noreferrer">{value}</a>
             <ExternalLink href={value} />
         </>
     );
