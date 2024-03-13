@@ -7,7 +7,6 @@ import {
 import {
   getIssueAttachments,
   getIssueComments,
-  getIssueDependencies,
   listLinkedIssues,
 } from "./context/StoreProvider/api";
 import { useStore } from "./context/StoreProvider/hooks";
@@ -15,7 +14,7 @@ import {
   IssueAttachment,
   IssueItem,
   JiraComment,
-} from "./context/StoreProvider/types";
+} from "./context/StoreProvider/types/types";
 import { ADFEntity, reduce, map } from "@atlaskit/adf-utils";
 import { StyledLink } from "./styles";
 import { testUrlRegex } from "./utils";
@@ -44,12 +43,16 @@ export const useWhenNoLinkedItems = (onNoLinkedItems: () => void) => {
   }, [client, state.context?.data.ticket.id, onNoLinkedItems]);
 };
 
-export const useLoadLinkedIssues = () => {
+export const useLoadLinkedIssues = (hasMappedFields: boolean | undefined) => {
   const { client } = useDeskproAppClient();
   const [state, dispatch] = useStore();
 
   return async () => {
-    if (!client || !state.context?.data.ticket.id) {
+    if (
+      !client ||
+      !state.context?.data.ticket.id ||
+      hasMappedFields === undefined
+    ) {
       return;
     }
 
@@ -60,9 +63,10 @@ export const useLoadLinkedIssues = () => {
           state.context?.data.ticket.id as string
         )
         .list();
-      client.setBadgeCount(keys.length);
 
-      const list = await listLinkedIssues(client, keys);
+      const list = await listLinkedIssues(client, keys, hasMappedFields);
+
+      client.setBadgeCount(list.length);
 
       const idToKeyUpdates = keys
         .filter((key) => /^[0-9]+$/.test(key.toString()))
@@ -140,44 +144,36 @@ export const parseJiraDescription = (description: ADFEntity): any => {
   if (!description) return;
 
   return map(description, (node) => {
-        switch (node.type) {
-          case "text":
-            if (testUrlRegex.test(node.text || "")) {
-              return (
-                <StyledLink
-                  href={node.text}
-                  target="_blank"
-                >
-                  {node.text}
-                </StyledLink>
-              );
-            }
-            return node.text?.split("\n").reduce((a: JSX.Element[],c) => {
-              const item = testUrlRegex.test(c || "") ? (
-                <StyledLink
-                  href={c}
-                  target="_blank"
-                >
-                  {c}
-                </StyledLink>
-              ) : <P1>{c}</P1>
-
-              return [...a, item]
-            }, [])
-          case "hardBreak":
-            return <br />;
-          case "inlineCard":
-            return (
-              <StyledLink
-                href={node.attrs?.url}
-                target="_blank"
-              >
-                {node.attrs?.url}
-              </StyledLink>
-            );
+    switch (node.type) {
+      case "text":
+        if (testUrlRegex.test(node.text || "")) {
+          return (
+            <StyledLink href={node.text} target="_blank">
+              {node.text}
+            </StyledLink>
+          );
         }
-      })
-  
+        return node.text?.split("\n").reduce((a: JSX.Element[], c) => {
+          const item = testUrlRegex.test(c || "") ? (
+            <StyledLink href={c} target="_blank">
+              {c}
+            </StyledLink>
+          ) : (
+            <P1>{c}</P1>
+          );
+
+          return [...(a ?? []), item];
+        }, []);
+      case "hardBreak":
+        return <br />;
+      case "inlineCard":
+        return (
+          <StyledLink href={node.attrs?.url} target="_blank">
+            {node.attrs?.url}
+          </StyledLink>
+        );
+    }
+  });
 };
 
 export const useAdfToPlainText = () => {
@@ -249,21 +245,6 @@ export const useAssociatedEntityCount = (key: string) => {
   }, [client, key]);
 
   return entityCount;
-};
-
-export const useLoadDataDependencies = () => {
-  const { client } = useDeskproAppClient();
-  const [, dispatch] = useStore();
-
-  useEffect(() => {
-    if (!client) {
-      return;
-    }
-
-    getIssueDependencies(client).then((deps) =>
-      dispatch({ type: "loadDataDependencies", deps })
-    );
-  }, [client, dispatch]);
 };
 
 export const useFindIssueComments = (

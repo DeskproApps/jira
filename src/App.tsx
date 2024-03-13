@@ -1,4 +1,12 @@
-import {DeskproAppProvider} from "@deskpro/app-sdk";
+import { DeskproAppProvider } from "@deskpro/app-sdk";
+import { Routes, Route, HashRouter } from "react-router-dom";
+import { queryClient } from "./query";
+import {
+  QueryClientProvider,
+  QueryErrorResetBoundary,
+} from "@tanstack/react-query";
+import { ErrorBoundary } from "react-error-boundary";
+
 import { StoreProvider } from "./context/StoreProvider/StoreProvider";
 import { Main } from "./pages/Main";
 import "./App.css";
@@ -12,15 +20,35 @@ import "@deskpro/deskpro-ui/dist/deskpro-custom-icons.css";
 
 import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en.json";
+import { AdminSettings } from "./pages/AdminPage";
+import { ErrorFallback } from "./components/ErrorFallback/ErrorFallback";
 
-TimeAgo.addDefaultLocale(en)
+TimeAgo.addDefaultLocale(en);
 
 function App() {
   return (
     <DeskproAppProvider>
-      <StoreProvider>
-        <Main />
-      </StoreProvider>
+      <HashRouter>
+        <QueryClientProvider client={queryClient}>
+          <StoreProvider>
+            <QueryErrorResetBoundary>
+              {({ reset }) => (
+                <ErrorBoundary
+                  onReset={reset}
+                  FallbackComponent={ErrorFallback}
+                >
+                  <Routes>
+                    <Route path="/">
+                      <Route index element={<Main />} />
+                      <Route path="admin_mapping" element={<AdminSettings />} />
+                    </Route>
+                  </Routes>
+                </ErrorBoundary>
+              )}
+            </QueryErrorResetBoundary>
+          </StoreProvider>
+        </QueryClientProvider>
+      </HashRouter>
     </DeskproAppProvider>
   );
 }
