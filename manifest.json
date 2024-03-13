@@ -3,7 +3,7 @@
   "title": "JIRA",
   "description": "View Jira issues linked with Deskpro tickets to streamline communication with users",
   "appStoreUrl": "https://www.deskpro.com/product-embed/apps/jira",
-  "version": "1.0.29",
+  "version": "1.0.30",
   "scope": "agent",
   "isSingleInstall": true,
   "hasDevMode": true,
@@ -59,9 +59,7 @@
     "verify_settings": {
       "title": "",
       "type": "app_embedded",
-      "options": {
-        "entrypoint": "?page=verify_settings"
-      },
+      "options": { "entrypoint": "?page=verify_settings" },
       "isRequired": false,
       "isBackendOnly": false,
       "order": 40
@@ -93,9 +91,7 @@
     "mapping": {
       "title": "",
       "type": "app_embedded",
-      "options": {
-        "entrypoint": "#/admin_mapping"
-      },
+      "options": { "entrypoint": "#/admin_mapping" },
       "isRequired": false,
       "isBackendOnly": false,
       "order": 80
@@ -105,12 +101,7 @@
     "whitelist": [
       {
         "url": "https://(.*).atlassian.net/rest/api/.*",
-        "methods": [
-          "GET",
-          "POST",
-          "PUT",
-          "DELETE"
-        ],
+        "methods": ["GET", "POST", "PUT", "DELETE"],
         "timeout": 30
       }
     ]
