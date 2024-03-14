@@ -1,10 +1,9 @@
+import { H1, P5, Stack } from "@deskpro/deskpro-ui";
 import {
-  H1,
   HorizontalDivider,
   Property,
-  Stack,
   useDeskproAppTheme,
-  VerticalDivider,
+    TwoProperties,
 } from "@deskpro/app-sdk";
 import { FC, Fragment, ReactElement } from "react";
 import { Field, IssueItem } from "../../context/StoreProvider/types/types";
@@ -56,58 +55,74 @@ export const LinkedIssueResultItem: FC<LinkedIssueResultItemProps> = ({
           </div>
           {!hasMappedFields && (
             <>
-              <Stack align="stretch">
-                <Property title="Issue Key" width="108px">
-                  <span>{item.key}</span>
-                  <ExternalLink
-                    href={`https://${jiraDomain}.atlassian.net/browse/${item.key}`}
-                  />
-                </Property>
-                <VerticalDivider width={1} />
-                <Property title="Deskpro Tickets">{entityCount}</Property>
-              </Stack>
-              <Property title="Project">
-                {item.projectName}
-                <ExternalLink
-                  href={`https://${jiraDomain}.atlassian.net/browse/${item.projectKey}`}
-                />
-              </Property>
+              <TwoProperties
+                  leftLabel="Issue Key"
+                  leftText={(
+                      <P5>
+                        <span>{item.key}</span>
+                        <ExternalLink
+                            href={`https://${jiraDomain}.atlassian.net/browse/${item.key}`}
+                        />
+                      </P5>
+                  )}
+                  rightLabel="Deskpro Tickets"
+                  rightText={entityCount}
+              />
+              <Property
+                  label="Project"
+                  text={(
+                      <P5>
+                        {item.projectName}
+                        <ExternalLink
+                            href={`https://${jiraDomain}.atlassian.net/browse/${item.projectKey}`}
+                        />
+                      </P5>
+                  )}
+              />
               {item.epicKey && (
-                <Property title="Epic">
-                  {item.epicName}
-                  <ExternalLink
-                    href={`https://${jiraDomain}.atlassian.net/browse/${item.epicKey}`}
-                  />
-                </Property>
+                <Property
+                    label="Epic"
+                    text={(
+                        <P5>
+                          {item.epicName}
+                          <ExternalLink
+                              href={`https://${jiraDomain}.atlassian.net/browse/${item.epicKey}`}
+                          />
+                        </P5>
+                    )}
+                />
               )}
-              <Property title="Status">{item.status}</Property>
-              <Property title="Reporter">
-                <div style={{ position: "relative" }}>
-                  {item.reporterAvatarUrl && (
-                    <img
-                      src={item.reporterAvatarUrl}
-                      width={18}
-                      height={18}
-                      alt=""
-                      className="user-avatar"
-                    />
+              <Property label="Status" text={item.status}/>
+              <Property
+                  label="Reporter"
+                  text={(
+                      <P5 style={{ position: "relative" }}>
+                        {item.reporterAvatarUrl && (
+                            <img
+                                src={item.reporterAvatarUrl}
+                                width={18}
+                                height={18}
+                                alt=""
+                                className="user-avatar"
+                            />
+                        )}
+                        <span className="user-name">{item.reporterName}</span>
+                        {item.reporterId && (
+                            <ExternalLink
+                                href={`https://${jiraDomain}.atlassian.net/jira/people/${item.reporterId}`}
+                            />
+                        )}
+                      </P5>
                   )}
-                  <span className="user-name">{item.reporterName}</span>
-                  {item.reporterId && (
-                    <ExternalLink
-                      href={`https://${jiraDomain}.atlassian.net/jira/people/${item.reporterId}`}
-                    />
-                  )}
-                </div>
-              </Property>
+              />
             </>
           )}
           {hasMappedFields && (
-            <FieldMapping issue={item} usableFields={usableFields} />
+              <FieldMapping issue={item} usableFields={usableFields}/>
           )}
         </Stack>
       </Stack>
-      {<HorizontalDivider style={{ marginTop: "8px", marginBottom: "8px" }} />}
+      {<HorizontalDivider style={{marginTop: "8px", marginBottom: "8px"}}/>}
     </Fragment>
   );
 };

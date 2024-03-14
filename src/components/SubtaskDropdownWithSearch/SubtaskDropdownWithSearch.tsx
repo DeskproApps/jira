@@ -3,19 +3,22 @@ import { useDebouncedCallback } from "use-debounce";
 import isEmpty from "lodash/isEmpty";
 import values from "lodash/values";
 import get from "lodash/get";
+import noop from "lodash/noop";
 import { FieldHelperProps } from "formik";
 import {
   Spinner,
+  AnyIcon,
   Infinite,
   Dropdown,
   DropdownValueType,
   DropdownHeaderType,
-  useDeskproAppTheme,
-  useDeskproAppClient,
   DropdownTargetProps,
   dropdownRenderOptions,
   DivAsInputWithDisplay,
-  AnyIcon,
+} from "@deskpro/deskpro-ui";
+import {
+  useDeskproAppTheme,
+  useDeskproAppClient,
 } from "@deskpro/app-sdk";
 import {
   faCaretDown,
@@ -143,18 +146,21 @@ export const SubtaskDropdownWithSearch: FC<DropdownWithSearchProps> = ({ helpers
         >
           <div style={{ maxHeight: "30vh" }}>
             {opts.map(
-              dropdownRenderOptions(
+              dropdownRenderOptions({
                 handleSelectOption,
                 activeItem,
                 activeSubItem,
                 setActiveSubItem,
-                  "Fetch more",
-                  "Autoscroll",
-                  faHandPointer as AnyIcon,
-                  faExternalLinkAlt as AnyIcon,
+                fetchMoreText: "Fetch more",
+                autoscrollText: "Autoscroll",
+                selectedIcon: faHandPointer as AnyIcon,
+                externalLinkIcon: faExternalLinkAlt as AnyIcon,
+                hasSelectedItems: false,
+                hasExpandableItems: false,
                 hideIcons,
-                0
-              )
+                setActiveValueIndex: noop,
+                valueOptions: [],
+              })
             )}
           </div>
         </Infinite>

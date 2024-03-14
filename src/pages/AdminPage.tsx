@@ -1,9 +1,6 @@
+import { Checkbox, H1, H2, Stack } from "@deskpro/deskpro-ui";
 import {
-  Checkbox,
-  H1,
-  H2,
   LoadingSpinner,
-  Stack,
   useDeskproAppEvents,
   useInitialisedDeskproAppClient,
   useQueryWithClient,

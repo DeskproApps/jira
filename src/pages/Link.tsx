@@ -1,12 +1,14 @@
 import {
-  AnyIcon,
-  Button,
-  Checkbox,
   H3,
-  HorizontalDivider,
-  IconButton,
   Input,
   Stack,
+  Button,
+  AnyIcon,
+  Checkbox,
+  IconButton,
+} from "@deskpro/deskpro-ui";
+import {
+  HorizontalDivider,
   useDeskproAppClient,
   useDeskproLatestAppContext,
 } from "@deskpro/app-sdk";
@@ -181,7 +183,7 @@ export const Link: FC = () => {
             )
           }
           rightIcon={
-            <IconButton icon={faTimes as AnyIcon} onClick={clear} minimal />
+            <IconButton icon={faTimes as never} onClick={clear} minimal />
           }
         />
       </Stack>

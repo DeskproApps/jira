@@ -6,16 +6,19 @@ import {
   useSetAppTitle,
 } from "../hooks";
 import {
+  P5,
   H1,
   Pill,
-  Property,
-  Spinner,
   Stack,
-  HorizontalDivider,
+  Spinner,
+  AnyIcon,
   AttachmentTag,
+} from "@deskpro/deskpro-ui";
+import {
+  Property,
+  HorizontalDivider,
   useDeskproAppClient,
   useDeskproAppTheme,
-  AnyIcon,
   useQueryWithClient,
   useDeskproLatestAppContext,
   LoadingSpinner,
@@ -150,145 +153,182 @@ export const View: FC<ViewProps> = ({ issueKey }: ViewProps) => {
                 style={{ position: "relative", top: "-4px" }}
               />
             </div>
-            <Property title="Issue Key">
-              {issue.key}
-              <ExternalLink
-                href={`https://${domain}.atlassian.net/browse/${issue.key}`}
-              />
-            </Property>
+            <Property
+                label="Issue Key"
+                text={(
+                    <P5>
+                      {issue.key}
+                      <ExternalLink href={`https://${domain}.atlassian.net/browse/${issue.key}`}/>
+                    </P5>
+                )}
+            />
             {issue.parentKey && (
-              <Property title="Parent">
-                {issue.parentKey}
-                <ExternalLink
-                  href={`https://${domain}.atlassian.net/browse/${issue.parentKey}`}
+                <Property
+                    label="Parent"
+                    text={(
+                        <P5>
+                          {issue.parentKey}
+                          <ExternalLink href={`https://${domain}.atlassian.net/browse/${issue.parentKey}`}/>
+                        </P5>
+                    )}
                 />
-              </Property>
             )}
             {issue.description && (
               <Property
-                style={{ width: "100%" }}
-                childrenStyle={{ width: "100%" }}
-                title="Description"
-              >
-                <Stack gap={2} wrap="wrap" style={{ wordBreak: "break-all" }}>
-                  {parseJiraDescription(issue.description)}
-                </Stack>
-              </Property>
-            )}
-            <Property title="Project">
-              {issue.projectName}
-              <ExternalLink
-                href={`https://${domain}.atlassian.net/browse/${issue.projectKey}`}
+                label="Description"
+                text={(
+                    <Stack gap={2} wrap="wrap" style={{ wordBreak: "break-all" }}>
+                      {parseJiraDescription(issue.description)}
+                    </Stack>
+                )}
               />
-            </Property>
+            )}
+            <Property
+                label="Project"
+                text={(
+                    <P5>
+                      {issue.projectName}
+                      <ExternalLink
+                          href={`https://${domain}.atlassian.net/browse/${issue.projectKey}`}
+                      />
+                    </P5>
+                )}
+            />
             {issue.epicKey && (
-              <Property title="Epic">
-                {issue.epicName}
-                <ExternalLink
-                  href={`https://${domain}.atlassian.net/browse/${issue.epicKey}`}
-                />
-              </Property>
+              <Property
+                  label="Epic"
+                  text={(
+                      <P5>
+                        {issue.epicName}
+                        <ExternalLink
+                            href={`https://${domain}.atlassian.net/browse/${issue.epicKey}`}
+                        />
+                      </P5>
+                  )}
+              />
             )}
             {(issue.sprints ?? []).length > 0 && (
-              <Property title="Sprints">
-                {(issue.sprints ?? []).map((sprint: any, idx: number) => (
-                  <div key={idx}>
-                    {sprint.sprintName} ({sprint.sprintState})
-                    <ExternalLink
-                      href={`https://${domain}.atlassian.net/jira/software/c/projects/${issue?.projectKey}/boards/${sprint.sprintBoardId}`}
-                    />
-                  </div>
-                ))}
-              </Property>
+              <Property
+                  label="Sprints"
+                  text={(
+                      <>
+                        {(issue.sprints ?? []).map((sprint: any, idx: number) => (
+                            <P5 key={idx}>
+                              {sprint.sprintName} ({sprint.sprintState})
+                              <ExternalLink
+                                  href={`https://${domain}.atlassian.net/jira/software/c/projects/${issue?.projectKey}/boards/${sprint.sprintBoardId}`}
+                              />
+                            </P5>
+                        ))}
+                      </>
+                  )}
+              />
             )}
-            <Property title="Status">{issue.status}</Property>
-            <Property title="Assignee">
-              {issue.assigneeId ? (
-                <div style={{ position: "relative" }}>
-                  {issue.assigneeAvatarUrl && (
-                    <img
-                      src={issue.assigneeAvatarUrl}
-                      width={18}
-                      height={18}
-                      alt=""
-                      className="user-avatar"
-                    />
-                  )}
-                  <span className="user-name">{issue.assigneeName}</span>
-                  {issue.assigneeId && (
-                    <ExternalLink
-                      href={`https://${domain}.atlassian.net/jira/people/${issue.assigneeId}`}
-                    />
-                  )}
-                </div>
-              ) : (
-                <span style={{ color: theme.colors.grey80 }}>None</span>
-              )}
-            </Property>
-            <Property title="Reporter">
-              <div style={{ position: "relative" }}>
-                {issue.reporterAvatarUrl && (
-                  <img
-                    src={issue.reporterAvatarUrl}
-                    width={18}
-                    height={18}
-                    alt=""
-                    className="user-avatar"
-                  />
+            <Property label="Status" text={issue.status}/>
+            <Property
+                label="Assignee"
+                text={(
+                    <>
+                      {issue.assigneeId ? (
+                          <P5 style={{ position: "relative" }}>
+                            {issue.assigneeAvatarUrl && (
+                                <img
+                                    src={issue.assigneeAvatarUrl}
+                                    width={18}
+                                    height={18}
+                                    alt=""
+                                    className="user-avatar"
+                                />
+                            )}
+                            <span className="user-name">{issue.assigneeName}</span>
+                            {issue.assigneeId && (
+                                <ExternalLink
+                                    href={`https://${domain}.atlassian.net/jira/people/${issue.assigneeId}`}
+                                />
+                            )}
+                          </P5>
+                      ) : (
+                          <P5 style={{ color: theme.colors.grey80 }}>None</P5>
+                      )}
+                    </>
                 )}
-                <span className="user-name">{issue.reporterName}</span>
-                {issue.reporterId && (
-                  <ExternalLink
-                    href={`https://${domain}.atlassian.net/jira/people/${issue.reporterId}`}
-                  />
+            />
+            <Property
+                label="Reporter"
+                text={(
+                    <P5 style={{position: "relative"}}>
+                      {issue.reporterAvatarUrl && (
+                          <img
+                              src={issue.reporterAvatarUrl}
+                              width={18}
+                              height={18}
+                              alt=""
+                              className="user-avatar"
+                          />
+                      )}
+                      <span className="user-name">{issue.reporterName}</span>
+                      {issue.reporterId && (
+                          <ExternalLink
+                              href={`https://${domain}.atlassian.net/jira/people/${issue.reporterId}`}
+                          />
+                      )}
+                    </P5>
                 )}
-              </div>
-            </Property>
+            />
             {issue.labels && issue.labels.length > 0 && (
-              <Property title="Labels">
-                <Stack gap={3}>
-                  {issue.labels.map((label: any, idx: number) => (
-                    <Pill
-                      label={label}
-                      textColor={theme.colors.grey100}
-                      backgroundColor={theme.colors.grey10}
-                      key={idx}
-                    />
-                  ))}
-                </Stack>
-              </Property>
+                <Property
+                    label="Labels"
+                    text={(
+                        <Stack gap={3}>
+                          {issue.labels.map((label: any, idx: number) => (
+                              <Pill
+                                  label={label}
+                                  textColor={theme.colors.grey100}
+                                  backgroundColor={theme.colors.grey10}
+                                  key={idx}
+                              />
+                          ))}
+                        </Stack>
+                    )}
+                />
             )}
             {issue.priority && (
-              <Property title="Priority">
-                <Stack gap={3}>
-                  <img
-                    src={issue.priorityIconUrl}
-                    alt={issue.priority}
-                    height={16}
-                  />
-                  {issue.priority}
-                </Stack>
-              </Property>
+                <Property
+                    label="Priority"
+                    text={(
+                        <Stack gap={3}>
+                          <img
+                              src={issue.priorityIconUrl}
+                              alt={issue.priority}
+                              height={16}
+                          />
+                          {issue.priority}
+                        </Stack>
+                    )}
+                />
             )}
             {state.linkedIssueAttachments?.loading && <Spinner size="small" />}
             {!state.linkedIssueAttachments?.loading &&
               attachments.length > 0 && (
-                <Property title="Attachments">
-                  <Stack gap={3} vertical>
-                    {attachments.map((attachment, idx) => (
-                      <AttachmentTag
-                        key={idx}
-                        target="_blank"
-                        download
-                        href={attachment.url}
-                        filename={attachment.filename}
-                        fileSize={attachment.sizeBytes}
-                        icon={faFile as AnyIcon}
-                        maxWidth="244px"
-                      />
-                    ))}
-                  </Stack>
-                </Property>
+                <Property
+                    label="Attachments"
+                    text={(
+                        <Stack gap={3} vertical>
+                          {attachments.map((attachment, idx) => (
+                              <AttachmentTag
+                                  key={idx}
+                                  target="_blank"
+                                  download
+                                  href={attachment.url}
+                                  filename={attachment.filename}
+                                  fileSize={attachment.sizeBytes}
+                                  icon={faFile as AnyIcon}
+                                  maxWidth="244px"
+                              />
+                          ))}
+                        </Stack>
+                    )}
+                />
               )}
             {Object.keys(issue.customFields ?? {}).map(
               (key: string, idx: number) => (

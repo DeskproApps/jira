@@ -2,7 +2,7 @@ import type { FC } from "react";
 import { FieldType, IssueMeta } from "../../types";
 import { match } from "ts-pattern";
 import type { MappedFieldProps } from "./types";
-import { FormikField } from "@deskpro/app-sdk";
+import { FormikField } from "@deskpro/deskpro-ui";
 import { PlainTextField } from "./CustomField/PlainTextField";
 import { DateTimeField } from "./CustomField/DateTimeField";
 import { ParagraphField } from "./CustomField/ParagraphField";

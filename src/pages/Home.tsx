@@ -1,14 +1,10 @@
 import { ChangeEvent, FC, useEffect, useMemo, useRef, useState } from "react";
 import { useStore } from "../context/StoreProvider/hooks";
+import { H3, IconButton, Input, Stack, AnyIcon } from "@deskpro/deskpro-ui";
 import {
-  H3,
-  IconButton,
-  Input,
-  Stack,
   LoadingSpinner,
   HorizontalDivider,
   useDeskproAppClient,
-  AnyIcon,
   useDeskproLatestAppContext,
   useQueryWithClient,
 } from "@deskpro/app-sdk";
@@ -114,7 +110,7 @@ export const Home: FC = () => {
           leftIcon={faSearch as AnyIcon}
           rightIcon={
             <IconButton
-              icon={faTimes as AnyIcon}
+              icon={faTimes as never}
               onClick={() => setSearchQuery("")}
               minimal
             />

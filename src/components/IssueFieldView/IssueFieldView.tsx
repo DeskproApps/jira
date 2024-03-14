@@ -19,8 +19,6 @@ export const IssueFieldView: FC<IssueFieldViewProps> = ({ value, meta }: IssueFi
     }
 
     return (
-        <Property title={meta.name}>
-            {field as ReactElement}
-        </Property>
+        <Property label={meta.name} text={field as ReactElement}/>
     );
 };

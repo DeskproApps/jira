@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
+import { P1 } from "@deskpro/deskpro-ui";
 import {
-  P1,
   useDeskproAppClient,
   useInitialisedDeskproAppClient,
 } from "@deskpro/app-sdk";

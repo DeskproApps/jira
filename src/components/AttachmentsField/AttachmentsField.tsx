@@ -1,5 +1,5 @@
 import React, { ChangeEvent, FC, useRef, useState } from "react";
-import { AnyIcon, AttachmentTag, Button, Stack } from "@deskpro/app-sdk";
+import { AnyIcon, AttachmentTag, Button, Stack } from "@deskpro/deskpro-ui";
 import { faFile } from "@fortawesome/free-regular-svg-icons";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { omit } from "lodash";

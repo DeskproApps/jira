@@ -1,13 +1,15 @@
 import {
-  Button,
-  DropdownValueType,
-  FormikField,
-  HorizontalDivider,
-  Input,
   Label,
-  LoadingSpinner,
+  Input,
   Stack,
+  Button,
   TextArea,
+  FormikField,
+  DropdownValueType,
+} from "@deskpro/deskpro-ui";
+import {
+  HorizontalDivider,
+  LoadingSpinner,
   useDeskproLatestAppContext,
   useQueryWithClient,
 } from "@deskpro/app-sdk";

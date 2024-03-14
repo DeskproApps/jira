@@ -1,6 +1,7 @@
 import { FC } from "react";
 import "./CreateLinkIssue.css";
-import { AnyIcon, Button, Stack, useDeskproAppTheme } from "@deskpro/app-sdk";
+import { AnyIcon, Button, Stack } from "@deskpro/deskpro-ui";
+import { useDeskproAppTheme } from "@deskpro/app-sdk";
 import { faSearch, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { useStore } from "../../context/StoreProvider/hooks";
 

@@ -1,8 +1,7 @@
-//@ts-nocheck
+import { Stack } from "@deskpro/deskpro-ui";
 import {
     useInitialisedDeskproAppClient,
     LoadingSpinner,
-    Stack,
     Property,
     useDeskproAppTheme,
     HorizontalDivider
@@ -54,9 +53,7 @@ export const ViewPermissions = () => {
                 {permissions.map((permission, idx) => (
                     <div style={{ width: "100%" }}>
                         <Stack justify="space-between" align="center" style={{ width: "100%", marginBottom: "10px" }} gap={10}>
-                            <Property title={permission.name} key={idx}>
-                                {permission.description}
-                            </Property>
+                            <Property label={permission.name} key={idx} text={permission.description}/>
                             {permission.havePermission ? (
                                 <FontAwesomeIcon icon={faCheckCircle} color={theme.colors.green100} />
                             ) : (

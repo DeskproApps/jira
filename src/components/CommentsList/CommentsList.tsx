@@ -1,11 +1,7 @@
 import { FC, Fragment } from "react";
+import { AnyIcon, H1, H4, Spinner, Stack } from "@deskpro/deskpro-ui";
 import {
-  AnyIcon,
-  H1,
-  H4,
   HorizontalDivider,
-  Spinner,
-  Stack,
   useDeskproAppTheme,
 } from "@deskpro/app-sdk";
 import { useFindIssueComments } from "../../hooks";
