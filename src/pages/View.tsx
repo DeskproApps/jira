@@ -139,7 +139,7 @@ export const View: FC<ViewProps> = ({ issueKey }: ViewProps) => {
     <>
       <Stack align="start" gap={10} vertical>
         {!hasMappedFields && (
-          <Stack gap={16} style={{ width: "100%" }} vertical>
+          <Stack style={{ width: "100%" }} vertical>
             <div
               style={{
                 display: "flex",
@@ -302,7 +302,7 @@ export const View: FC<ViewProps> = ({ issueKey }: ViewProps) => {
                               alt={issue.priority}
                               height={16}
                           />
-                          {issue.priority}
+                          <P5>{issue.priority}</P5>
                         </Stack>
                     )}
                 />

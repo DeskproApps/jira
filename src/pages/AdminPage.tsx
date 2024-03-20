@@ -146,11 +146,10 @@ export const AdminSettings = () => {
           <H1>Default Project</H1>
           <DropdownSelect
             options={projects}
-            //@ts-ignore
             helpers={{
-              setValue: (e) => {
-                updateSettings(e, "project");
-              },
+              //@ts-ignore
+              setValue: (e) => updateSettings(e, "project"),
+              //@ts-ignore
               setTouched: () => {},
             }}
             value={selectedSettings.project}
@@ -162,9 +161,10 @@ export const AdminSettings = () => {
             <H1>Default Issue Type</H1>
             <DropdownSelect
               options={issueTypes}
-              //@ts-ignore
               helpers={{
+                //@ts-ignore
                 setValue: (e) => updateSettings(e, "issuetype"),
+                //@ts-ignore
                 setTouched: () => {},
               }}
               value={selectedSettings.issuetype}

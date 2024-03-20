@@ -34,9 +34,9 @@ export const LinkedIssueResultItem: FC<LinkedIssueResultItemProps> = ({
 
   return (
     <Fragment>
-      <Stack align="start" gap={10}>
+      <Stack align="start" gap={10} style={{ width: "100%" }}>
         {checkbox && checkbox}
-        <Stack gap={10} vertical>
+        <div style={{ width: "100%" }}>
           <div style={{ display: "flex", alignItems: "start" }}>
             <H1
               onClick={() => onView && onView()}
@@ -120,9 +120,9 @@ export const LinkedIssueResultItem: FC<LinkedIssueResultItemProps> = ({
           {hasMappedFields && (
               <FieldMapping issue={item} usableFields={usableFields}/>
           )}
-        </Stack>
+        </div>
       </Stack>
-      {<HorizontalDivider style={{marginTop: "8px", marginBottom: "8px"}}/>}
+      {<HorizontalDivider style={{marginTop: "8px", marginBottom: "8px", width: "100%" }}/>}
     </Fragment>
   );
 };

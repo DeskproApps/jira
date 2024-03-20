@@ -31,7 +31,7 @@ export const SearchResultItem: FC<SearchResultItemProps> = ({
     <>
       <Stack align="start" gap={10}>
         {checkbox && checkbox}
-        <Stack gap={10} vertical>
+        <div style={{ width: "100%" }}>
           <div style={{ display: "flex", alignItems: "start" }}>
             <H1
               onClick={() => onSelect && onSelect()}
@@ -108,7 +108,7 @@ export const SearchResultItem: FC<SearchResultItemProps> = ({
                   </P5>
               )}
           />
-        </Stack>
+        </div>
       </Stack>
         <HorizontalDivider style={{marginTop: "8px", marginBottom: "8px"}}/>
     </>

@@ -1,3 +1,4 @@
+import { TSpan } from "@deskpro/deskpro-ui";
 import type { FC } from "react";
 import type { MappedViewProps } from "../types";
 import { NoValue } from "../NoValue";
@@ -15,7 +16,7 @@ export const UserPickerField: FC<MappedViewProps> = ({ value }: MappedViewProps)
     return (
         <div style={{ position: "relative" }}>
             <img src={value.avatarUrls["24x24"]} width={18} height={18} alt="" className="user-avatar" />
-            <span className="user-name">{value.displayName}</span>
+            <TSpan type="p5" style={{ marginLeft: "23px" }}>{value.displayName}</TSpan>
             <ExternalLink href={`https://${domain}.atlassian.net/jira/people/${value.accountId}`} />
         </div>
     );
