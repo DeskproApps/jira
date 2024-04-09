@@ -14,6 +14,6 @@ const queryClient = new QueryClient({
 
 const QueryKey = {
   POSTS: "posts",
-}
+};
 
 export { queryClient, QueryKey };
