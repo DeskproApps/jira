@@ -3,7 +3,7 @@
 import { FC, useEffect, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
 //@ts-ignore
-import isEmpty from "lodash.isEmpty";
+import isEmpty from "lodash.isempty";
 //@ts-ignore
 import values from "lodash.values";
 //@ts-ignore
