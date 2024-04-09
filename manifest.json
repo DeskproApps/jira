@@ -1,27 +1,117 @@
 {
-  "name": "@deskpro-apps/my-app",
-  "title": "My App",
-  "description": "My Deskpro app",
-  "version": "0.0.5",
+  "name": "@deskpro-apps/jira",
+  "title": "JIRA",
+  "description": "View Jira issues linked with Deskpro tickets to streamline communication with users",
+  "appStoreUrl": "https://www.deskpro.com/product-embed/apps/jira",
+  "version": "0.0.0",
   "scope": "agent",
-  "isSingleInstall": false,
+  "isSingleInstall": true,
   "hasDevMode": true,
-  "targets": [{ "target": "ticket_sidebar", "entrypoint": "index.html" }],
+  "serveUrl": "https://apps-cdn.deskpro-service.com/__name__/__version__",
+  "targets": [
+    {
+      "target": "ticket_sidebar",
+      "entrypoint": "index.html",
+      "options": {
+        "actions": {
+          "linkTicket": {
+            "type": "ticket_addition",
+            "title": "JIRA Issue",
+            "description": "Link ticket to JIRA issue"
+          }
+        }
+      }
+    }
+  ],
+  "entityAssociations": {
+    "linkedJiraIssues": {
+      "title": "Linked JIRA Issues",
+      "entity": "ticket",
+      "type": "external_id"
+    }
+  },
   "settings": {
-    "example": {
-      "title": "Example Setting",
-      "description": "Example backend only setting",
+    "domain": {
+      "title": "Domain Prefix",
+      "description": "E.g. \"mycompany\" if your domain is \"https://mycompany.atlassian.net\"",
+      "validationPattern": "^[a-zA-Z0-9](?:[a-zA-Z0-9_-]*[a-zA-Z0-9])?$",
       "type": "string",
+      "isRequired": true,
+      "isBackendOnly": false,
+      "order": 10
+    },
+    "username": {
+      "title": "Email/Username",
+      "description": "JIRA user email address or username",
+      "type": "string",
+      "isRequired": true,
+      "isBackendOnly": true,
+      "order": 20
+    },
+    "api_key": {
+      "title": "API Key",
+      "description": "JIRA user's API key, please follow the app setup guide to get this",
+      "type": "string",
+      "isRequired": true,
+      "isBackendOnly": true,
+      "order": 30
+    },
+    "verify_settings": {
+      "title": "",
+      "type": "app_embedded",
+      "options": {
+        "entrypoint": "?page=verify_settings"
+      },
       "isRequired": false,
-      "isBackendOnly": true
+      "isBackendOnly": false,
+      "order": 40
+    },
+    "default_comment_on_ticket_reply": {
+      "title": "Ticket reply as Jira comment?",
+      "description": "When a Jira issue is linked to a Deskpro ticket, would you like to automatically add Deskpro replies as Jira comments?",
+      "type": "boolean",
+      "isRequired": false,
+      "isBackendOnly": false,
+      "order": 50
+    },
+    "default_comment_on_ticket_note": {
+      "title": "Ticket note as Jira comment?",
+      "description": "When a Jira issue is linked to a Deskpro ticket, would you like to automatically add Deskpro notes as Jira comments?",
+      "type": "boolean",
+      "isRequired": false,
+      "isBackendOnly": false,
+      "order": 60
+    },
+    "ticket_subject_as_issue_summary": {
+      "title": "Use ticket ID and subject as summary",
+      "description": "Pre-fill the Jira summary field with the ticket ID and subject when creating new Jira issues from Deskpro",
+      "type": "boolean",
+      "isRequired": false,
+      "isBackendOnly": false,
+      "order": 70
+    },
+    "mapping": {
+      "title": "",
+      "type": "app_embedded",
+      "options": {
+        "entrypoint": "#/admin_mapping"
+      },
+      "isRequired": false,
+      "isBackendOnly": false,
+      "order": 80
     }
   },
   "proxy": {
     "whitelist": [
       {
-        "url": "https://jsonplaceholder.typicode.com/.*",
-        "methods": ["GET"],
-        "timeout": 20
+        "url": "https://(.*).atlassian.net/rest/api/.*",
+        "methods": [
+          "GET",
+          "POST",
+          "PUT",
+          "DELETE"
+        ],
+        "timeout": 30
       }
     ]
   }

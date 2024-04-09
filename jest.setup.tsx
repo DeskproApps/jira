@@ -1,17 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import "regenerator-runtime/runtime";
 import "@testing-library/jest-dom";
 import "intersection-observer";
-import { useQuery } from "@tanstack/react-query";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { TextDecoder, TextEncoder } from "util";
 import * as React from "react";
-import { lightTheme } from "@deskpro/deskpro-ui";
-import { mockClient, mockTicketContext } from "./testing";
-import type { IDeskproClient } from "@deskpro/app-sdk";
+import { mockTheme } from "./tests/__mocks__/themeMock";
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
 global.TextEncoder = TextEncoder;
 //for some reason the types are wrong, but this works
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -21,31 +17,102 @@ global.TextDecoder = TextDecoder;
 //@ts-ignore
 global.React = React;
 
+jest.mock("react-router-dom", () => ({
+  ...jest.requireActual("react-router-dom"),
+  useNavigate: () => jest.fn(),
+  useLocation: () => jest.fn(),
+  useParams: () => ({
+    objectName: "Lead",
+    objectView: "single",
+  }),
+}));
+
 jest.mock("@deskpro/app-sdk", () => ({
   ...jest.requireActual("@deskpro/app-sdk"),
-  useDeskproAppClient: () => ({ client: mockClient }),
+  useMutationWithClient: (queryFn: () => any) => {
+    let data;
+
+    return {
+      mutate: () => {
+        data = queryFn();
+      },
+      isSuccess: false,
+      isLoading: false,
+      isIdle: true,
+      data,
+    };
+  },
+  Link: () => <div>Link</div>,
+  useDeskproAppClient: () => ({
+    client: {
+      setHeight: () => {},
+    },
+  }),
+  useDeskproLatestAppContext: () => ({
+    context: {
+      settings: {},
+      data: {
+        user: { primaryEmail: "a@b.com", firstname: "asd", lastname: "def" },
+      },
+    },
+  }),
   useDeskproAppEvents: (
     hooks: { [key: string]: (param: Record<string, unknown>) => void },
-    deps: [] = []
+    deps: [] = [],
   ) => {
+    const deskproAppEventsObj = {
+      data: {
+        ticket: {
+          id: 1,
+          subject: "Test Ticket",
+        },
+      },
+    };
     React.useEffect(() => {
-      !!hooks.onChange && hooks.onChange(mockTicketContext);
-      !!hooks.onShow && hooks.onShow(mockTicketContext);
-      !!hooks.onReady && hooks.onReady(mockTicketContext);
-      !!hooks.onAdminSettingsChange && hooks.onAdminSettingsChange(mockTicketContext.settings);
+      !!hooks.onChange && hooks.onChange(deskproAppEventsObj);
+      !!hooks.onShow && hooks.onShow(deskproAppEventsObj);
+      !!hooks.onReady && hooks.onReady(deskproAppEventsObj);
       /* eslint-disable-next-line react-hooks/exhaustive-deps */
     }, deps);
   },
-  useInitialisedDeskproAppClient: (callback: (param: typeof mockClient) => void) => {
-    callback(mockClient);
+  useInitialisedDeskproAppClient: (
+    callback: (param: Record<string, unknown>) => void,
+  ) => {
+    callback({
+      registerElement: () => {},
+      deregisterElement: () => {},
+      setHeight: () => {},
+      setTitle: () => {},
+      setBadgeCount: () => {},
+    });
   },
-  useDeskproLatestAppContext: () => ({ context: mockTicketContext }),
-  useDeskproAppTheme: () => ({ theme: lightTheme }),
+  useDeskproAppTheme: () => ({ mockTheme }),
   proxyFetch: async () => fetch,
-  LoadingSpinner: () => <>Loading...</>,
-  useQueryWithClient: (
-    queryKey: string[],
-    queryFn: (client: IDeskproClient) => Promise<void>,
-    options: object,
-  ) => useQuery(queryKey, () => queryFn(mockClient as never), options),
+  HorizontalDivider: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
+
+  useQueryWithClient: (queryKey: string, queryFn: () => any, options: any) => {
+    queryKey;
+    options;
+    if (!options || options?.enabled == null || options?.enabled == true) {
+      return {
+        isSuccess: true,
+        data: queryFn(),
+        isLoading: false,
+      };
+    }
+    return {
+      isSuccess: false,
+      data: null,
+      isLoading: false,
+    };
+  },
+}));
+
+jest.mock("./src/hooks/hooks.tsx", () => ({
+  ...jest.requireActual("./src/hooks/hooks.tsx"),
+  useLinkIssues: () => ({
+    getLinkedIssues: () => ["1"],
+  }),
 }));

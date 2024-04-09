@@ -15,18 +15,27 @@
     "bumpManifestVer": "node ./bin/bumpManifestVer.js"
   },
   "dependencies": {
-    "@deskpro/app-sdk": "3.0.15",
+    "@atlaskit/adf-utils": "14.4.0",
+    "@deskpro/app-sdk": "3.0.19",
     "@deskpro/deskpro-ui": "^7.18.0",
     "@heroicons/react": "1.0.6",
     "@tanstack/react-query": "^4.36.1",
-    "iframe-resizer": "^4.3.9",
+    "date-fns": "^3.3.1",
+    "lodash.get": "^4.4.2",
+    "lodash.isempty": "^4.4.0",
+    "lodash.noop": "^3.0.1",
+    "lodash.omit": "^4.5.0",
+    "lodash.values": "^4.3.0",
     "polished": "^4.3.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-error-boundary": "^4.0.12",
+    "react-hook-form": "^7.50.1",
     "react-is": "^18.2.0",
     "react-router-dom": "^6.21.3",
-    "styled-components": "^5.3.11"
+    "resize-observer-polyfill": "^1.5.1",
+    "styled-components": "^5.3.11",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",
@@ -34,7 +43,7 @@
     "@swc/helpers": "^0.5.3",
     "@swc/jest": "^0.2.32",
     "@testing-library/dom": "^9.3.4",
-    "@testing-library/jest-dom": "^6.4.1",
+    "@testing-library/jest-dom": "^6.4.2",
     "@testing-library/react": "^14.2.0",
     "@testing-library/user-event": "^14.5.2",
     "@types/jest": "^29.5.11",
@@ -44,7 +53,7 @@
     "@typescript-eslint/eslint-plugin": "6.20.0",
     "@typescript-eslint/parser": "6.20.0",
     "@typescript/lib-dom": "npm:@types/web@^0.0.86",
-    "@vitejs/plugin-react": "^4.2.1",
+    "@vitejs/plugin-react": "^1.0.7",
     "adm-zip": "^0.5.10",
     "cross-env": "7.0.3",
     "eslint": "8.56.0",
@@ -61,6 +70,6 @@
     "slugify": "^1.6.5",
     "ts-jest": "^29.1.2",
     "typescript": "^4.9.5",
-    "vite": "^5.0.12"
+    "vite": "^2.9.17"
   }
 }

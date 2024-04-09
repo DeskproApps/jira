@@ -16,5 +16,6 @@ module.exports = {
       { ignoreRestSiblings: true, argsIgnorePattern: "^_" },
     ],
     "no-console": "warn",
+    "@typescript-eslint/no-explicit-any": "off",
   },
 };
