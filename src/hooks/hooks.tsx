@@ -12,10 +12,15 @@ import {
   getIssueAttachments,
   getIssueComments,
   listLinkedIssues,
+  removeRemoteLink,
 } from "../api/api";
 import { IssueAttachment, IssueItem, JiraComment } from "../api/types/types";
 import { ADFEntity, reduce, map } from "@atlaskit/adf-utils";
-import { testUrlRegex } from "../utils/utils";
+import {
+  testUrlRegex,
+  ticketReplyEmailsSelectionStateKey,
+  ticketReplyNotesSelectionStateKey,
+} from "../utils/utils";
 import { P1 } from "@deskpro/deskpro-ui";
 
 export const useLinkIssues = () => {
@@ -32,11 +37,35 @@ export const useLinkIssues = () => {
 
       setIsLinking(true);
 
+      const commentOnNote =
+        context.settings?.default_comment_on_ticket_note === true;
+      const commentOnReply =
+        context.settings?.default_comment_on_ticket_reply === true;
+
       await Promise.all(
-        issuesIds.map((e) =>
+        issuesIds.map((issueId) =>
           client
             ?.getEntityAssociation("linkedJiraIssues", deskproTicket.id)
-            .set(e),
+            .set(issueId)
+            .then(async () => {
+              commentOnNote &&
+                (await client?.setState(
+                  ticketReplyNotesSelectionStateKey(deskproTicket.id, issueId),
+                  {
+                    id: issueId,
+                    selected: true,
+                  },
+                ));
+
+              commentOnReply &&
+                (await client?.setState(
+                  ticketReplyEmailsSelectionStateKey(deskproTicket.id, issueId),
+                  {
+                    id: issueId,
+                    selected: true,
+                  },
+                ));
+            }),
         ),
       );
 
@@ -66,7 +95,8 @@ export const useLinkIssues = () => {
         issues.map((e) =>
           client
             ?.getEntityAssociation("linkedJiraIssues", deskproTicket.id)
-            .delete(e),
+            .delete(e)
+            .then(() => removeRemoteLink(client, e, deskproTicket.id)),
         ),
       );
     },

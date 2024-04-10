@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import {
+  useDeskproAppClient,
   useDeskproAppEvents,
   useDeskproLatestAppContext,
   useInitialisedDeskproAppClient,
@@ -13,6 +14,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
 import {
+  addRemoteLink,
   buildCustomFieldMeta,
   createIssue,
   getCreateMeta,
@@ -38,6 +40,7 @@ type Props = {
 };
 export const MutateObject = ({ objectId }: Props) => {
   const navigate = useNavigate();
+  const { client } = useDeskproAppClient();
   const [mappedFields, setMappedFields] = useState<string[]>([]);
   const [hasMappedFields, setHasMappedFields] = useState<boolean | undefined>();
   const { context } = useDeskproLatestAppContext();
@@ -100,7 +103,7 @@ export const MutateObject = ({ objectId }: Props) => {
   );
 
   useEffect(() => {
-    if (!submitMutation.isSuccess) return;
+    if (!submitMutation.isSuccess || !client || !context) return;
 
     if (isEditMode) {
       navigate("/view/single/" + objectId);
@@ -108,9 +111,23 @@ export const MutateObject = ({ objectId }: Props) => {
       return;
     }
 
-    linkIssues([submitMutation.data.id as string]);
+    addRemoteLink(
+      client,
+      submitMutation.data.key,
+      context?.data.ticket.id as string,
+      context?.data.ticket.subject as string,
+      context?.data.ticket.permalinkUrl as string,
+    ).then(() => linkIssues([submitMutation.data.id as string]));
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEditMode, linkIssues, navigate, submitMutation.isSuccess]);
+  }, [
+    isEditMode,
+    linkIssues,
+    navigate,
+    submitMutation.isSuccess,
+    client,
+    context,
+  ]);
 
   useEffect(() => {
     if (!context) return;
