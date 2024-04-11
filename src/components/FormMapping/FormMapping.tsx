@@ -1,5 +1,5 @@
 import { useQueryWithClient } from "@deskpro/app-sdk";
-import { Input, Label, Stack } from "@deskpro/deskpro-ui";
+import { Input, Label, Stack, TextArea } from "@deskpro/deskpro-ui";
 import { useMemo } from "react";
 import { getVersionsByProjectId } from "../../api/api";
 import { Assignee, Attachment, CreateMeta } from "../../api/types/createMeta";
@@ -233,6 +233,22 @@ export const FormMapping = ({
           break;
 
         case "string":
+          if (field.schema.system === "description") {
+            content = (
+              <TextArea
+                onChange={(e) => setValue(field.key, e.target.value)}
+                value={values[field.key]}
+                error={errors[field.key]}
+                id={field.key}
+                variant="inline"
+                placeholder="Add value"
+                data-testid={`input=${field.key}`}
+                style={{ minHeight: "35px" }}
+              />
+            );
+            break;
+          }
+        // eslint-disable-next-line no-fallthrough
         default:
           content = (
             <Input

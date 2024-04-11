@@ -59,3 +59,5 @@ This shows a list of JIRA permissions that you need to give to the user that own
 The green ticks show that permissions are granted, and the red crosses indicate permissions that are required but aren't yet granted in JIRA.
 
 If you see any red ticks, you must login to JIRA and follow their [permissions guide](https://support.atlassian.com/jira-work-management/docs/how-do-jira-permissions-work/) to grant the missing permissions.
+
+11

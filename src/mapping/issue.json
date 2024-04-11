@@ -60,7 +60,6 @@
   ],
   "main": [
     "summary",
-    "description",
     "key",
     "project",
     "epic",

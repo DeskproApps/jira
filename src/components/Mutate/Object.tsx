@@ -143,6 +143,11 @@ export const MutateObject = ({ objectId }: Props) => {
 
     setValue("project", data.project);
     setValue("issuetype", data.issuetype);
+    context.settings.ticket_subject_as_issue_summary &&
+      setValue(
+        "summary",
+        `[Ticket #${context?.data.ticket.id}] ${context?.data.ticket.subject}`,
+      );
   }, [context, setValue, isEditMode]);
 
   useEffect(() => {
@@ -308,7 +313,8 @@ export const MutateObject = ({ objectId }: Props) => {
           mappedFields.includes(e) ||
           e === "summary" ||
           e === "description" ||
-          e === "reporter",
+          e === "reporter" ||
+          fieldsObj[e].required,
       )
       .map((fieldObjKey) => ({
         ...(fieldsObj[fieldObjKey as keyof typeof fieldsObj] ?? {}),
@@ -321,6 +327,12 @@ export const MutateObject = ({ objectId }: Props) => {
           field.name !== "Parent" && //fix
           !field.schema.custom?.includes("integration-plugin")
         );
+      })
+      .sort((a, b) => {
+        //prioritize summary
+        if (a.key === "summary") return -1;
+        if (b.key === "summary") return 1;
+        return 0;
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [

@@ -1,4 +1,7 @@
-import { TwoButtonGroup } from "@deskpro/app-sdk";
+import {
+  TwoButtonGroup,
+  useInitialisedDeskproAppClient,
+} from "@deskpro/app-sdk";
 import { useState } from "react";
 import { faMagnifyingGlass, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { LinkContact } from "../../components/Link/Object";
@@ -7,6 +10,10 @@ import { MutateObject } from "../../components/Mutate/Object";
 
 export const FindOrCreate = ({ pageParam }: { pageParam?: 0 | 1 }) => {
   const [page, setPage] = useState<0 | 1>(pageParam || 0);
+
+  useInitialisedDeskproAppClient((client) => {
+    client.deregisterElement("menuButton");
+  });
 
   return (
     <Stack vertical>

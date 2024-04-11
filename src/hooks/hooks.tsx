@@ -1,3 +1,4 @@
+import { ADFEntity, map, reduce } from "@atlaskit/adf-utils";
 import {
   Link,
   useDeskproAppClient,
@@ -5,23 +6,21 @@ import {
   useInitialisedDeskproAppClient,
   useQueryWithClient,
 } from "@deskpro/app-sdk";
+import { P1 } from "@deskpro/deskpro-ui";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { queryClient } from "../query";
 import {
   getIssueAttachments,
   getIssueComments,
   listLinkedIssues,
-  removeRemoteLink,
 } from "../api/api";
 import { IssueAttachment, IssueItem, JiraComment } from "../api/types/types";
-import { ADFEntity, reduce, map } from "@atlaskit/adf-utils";
+import { queryClient } from "../query";
 import {
   testUrlRegex,
   ticketReplyEmailsSelectionStateKey,
   ticketReplyNotesSelectionStateKey,
 } from "../utils/utils";
-import { P1 } from "@deskpro/deskpro-ui";
 
 export const useLinkIssues = () => {
   const { context } = useDeskproLatestAppContext();
@@ -56,7 +55,6 @@ export const useLinkIssues = () => {
                     selected: true,
                   },
                 ));
-
               commentOnReply &&
                 (await client?.setState(
                   ticketReplyEmailsSelectionStateKey(deskproTicket.id, issueId),
@@ -95,12 +93,13 @@ export const useLinkIssues = () => {
         issues.map((e) =>
           client
             ?.getEntityAssociation("linkedJiraIssues", deskproTicket.id)
-            .delete(e)
-            .then(() => removeRemoteLink(client, e, deskproTicket.id)),
+            .delete(e),
         ),
       );
+
+      navigate("/redirect");
     },
-    [client, context, deskproTicket],
+    [client, context, deskproTicket.id, navigate],
   );
 
   return {

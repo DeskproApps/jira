@@ -13,7 +13,7 @@ import {
   Stack,
 } from "@deskpro/deskpro-ui";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useDebounce from "../../hooks/debounce";
 import { useLinkIssues } from "../../hooks/hooks";
@@ -24,6 +24,8 @@ import { LoadingSpinnerCenter } from "../LoadingSpinnerCenter/LoadingSpinnerCent
 import { getFields, searchIssues } from "../../api/api";
 
 export const LinkContact = () => {
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
   const [selectedIssues, setSelectedIssues] = useState<string[]>([]);
   const [linkedIssues, setLinkedIssues] = useState<string[]>([]);
   const [prompt, setPrompt] = useState<string>("");
@@ -38,7 +40,7 @@ export const LinkContact = () => {
   const { debouncedValue: debouncedText } = useDebounce(prompt, 300);
 
   useInitialisedDeskproAppClient((client) => {
-    client.setTitle("Link Contact");
+    client.setTitle("Link Issue");
 
     client.registerElement("homeButton", {
       type: "home_button",
@@ -72,6 +74,11 @@ export const LinkContact = () => {
     },
   });
 
+  useEffect(
+    () => searchInputRef && searchInputRef.current?.focus(),
+    [searchInputRef],
+  );
+
   const issuesQuery = useQueryWithClient(
     ["getContactsByEmail", debouncedText],
     (client) => searchIssues(client, debouncedText),
@@ -92,7 +99,10 @@ export const LinkContact = () => {
     if (!metadataFieldsQuery.data || hasMappedFields === undefined) return [];
 
     return metadataFieldsQuery.data.filter((field) =>
-      (hasMappedFields ? mappedFields : IssueJson.main).includes(field.key),
+      (hasMappedFields
+        ? mappedFields
+        : ["key", "project", "epic", "status", "reporter"]
+      ).includes(field.key),
     );
   }, [metadataFieldsQuery.data, hasMappedFields, mappedFields]);
 
@@ -102,9 +112,10 @@ export const LinkContact = () => {
     <Stack gap={10} style={{ width: "100%" }} vertical>
       <Stack vertical gap={6} style={{ width: "100%" }}>
         <Input
+          ref={searchInputRef}
           onChange={(e) => setPrompt(e.target.value)}
           value={prompt}
-          placeholder="Enter Email Address"
+          placeholder="Enter Issue Title"
           type="text"
           leftIcon={faMagnifyingGlass as AnyIcon}
         />
@@ -116,7 +127,7 @@ export const LinkContact = () => {
             <Button
               onClick={() => selectedIssues && linkIssues(selectedIssues)}
               disabled={selectedIssues.length === 0}
-              text="Link Contact"
+              text="Link Issue"
             ></Button>
             <Button
               disabled={selectedIssues.length === 0}
@@ -164,7 +175,7 @@ export const LinkContact = () => {
               })}
           </Stack>
         ) : (
-          issuesQuery.isSuccess && <H1>No Contacts Found.</H1>
+          issuesQuery.isSuccess && <H1>No Issues Found.</H1>
         )}
       </Stack>
     </Stack>

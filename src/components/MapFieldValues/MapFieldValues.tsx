@@ -127,7 +127,11 @@ export const MapFieldValues = ({
           case "string":
           default:
             if (field.schema?.system === "description") {
-              content = parseJiraDescription(issue.description);
+              content = (
+                <Stack gap={2} wrap="wrap" style={{ wordBreak: "break-all" }}>
+                  {parseJiraDescription(issue.description)}
+                </Stack>
+              );
 
               break;
             }

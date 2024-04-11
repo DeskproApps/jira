@@ -96,7 +96,7 @@ export const registerReplyBoxEmailsAdditionsTargetAction = (
       {
         title: "Add to JIRA",
         payload: (linkedIssues ?? []).map((issue, idx) => ({
-          id: issue.id,
+          id: issue.key,
           title: issue.key,
           selected: flags[idx][0]?.data?.selected ?? false,
         })),

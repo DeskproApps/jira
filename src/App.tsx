@@ -25,7 +25,12 @@ import { ViewObject } from "./pages/View/Object";
 import { CreateObject } from "./pages/Create/Object";
 import { EditObject } from "./pages/Edit/Edit";
 import { AdminSettings } from "./pages/Admin/Settings";
-import { ViewPermissions } from "./pages/ViewPermissions";
+import { VerifySettings } from "./pages/VerifySettings/VerifySettings";
+import TimeAgo from "javascript-time-ago";
+import en from "javascript-time-ago/locale/en.json";
+import { CreateComment } from "./pages/Create/Comment";
+
+TimeAgo.addDefaultLocale(en);
 
 function App() {
   useInitialisedDeskproAppClient((client) => {
@@ -47,13 +52,17 @@ function App() {
                     <Route index element={<Main />} />
                     <Route path="create">
                       <Route path="" element={<CreateObject />} />
+                      <Route
+                        path="comment/:issueKey"
+                        element={<CreateComment />}
+                      />
                     </Route>
                     <Route path="edit">
                       <Route path=":objectId" element={<EditObject />} />
                     </Route>
-                    <Route path="/permissions" element={<ViewPermissions />} />
                     <Route path="/findOrCreate" element={<FindOrCreate />} />
                     <Route path="admin_mapping" element={<AdminSettings />} />
+                    <Route path="verifySettings" element={<VerifySettings />} />
                     <Route path="view">
                       <Route
                         path=":objectView/:objectId"

@@ -1,0 +1,33 @@
+.comment-list {
+    width: 100%;
+}
+
+.comment-list .comment-list-item-info {
+    min-width: 46px;
+}
+
+.comment-list .comment-list-item-info .comment-list-item-avatar {
+    margin-right: 3px;
+}
+
+.comment-list .comment-list-item-body {
+    font-size: 12px;
+    overflow-wrap: break-word;
+    inline-size: 240px;
+    margin-bottom: -4px;
+}
+
+.comment-list .comment-list-item-body a {
+    color: rgb(58, 141, 222);
+    text-decoration: none;
+}
+
+.comment-list-add-comment {
+    margin-left: 6px;
+    margin-top: 1px;
+    cursor: pointer;
+}
+
+.comment-list-add-comment:hover {
+    color: #1C3E55;
+}

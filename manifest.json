@@ -60,7 +60,7 @@
       "title": "",
       "type": "app_embedded",
       "options": {
-        "entrypoint": "?page=verify_settings"
+        "entrypoint": "#/verifySettings"
       },
       "isRequired": false,
       "isBackendOnly": false,

@@ -11,6 +11,8 @@ import { FieldMapping } from "../../components/FieldMapping/FieldMapping";
 import { LoadingSpinnerCenter } from "../../components/LoadingSpinnerCenter/LoadingSpinnerCenter";
 import IssueJson from "../../mapping/issue.json";
 import { H2, Stack } from "@deskpro/deskpro-ui";
+import { CommentsList } from "../../components/CommentsList/CommentsList";
+import { useLinkIssues } from "../../hooks/hooks";
 
 export const ViewObject = () => {
   const [hasMappedFields, setHasMappedFields] = useState<boolean | undefined>(
@@ -20,6 +22,7 @@ export const ViewObject = () => {
   const [mappedFields, setMappedFields] = useState<string[]>([]);
   const navigate = useNavigate();
   const { objectId, objectView } = useParams();
+  const { unlinkIssues } = useLinkIssues();
 
   const objectQuery = useQueryWithClient(
     [objectId as string, objectView as string],
@@ -58,7 +61,22 @@ export const ViewObject = () => {
         type: "edit_button",
       });
 
-      client.deregisterElement("menuButton");
+      client.registerElement("homeButton", {
+        type: "home_button",
+      });
+
+      client.registerElement("menuButton", {
+        type: "menu",
+        items: [
+          {
+            title: "Unlink Issue",
+            payload: {
+              type: "changePage",
+              page: "/",
+            },
+          },
+        ],
+      });
 
       client.setTitle(
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -74,6 +92,11 @@ export const ViewObject = () => {
       switch (id) {
         case "homeButton":
           navigate("/redirect");
+
+          break;
+
+        case "menuButton":
+          unlinkIssues([objectId as string]);
 
           break;
 
@@ -115,6 +138,7 @@ export const ViewObject = () => {
         externalChildUrl={IssueJson.externalChildUrl}
         childTitleAccessor={(e) => e[IssueJson.titleKeyName]}
       />
+      <CommentsList issueKey={objectId!} />
     </Stack>
   );
 };
