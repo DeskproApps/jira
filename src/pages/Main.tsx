@@ -36,6 +36,7 @@ export const Home: FC = () => {
   );
   const [mappedFields, setMappedFields] = useState<string[]>([]);
   const { context } = useDeskproLatestAppContext();
+  const [linkedCount, setLinkedCount] = useState<Record<string, number>>({});
 
   const [searchQuery, setSearchQuery] = useState<string>("");
 
@@ -50,6 +51,25 @@ export const Home: FC = () => {
     async () => loadLinkedIssues(),
     {
       enabled: !!client && !!context,
+      async onSuccess(data) {
+        if (data.length === 0) {
+          navigate("/findOrCreate");
+        }
+        const linkedItems: Record<string, number> = {};
+
+        await Promise.all(
+          data.map(
+            async (item) => {
+              linkedItems[item.id] =
+                ((await client!.getState(`jira/items/${item.key}`))?.[0]
+                  ?.data as number) || 0;
+            },
+            {} as Record<string, number>,
+          ),
+        );
+
+        setLinkedCount(linkedItems);
+      },
     },
   );
 
@@ -223,18 +243,34 @@ export const Home: FC = () => {
   });
 
   const linkedIssues = useMemo(() => {
+    const linkedIssuiesWithDeskproLinkedCount = linkedIssuesResults?.map(
+      (issue) => ({
+        ...issue,
+        linkedCount: linkedCount[issue.id],
+      }),
+    );
+
     if (!searchQuery) {
-      return linkedIssuesResults || [];
+      return linkedIssuiesWithDeskproLinkedCount || [];
     }
-    if (linkedIssuesQuery.isSuccess && linkedIssuesResults?.length === 0)
+    if (
+      linkedIssuesQuery.isSuccess &&
+      linkedIssuiesWithDeskproLinkedCount?.length === 0
+    )
       navigate("/create");
-    return (linkedIssuesResults || []).filter((item) =>
+    return (linkedIssuiesWithDeskproLinkedCount || []).filter((item) =>
       item.key
         .replace("-", "")
         .toLowerCase()
         .includes(searchQuery.replace("-", "").toLowerCase()),
     );
-  }, [searchQuery, linkedIssuesQuery.isSuccess, linkedIssuesResults, navigate]);
+  }, [
+    linkedIssuesResults,
+    searchQuery,
+    linkedIssuesQuery.isSuccess,
+    navigate,
+    linkedCount,
+  ]);
 
   useInitialisedDeskproAppClient(
     (client) => {
@@ -261,7 +297,7 @@ export const Home: FC = () => {
   if (loading || hasMappedFields === undefined || !context)
     return <LoadingSpinner />;
 
-  if (linkedIssues.length === 0) return <p>No issues found</p>;
+  if (linkedIssues.length === 0) navigate("/findOrCreate");
 
   return (
     <>

@@ -24,7 +24,7 @@ export const MapFieldValues = ({
 
         let content;
 
-        if (!usedField) {
+        if (usedField === null || usedField === undefined) {
           return <Property label={field.name} text={"-"} />;
         }
 

@@ -458,7 +458,25 @@ export const createIssue = async (
 export const getFields = async (client: IDeskproClient): Promise<Field[]> => {
   const res = await request(client, "GET", `${API_BASE_URL}/field`);
 
-  return res;
+  return [
+    ...res,
+    {
+      id: "linkedCount",
+      name: "Linked Issues",
+      key: "linkedCount",
+      schema: {
+        type: "string",
+      },
+    },
+    {
+      id: "key",
+      name: "Key",
+      key: "key",
+      schema: {
+        type: "string",
+      },
+    },
+  ];
 };
 
 export const updateIssue = async (

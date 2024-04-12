@@ -58,12 +58,19 @@
       }
     ]
   ],
-  "main": [
-    "summary",
+  "view": [
     "key",
     "project",
-    "epic",
     "status",
-    "reporter"
+    "reporter",
+    "epic",
+    "description"
+  ],
+  "main": [
+    "key",
+    "project",
+    "status",
+    "reporter",
+    "linkedCount"
   ]
 }

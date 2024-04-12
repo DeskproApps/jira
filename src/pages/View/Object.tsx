@@ -117,7 +117,7 @@ export const ViewObject = () => {
     if (!metadataFieldsQuery.data || hasMappedFields === undefined) return [];
 
     return metadataFieldsQuery.data.filter((field) =>
-      (hasMappedFields ? mappedFields : IssueJson.main).includes(field.key),
+      (hasMappedFields ? mappedFields : IssueJson.view).includes(field.key),
     );
   }, [metadataFieldsQuery.data, hasMappedFields, mappedFields]);
 

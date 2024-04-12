@@ -63,6 +63,11 @@ export const useLinkIssues = () => {
                     selected: true,
                   },
                 ));
+              await client.setState(
+                `jira/items/${issueId}`,
+                (((await client.getState(`jira/items/${issueId}`))[0]
+                  ?.data as number) ?? 0) + 1,
+              );
             }),
         ),
       );
@@ -90,16 +95,22 @@ export const useLinkIssues = () => {
       if (!context || !client) return;
 
       await Promise.all(
-        issues.map((e) =>
+        issues.map(async (issue) => {
           client
             ?.getEntityAssociation("linkedJiraIssues", deskproTicket.id)
-            .delete(e),
-        ),
+            .delete(issue);
+
+          await client.setState(
+            `jira/items/${issue}`,
+            (((await client.getState(`azure/items/${issue}`))[0]
+              ?.data as number) ?? 1) - 1,
+          );
+        }),
       );
 
       navigate("/redirect");
     },
-    [client, context, deskproTicket.id, navigate],
+    [client, context, deskproTicket, navigate],
   );
 
   return {

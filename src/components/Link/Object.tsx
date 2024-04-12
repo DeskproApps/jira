@@ -101,7 +101,7 @@ export const LinkContact = () => {
     return metadataFieldsQuery.data.filter((field) =>
       (hasMappedFields
         ? mappedFields
-        : ["key", "project", "epic", "status", "reporter"]
+        : ["key", "project", "status", "reporter"]
       ).includes(field.key),
     );
   }, [metadataFieldsQuery.data, hasMappedFields, mappedFields]);
