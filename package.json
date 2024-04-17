@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@atlaskit/adf-utils": "14.4.0",
-    "@deskpro/app-sdk": "^2.1.13",
+    "@deskpro/app-sdk": "^2.1.14",
     "@deskpro/deskpro-ui": "^7.18.3",
     "@emotion/is-prop-valid": "^1.2.1",
     "@fortawesome/free-regular-svg-icons": "^6.4.0",
