@@ -91,7 +91,7 @@ export const AdminSettings = () => {
 
     return createMetaQuery.data.projects.map((p) => {
       return {
-        key: p.id,
+        key: p.name,
         label: p.name,
         value: p.id,
         type: "value" as const,
