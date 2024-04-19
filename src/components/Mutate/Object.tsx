@@ -11,6 +11,8 @@ import {
 import { Button, DropdownValueType, H1, Stack } from "@deskpro/deskpro-ui";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ZodTypeAny } from "zod";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -35,12 +37,15 @@ import {
 import { FormMapping } from "../FormMapping/FormMapping";
 import { LoadingSpinnerCenter } from "../LoadingSpinnerCenter/LoadingSpinnerCenter";
 import { JiraIssueType, JiraProject, JiraUser } from "./types";
+import { getSchema } from "../../schema/schema";
+import { ErrorBlock } from "../Error/ErrorBlock";
 type Props = {
   objectId?: string;
 };
 export const MutateObject = ({ objectId }: Props) => {
   const navigate = useNavigate();
   const { client } = useDeskproAppClient();
+  const [schema, setSchema] = useState<ZodTypeAny | null>(null);
   const [mappedFields, setMappedFields] = useState<string[]>([]);
   const [hasMappedFields, setHasMappedFields] = useState<boolean | undefined>();
   const { context } = useDeskproLatestAppContext();
@@ -54,7 +59,9 @@ export const MutateObject = ({ objectId }: Props) => {
     setValue,
     watch,
     reset,
-  } = useForm<any>();
+  } = useForm<any>({
+    resolver: zodResolver(schema!),
+  });
 
   const values = watch();
 
@@ -344,6 +351,12 @@ export const MutateObject = ({ objectId }: Props) => {
   ]);
 
   useEffect(() => {
+    if (usableFields.length === 0) return;
+
+    setSchema(getSchema(usableFields));
+  }, [usableFields]);
+
+  useEffect(() => {
     if (
       !objectByIdQuery.isSuccess ||
       !isEditMode ||
@@ -378,6 +391,26 @@ export const MutateObject = ({ objectId }: Props) => {
       style={{ width: "100%" }}
     >
       <Stack vertical style={{ width: "100%" }} gap={6}>
+        {Object.keys(errors).length > 0 && (
+          <ErrorBlock
+            text={Object.keys(errors).reduce((acc, curr) => {
+              acc.push(`${curr}: ${errors[curr]?.message}`);
+
+              return acc;
+            }, [] as string[])}
+          />
+        )}
+        {submitMutation.error ? (
+          <ErrorBlock
+            text={
+              (
+                submitMutation.error as {
+                  _response: { errorMessages: string[] };
+                }
+              )._response.errorMessages
+            }
+          />
+        ) : null}
         <FormMapping
           errors={errors}
           values={values}
@@ -406,6 +439,13 @@ export const MutateObject = ({ objectId }: Props) => {
             <Button
               text="Cancel"
               onClick={() => navigate(-1)}
+              intent="secondary"
+            ></Button>
+          )}
+          {!isEditMode && (
+            <Button
+              text="Reset"
+              onClick={() => reset()}
               intent="secondary"
             ></Button>
           )}

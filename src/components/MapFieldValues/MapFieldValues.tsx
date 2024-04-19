@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import {
   ExternalIconLink,
   Property,
+  PropertyRow,
   useDeskproLatestAppContext,
 } from "@deskpro/app-sdk";
 import { H2, Stack } from "@deskpro/deskpro-ui";
@@ -17,8 +19,16 @@ export const MapFieldValues = ({
   const { context } = useDeskproLatestAppContext();
   const domain = context?.settings.domain;
 
+  const haslinkedAndIssueKey = Boolean(!isNaN(issue.linkedCount) && issue.key);
+
   return (
-    <Stack vertical>
+    <Stack vertical style={{ width: "100%" }}>
+      {haslinkedAndIssueKey && (
+        <PropertyRow>
+          <Property label="Issue Key" text={issue.key} />
+          <Property label="Deskpro Tickets" text={issue.linkedCount} />
+        </PropertyRow>
+      )}
       {usableFields.map((field) => {
         const usedField = issue[field.key];
 
@@ -55,7 +65,7 @@ export const MapFieldValues = ({
             break;
           case "project":
             content = (
-              <Stack style={{ alignItems: "center" }}>
+              <Stack style={{ alignItems: "center" }} gap={5}>
                 <H2>{usedField?.name}</H2>
                 <ExternalIconLink
                   href={`https://${domain}.atlassian.net/browse/${usedField.key}`}
@@ -67,7 +77,13 @@ export const MapFieldValues = ({
 
           case "user":
             content = (
-              <Stack style={{ alignItems: "center" }}>
+              <Stack style={{ alignItems: "center" }} gap={5}>
+                <img
+                  src={usedField.avatarUrls["16x16"]}
+                  className="comment-list-item-avatar"
+                  width="16"
+                  alt={usedField?.displayName}
+                />
                 <H2>{usedField?.displayName}</H2>
                 <ExternalIconLink
                   href={`https://${domain}.atlassian.net/jira/people/${usedField.accountId}`}
@@ -79,7 +95,7 @@ export const MapFieldValues = ({
 
           case "watches":
             content = (
-              <Stack style={{ alignItems: "center" }}>
+              <Stack style={{ alignItems: "center" }} gap={5}>
                 <H2>{usedField?.watchCount}</H2>
                 <ExternalIconLink href={issue.watchCount} />
               </Stack>
@@ -135,6 +151,10 @@ export const MapFieldValues = ({
 
               break;
             }
+            //@ts-ignore
+            if (haslinkedAndIssueKey && field.key === "key") return;
+            //@ts-ignore
+            if (haslinkedAndIssueKey && field.key === "linkedCount") return;
             content = <H2>{usedField?.toString()}</H2>;
         }
 

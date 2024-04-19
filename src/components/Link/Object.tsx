@@ -9,10 +9,11 @@ import {
   Button,
   Checkbox,
   H1,
+  IconButton,
   Input,
   Stack,
 } from "@deskpro/deskpro-ui";
-import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { faMagnifyingGlass, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useDebounce from "../../hooks/debounce";
@@ -118,6 +119,13 @@ export const LinkContact = () => {
           placeholder="Enter Issue Title"
           type="text"
           leftIcon={faMagnifyingGlass as AnyIcon}
+          rightIcon={
+            <IconButton
+              icon={faTimes as never}
+              onClick={() => setPrompt("")}
+              minimal
+            />
+          }
         />
         <Stack vertical style={{ width: "100%" }} gap={5}>
           <Stack

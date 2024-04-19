@@ -64,26 +64,30 @@ export const removeBacklinkCommentDoc = (ticketId: string, url: string) => ({
   ],
 });
 
-export const paragraphDoc = (text: string) => ({
-  version: 1,
-  type: "doc",
-  content: [
-    {
-      type: "paragraph",
-      content: text.split(" ").map((word) => {
-        if (word === "\n") return { type: "hardBreak" };
+export const paragraphDoc = (text: string) => {
+  if (!text) return;
 
-        if (testUrlRegex.test(word)) {
+  return {
+    version: 1,
+    type: "doc",
+    content: [
+      {
+        type: "paragraph",
+        content: text.split(" ").map((word) => {
+          if (word === "\n") return { type: "hardBreak" };
+
+          if (testUrlRegex.test(word)) {
+            return {
+              type: "inlineCard",
+              attrs: { url: `${word} ` },
+            };
+          }
           return {
-            type: "inlineCard",
-            attrs: { url: `${word} ` },
+            type: "text",
+            text: word + " ",
           };
-        }
-        return {
-          type: "text",
-          text: word + " ",
-        };
-      }),
-    },
-  ],
-});
+        }),
+      },
+    ],
+  };
+};
