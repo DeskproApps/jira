@@ -12,7 +12,7 @@ import {
   faCheck,
   faExternalLinkAlt,
 } from "@fortawesome/free-solid-svg-icons";
-import { ReactNode, useMemo } from "react";
+import { ReactNode, useMemo, useState } from "react";
 type Props = {
   data?: {
     key: string;
@@ -35,29 +35,29 @@ export const DropdownSelect = ({
   multiple,
 }: Props) => {
   const { theme } = useDeskproAppTheme();
+  const [prompt, setPrompt] = useState<string>("");
 
+  const accessValue = (e: any) => {
+    return valueAccessor ? valueAccessor(e) : e;
+  };
   const dataOptions = useMemo(() => {
-    return data?.map((dataInList) => ({
-      key: dataInList.key,
-      label: <Label label={dataInList.key}></Label>,
-      value: dataInList.value,
-      type: "value" as const,
-    }));
-  }, [data]) as {
+    return data
+      ?.filter((e) =>
+        prompt ? e.key.toLowerCase().includes(prompt.toLowerCase()) : data,
+      )
+      ?.map((dataInList) => ({
+        key: dataInList.key,
+        label: <Label label={dataInList.key}></Label>,
+        value: dataInList.value,
+        type: "value" as const,
+      }));
+  }, [data, prompt]) as {
     value: string;
     key: string;
     label: ReactNode;
     type: "value";
   }[];
 
-  const accessValue = (e: any) => {
-    return valueAccessor ? valueAccessor(e) : e;
-  };
-  // console.log(value, dataOptions);
-  // multiple &&
-  //   console.log(
-  //     dataOptions.filter((e) => value?.includes(accessValue(e.value))),
-  //   );
   return (
     <Stack
       vertical
@@ -77,6 +77,9 @@ export const DropdownSelect = ({
         selectedIcon={faCheck as AnyIcon}
         externalLinkIcon={faExternalLinkAlt as AnyIcon}
         disabled={disabled}
+        showInternalSearch
+        onInputChange={setPrompt}
+        searchPlaceholder="Search"
         onSelectOption={(option) => {
           onChange(
             multiple
