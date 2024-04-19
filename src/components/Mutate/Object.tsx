@@ -389,7 +389,7 @@ export const MutateObject = ({ objectId }: Props) => {
   return (
     <form
       onSubmit={handleSubmit((data) => submitMutation.mutate(data))}
-      style={{ width: "100%" }}
+      style={{ width: "100%", minHeight: "400px" }}
     >
       <Stack vertical style={{ width: "100%" }} gap={6}>
         {Object.keys(errors).length > 0 && (
