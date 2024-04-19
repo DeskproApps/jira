@@ -64,7 +64,8 @@
     "status",
     "reporter",
     "epic",
-    "description"
+    "description",
+    "priority"
   ],
   "main": [
     "key",

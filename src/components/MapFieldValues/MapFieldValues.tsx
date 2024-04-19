@@ -123,6 +123,16 @@ export const MapFieldValues = ({
 
             break;
           case "priority":
+            content = (
+              <Stack align="center" gap={5}>
+                <img src={usedField.iconUrl} width={16} alt={usedField?.name} />
+                <H2 style={{ marginTop: "2px" }}>
+                  {usedField.name || usedField}
+                </H2>
+              </Stack>
+            );
+
+            break;
           case "status":
             content = <H2>{usedField.name || usedField}</H2>;
 
