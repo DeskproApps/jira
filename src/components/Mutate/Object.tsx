@@ -148,8 +148,9 @@ export const MutateObject = ({ objectId }: Props) => {
 
     if (isEditMode) return;
 
-    setValue("project", data.project);
-    setValue("issuetype", data.issuetype);
+    setValue("project", { id: data.project });
+    setValue("issuetype", { id: data.issuetype });
+
     context.settings.ticket_subject_as_issue_summary &&
       setValue(
         "summary",
