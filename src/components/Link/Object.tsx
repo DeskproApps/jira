@@ -27,7 +27,7 @@ import { getFields, searchIssues } from "../../api/api";
 export const LinkContact = () => {
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  const [selectedIssues, setSelectedIssues] = useState<string[]>([]);
+  const [selectedIssues, setSelectedIssues] = useState<number[]>([]);
   const [linkedIssues, setLinkedIssues] = useState<string[]>([]);
   const [prompt, setPrompt] = useState<string>("");
   const [hasMappedFields, setHasMappedFields] = useState<boolean | undefined>(
@@ -133,7 +133,10 @@ export const LinkContact = () => {
             gap={5}
           >
             <Button
-              onClick={() => selectedIssues && linkIssues(selectedIssues)}
+              onClick={() =>
+                selectedIssues &&
+                linkIssues(selectedIssues.map((e) => e.toString()))
+              }
               disabled={selectedIssues.length === 0}
               text="Link Issue"
             ></Button>
@@ -157,13 +160,13 @@ export const LinkContact = () => {
                   <Stack key={i} gap={6} style={{ width: "100%" }}>
                     <Stack style={{ marginTop: "2px" }}>
                       <Checkbox
-                        checked={selectedIssues?.includes(issue.key)}
+                        checked={selectedIssues?.includes(issue.id)}
                         onChange={() => {
-                          if (!selectedIssues?.includes(issue.key)) {
-                            setSelectedIssues([...selectedIssues, issue.key]);
+                          if (!selectedIssues?.includes(issue.id)) {
+                            setSelectedIssues([...selectedIssues, issue.id]);
                           } else {
                             setSelectedIssues(
-                              selectedIssues?.filter((e) => e !== issue.key),
+                              selectedIssues?.filter((e) => e !== issue.id),
                             );
                           }
                         }}

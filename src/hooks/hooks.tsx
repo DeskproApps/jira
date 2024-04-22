@@ -47,6 +47,11 @@ export const useLinkIssues = () => {
             ?.getEntityAssociation("linkedJiraIssues", deskproTicket.id)
             .set(issueId)
             .then(async () => {
+              await client.setState(
+                `jira/items/${issueId}`,
+                (((await client.getState(`jira/items/${issueId}`))[0]
+                  ?.data as number) ?? 0) + 1,
+              );
               commentOnNote &&
                 (await client?.setState(
                   ticketReplyNotesSelectionStateKey(deskproTicket.id, issueId),
@@ -63,11 +68,6 @@ export const useLinkIssues = () => {
                     selected: true,
                   },
                 ));
-              await client.setState(
-                `jira/items/${issueId}`,
-                (((await client.getState(`jira/items/${issueId}`))[0]
-                  ?.data as number) ?? 0) + 1,
-              );
             }),
         ),
       );

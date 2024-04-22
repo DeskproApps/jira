@@ -111,6 +111,7 @@ export const FormMapping = ({
               meta={{ name: field.name } as unknown as IssueMeta}
               error={errors[field.key]}
               id={field.key}
+              value={new Date(values[field.key])}
               onChange={(value: Date[]) => setValue(field.key, value[0])}
             />
           );
@@ -241,7 +242,7 @@ export const FormMapping = ({
                 variant="inline"
                 placeholder="Add value"
                 data-testid={`input=${field.key}`}
-                style={{ minHeight: "35px" }}
+                style={{ minHeight: "100px" }}
               />
             );
             break;

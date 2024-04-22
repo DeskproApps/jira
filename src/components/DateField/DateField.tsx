@@ -18,6 +18,7 @@ export const DateField: FC<MappedFieldProps> = ({
   label,
   error,
   onChange,
+  value,
   required,
 }: MappedFieldProps) => {
   const { theme } = useDeskproAppTheme();
@@ -33,6 +34,7 @@ export const DateField: FC<MappedFieldProps> = ({
         )}
       </Stack>
       <DateInput
+        value={value}
         enableTime
         id="date-input"
         placeholder="DD/MM/YYYY"

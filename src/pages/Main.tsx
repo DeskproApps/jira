@@ -60,9 +60,9 @@ export const Home: FC = () => {
         await Promise.all(
           data.map(
             async (item) => {
-              linkedItems[item.id] =
-                ((await client!.getState(`jira/items/${item.key}`))?.[0]
-                  ?.data as number) || 0;
+              linkedItems[item.id] = (
+                await client!.getState(`jira/items/${item.id}`)
+              )?.[0]?.data as number;
             },
             {} as Record<string, number>,
           ),
@@ -255,14 +255,20 @@ export const Home: FC = () => {
     }
     if (
       linkedIssuesQuery.isSuccess &&
-      linkedIssuiesWithDeskproLinkedCount?.length === 0
+      linkedIssuiesWithDeskproLinkedCount?.length === 0 &&
+      !searchQuery
     )
       navigate("/create");
-    return (linkedIssuiesWithDeskproLinkedCount || []).filter((item) =>
-      item.key
-        .replace("-", "")
-        .toLowerCase()
-        .includes(searchQuery.replace("-", "").toLowerCase()),
+    return (linkedIssuiesWithDeskproLinkedCount || []).filter(
+      (item) =>
+        item.summary
+          .replace("-", "")
+          .toLowerCase()
+          .includes(searchQuery.replace("-", "").toLowerCase()) ||
+        item.key
+          .replace("-", "")
+          .toLowerCase()
+          .includes(searchQuery.replace("-", "").toLowerCase()),
     );
   }, [
     linkedIssuesResults,
@@ -297,7 +303,7 @@ export const Home: FC = () => {
   if (loading || hasMappedFields === undefined || !context)
     return <LoadingSpinner />;
 
-  if (linkedIssues.length === 0) navigate("/findOrCreate");
+  if (linkedIssues.length === 0 && !searchQuery) navigate("/findOrCreate");
 
   return (
     <>
