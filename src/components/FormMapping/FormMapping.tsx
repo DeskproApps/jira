@@ -111,9 +111,7 @@ export const FormMapping = ({
               meta={{ name: field.name } as unknown as IssueMeta}
               error={errors[field.key]}
               id={field.key}
-              onChange={(value: Date[]) =>
-                setValue(field.key, value[0].toISOString())
-              }
+              onChange={(value: Date[]) => setValue(field.key, value[0])}
             />
           );
           break;
