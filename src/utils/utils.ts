@@ -275,6 +275,15 @@ export const jiraIssueToFormValues = (
 
           break;
         }
+
+        case "date":
+        case "datetime": {
+          if (!issue[key as keyof IssueItem]) break;
+          acc[key] = new Date(issue[key as keyof IssueItem]);
+
+          break;
+        }
+
         case "string": {
           if (usableField.schema.system === "description") {
             acc[key] = useAdfToPlainText(issue[key as keyof IssueItem]);
