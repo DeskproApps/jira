@@ -25,7 +25,6 @@ import {
   getUsers,
   updateIssue,
 } from "../../api/api";
-import IssueJson from "../../mapping/issue.json";
 
 import { CreateMeta } from "../../api/types/createMeta";
 import { useLinkIssues } from "../../hooks/hooks";
@@ -47,7 +46,6 @@ export const MutateObject = ({ objectId }: Props) => {
   const { client } = useDeskproAppClient();
   const [schema, setSchema] = useState<ZodTypeAny | null>(null);
   const [mappedFields, setMappedFields] = useState<string[]>([]);
-  const [hasMappedFields, setHasMappedFields] = useState<boolean | undefined>();
   const { context } = useDeskproLatestAppContext();
   const { linkIssues } = useLinkIssues();
 
@@ -140,8 +138,6 @@ export const MutateObject = ({ objectId }: Props) => {
     if (!context) return;
     const data = JSON.parse(context?.settings.mapping ?? "{}");
 
-    setHasMappedFields(!!data?.detailView?.length);
-
     if (!data) return;
 
     setMappedFields(data.detailView ?? []);
@@ -228,38 +224,6 @@ export const MutateObject = ({ objectId }: Props) => {
 
     return buildCustomFieldMeta(issueType.fields);
   };
-
-  const usableFieldNames = useMemo(() => {
-    if (
-      !createMetaQuery.isSuccess ||
-      hasMappedFields === undefined ||
-      (isEditMode && !objectByIdQuery.isSuccess)
-    )
-      return [];
-
-    const editMetaKeys = Object.keys(
-      objectByIdQuery.data?.editmeta.fields ?? [],
-    );
-
-    const fields = hasMappedFields
-      ? mappedFields.filter((e) => editMetaKeys.includes(e))
-      : IssueJson.create;
-
-    ["summary", "description", "reporter"].forEach((field) => {
-      if (!fields.includes(field)) {
-        fields.push(field);
-      }
-    });
-
-    return fields;
-  }, [
-    createMetaQuery.isSuccess,
-    hasMappedFields,
-    isEditMode,
-    mappedFields,
-    objectByIdQuery.data?.editmeta.fields,
-    objectByIdQuery.isSuccess,
-  ]);
 
   const projectOptions = (createMetaQuery.data?.projects ?? []).map(
     (project: JiraProject) => ({
@@ -351,6 +315,8 @@ export const MutateObject = ({ objectId }: Props) => {
     mappedFields,
   ]);
 
+  const usableFieldNames = usableFields.map((field) => field.key);
+
   useEffect(() => {
     if (usableFields.length === 0) return;
 
@@ -367,6 +333,7 @@ export const MutateObject = ({ objectId }: Props) => {
       return;
 
     const objectData = objectByIdQuery.data.fields;
+
     const formattedFields = jiraIssueToFormValues(objectData, usableFields);
 
     usableFieldNames.forEach((field) => {
@@ -425,7 +392,6 @@ export const MutateObject = ({ objectId }: Props) => {
           type={isEditMode ? "update" : "create"}
           setValue={setValue}
           createMeta={createMetaQuery.data}
-          mappedFields={usableFieldNames}
         />
         <Stack style={{ width: "100%", justifyContent: "space-between" }}>
           <Button

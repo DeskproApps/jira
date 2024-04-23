@@ -20,7 +20,6 @@ export const FormMapping = ({
 }: {
   dropdownFields: any;
   values: any;
-  mappedFields: string[];
   createMeta: CreateMeta;
   type: string;
   errors: any;
