@@ -33,12 +33,8 @@ export const ViewObject = () => {
     },
   );
 
-  const metadataFieldsQuery = useQueryWithClient(
-    ["metadataFields"],
-    (client) => getFields(client),
-    {
-      enabled: mappedFields && mappedFields?.length !== 0,
-    },
+  const metadataFieldsQuery = useQueryWithClient(["metadataFields"], (client) =>
+    getFields(client),
   );
 
   useEffect(() => {
