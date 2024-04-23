@@ -25,6 +25,7 @@ import {
   getUsers,
   updateIssue,
 } from "../../api/api";
+import IssueJson from "../../mapping/issue.json";
 
 import { CreateMeta } from "../../api/types/createMeta";
 import { useLinkIssues } from "../../hooks/hooks";
@@ -282,7 +283,9 @@ export const MutateObject = ({ objectId }: Props) => {
     return Object.keys(fieldsObj)
       .filter(
         (e) =>
-          mappedFields.includes(e) ||
+          (mappedFields.length > 0
+            ? mappedFields.includes(e)
+            : IssueJson.create.includes(e)) ||
           e === "summary" ||
           e === "description" ||
           e === "reporter" ||

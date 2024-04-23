@@ -65,7 +65,8 @@
     "reporter",
     "epic",
     "description",
-    "priority"
+    "priority",
+    "labels"
   ],
   "main": [
     "key",

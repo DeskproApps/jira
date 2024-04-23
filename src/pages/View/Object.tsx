@@ -13,6 +13,7 @@ import IssueJson from "../../mapping/issue.json";
 import { H2, Stack } from "@deskpro/deskpro-ui";
 import { CommentsList } from "../../components/CommentsList/CommentsList";
 import { useLinkIssues } from "../../hooks/hooks";
+import { queryClient } from "../../query";
 
 export const ViewObject = () => {
   const [hasMappedFields, setHasMappedFields] = useState<boolean | undefined>(
@@ -101,6 +102,7 @@ export const ViewObject = () => {
           break;
 
         case "editButton":
+          queryClient.clear();
           navigate(`/edit/${objectId}`);
 
           break;
