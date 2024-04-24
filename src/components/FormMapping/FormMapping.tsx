@@ -46,7 +46,7 @@ export const FormMapping = ({
       usableFields
         ?.find((e) => e.key === "priority")
         ?.allowedValues?.map((e) => ({
-          key: e.id,
+          key: e.name,
           label: e.name,
           value: e.id,
           type: "value" as const,
@@ -130,7 +130,7 @@ export const FormMapping = ({
                     })) ?? []
                   }
                   multiple
-                  value={values[field.key]?.map((e: { id: string }) => e.id)}
+                  value={values[field.key]}
                   valueAccessor={(e) => e.id}
                   error={errors[field.key]}
                   onChange={(value) => setValue(field.key, value)}
@@ -248,18 +248,19 @@ export const FormMapping = ({
           }
         // eslint-disable-next-line no-fallthrough
         default:
-          content = (
-            <Input
-              onChange={(e) => setValue(field.key, e.target.value)}
-              value={values[field.key]}
-              error={errors[field.key]}
-              id={field.key}
-              variant="inline"
-              placeholder="Add value"
-              data-testid={`input=${field.key}`}
-            />
-          );
+        // content = (
+        //   <Input
+        //     onChange={(e) => setValue(field.key, e.target.value)}
+        //     value={values[field.key]}
+        //     error={errors[field.key]}
+        //     id={field.key}
+        //     variant="inline"
+        //     placeholder="Add value"
+        //     data-testid={`input=${field.key}`}
+        //   />
+        // );
       }
+
       return (
         content && (
           <Label label={field.name} error={errors[field.key]}>

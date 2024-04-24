@@ -58,6 +58,10 @@ export const DropdownSelect = ({
     type: "value";
   }[];
 
+  const accessedValue = multiple
+    ? (value ?? []).map(accessValue)
+    : accessValue(value);
+
   return (
     <Stack
       vertical
@@ -84,9 +88,9 @@ export const DropdownSelect = ({
         onSelectOption={(option) => {
           onChange(
             multiple
-              ? value?.includes(accessValue(option.value))
-                ? ((value as string[]) || []).filter(
-                    (e) => accessValue(option.value) !== e,
+              ? accessedValue?.includes(accessValue(option.value))
+                ? value.filter(
+                    (e: any) => accessValue(option.value) !== accessValue(e),
                   )
                 : [...(value || []), option.value]
               : option.value,
@@ -105,13 +109,16 @@ export const DropdownSelect = ({
             value={
               multiple
                 ? dataOptions
-                    .filter((e) => value?.includes(accessValue(e.value)))
+                    .filter((e) => {
+                      return accessedValue?.includes(accessValue(e.value));
+                    })
                     .reduce(
                       (a, c, i, arr) =>
                         a + `${c.key}${i === arr.length - 1 ? "" : ", "} `,
                       "",
                     )
-                : dataOptions.find((e) => accessValue(e.value) == value)?.key
+                : dataOptions.find((e) => accessValue(e.value) == accessedValue)
+                    ?.key
             }
           />
         )}

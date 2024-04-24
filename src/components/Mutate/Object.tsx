@@ -280,20 +280,22 @@ export const MutateObject = ({ objectId }: Props) => {
 
     if (!fieldsObj) return [];
 
-    return Object.keys(fieldsObj)
-      .filter(
-        (e) =>
-          (mappedFields.length > 0
-            ? mappedFields.includes(e)
-            : IssueJson.create.includes(e)) ||
-          e === "summary" ||
-          e === "description" ||
-          e === "reporter" ||
-          fieldsObj[e].required,
-      )
-      .map((fieldObjKey) => ({
-        ...(fieldsObj[fieldObjKey as keyof typeof fieldsObj] ?? {}),
-      }))
+    return [
+      ...Object.keys(fieldsObj)
+        .filter(
+          (e) =>
+            (mappedFields.length > 0
+              ? mappedFields.includes(e)
+              : IssueJson.create.includes(e) || e.startsWith("customfield_")) ||
+            e === "summary" ||
+            e === "description" ||
+            e === "reporter" ||
+            fieldsObj[e].required,
+        )
+        .map((fieldObjKey) => ({
+          ...(fieldsObj[fieldObjKey as keyof typeof fieldsObj] ?? {}),
+        })),
+    ]
       .filter((field) => {
         return (
           field.key !== "project" &&
