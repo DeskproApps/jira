@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@atlaskit/adf-utils": "14.4.0",
-    "@deskpro/app-sdk": "3.0.19",
+    "@deskpro/app-sdk": "2.1.12",
     "@deskpro/deskpro-ui": "^7.18.0",
     "@heroicons/react": "1.0.6",
     "@hookform/resolvers": "^3.3.4",
