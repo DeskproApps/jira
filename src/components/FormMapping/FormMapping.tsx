@@ -246,6 +246,17 @@ export const FormMapping = ({
             );
             break;
           }
+          content = (
+            <Input
+              onChange={(e) => setValue(field.key, e.target.value)}
+              value={values[field.key]}
+              error={errors[field.key]}
+              id={field.key}
+              variant="inline"
+              placeholder="Add value"
+              data-testid={`input=${field.key}`}
+            />
+          );
         // eslint-disable-next-line no-fallthrough
         default:
         // content = (
