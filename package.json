@@ -22,6 +22,7 @@
     "@hookform/resolvers": "^3.3.4",
     "@tanstack/react-query": "^4.36.1",
     "date-fns": "^3.3.1",
+    "iframe-resizer": "^4.3.11",
     "lodash.get": "^4.4.2",
     "lodash.isempty": "^4.4.0",
     "lodash.noop": "^3.0.1",
