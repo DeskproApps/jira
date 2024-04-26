@@ -393,7 +393,7 @@ export const getIssueAttachments = async (
 export const createIssue = async (
   client: IDeskproClient,
   data: IssueFormData,
-  meta: Record<string, IssueMeta>,
+  meta: any,
 ) => {
   const customFields = {
     ...Object.keys(data.customFields ?? []).reduce((fields, key) => {
@@ -416,6 +416,18 @@ export const createIssue = async (
   }
 
   const attachments = [...(data.attachments ?? [])];
+
+  Object.keys(data)
+    .filter(
+      (e) =>
+        e.startsWith("customfield_") &&
+        meta.find((metaField: { key: string }) => metaField.key === e).schema
+          .custom ===
+          "com.atlassian.jira.plugin.system.customfieldtypes:textarea",
+    )
+    .forEach((key) => {
+      (data as any)[key] = paragraphDoc((data as any)[key]);
+    });
 
   delete data.attachments;
 
@@ -483,7 +495,7 @@ export const updateIssue = async (
   client: IDeskproClient,
   issueKey: string,
   data: IssueFormData,
-  meta: Record<string, IssueMeta>,
+  meta: any,
 ) => {
   const customFields = Object.keys(data.customFields ?? []).reduce(
     (fields, key) => {
@@ -500,6 +512,18 @@ export const updateIssue = async (
     },
     {},
   );
+
+  Object.keys(data)
+    .filter(
+      (e) =>
+        e.startsWith("customfield_") &&
+        meta.find((metaField: { key: string }) => metaField.key === e).schema
+          .custom ===
+          "com.atlassian.jira.plugin.system.customfieldtypes:textarea",
+    )
+    .forEach((key) => {
+      (data as any)[key] = paragraphDoc((data as any)[key]);
+    });
 
   const body: any = {
     fields: {

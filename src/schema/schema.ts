@@ -4,6 +4,12 @@ export const getSchema = (usableFields: any[]) => {
   const objects = usableFields.reduce((acc, curr) => {
     switch (curr.schema?.type) {
       case "string":
+        if (
+          curr.schema?.custom ===
+          "com.atlassian.jira.plugin.system.customfieldtypes:url"
+        ) {
+          return { ...acc, [curr.key]: z.string().url() };
+        }
         return { ...acc, [curr.key]: z.string() };
       case "number":
         return { ...acc, [curr.key]: z.number() };

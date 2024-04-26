@@ -8,7 +8,7 @@ import {
 } from "@deskpro/app-sdk";
 import { useEffect, useMemo, useState } from "react";
 import { getCreateMeta, getFields } from "../../api/preInstallApi";
-import { DropdownSelect } from "../../components/DropdownSelect/DropdownSelect";
+import { DropdownSelect } from "../../components/DropdownSelect1/DropdownSelect";
 import { Checkbox, H1, H2, Stack } from "@deskpro/deskpro-ui";
 
 export const AdminSettings = () => {

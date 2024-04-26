@@ -1,128 +1,110 @@
-import { useDeskproAppTheme } from "@deskpro/app-sdk";
+import { FC, useState } from "react";
 import {
   AnyIcon,
-  DivAsInput,
-  Dropdown as DropdownComponent,
+  DivAsInputWithDisplay,
+  Dropdown,
+  dropdownRenderOptions,
   DropdownTargetProps,
-  Label,
-  Stack,
+  DropdownValueType,
+  Infinite,
 } from "@deskpro/deskpro-ui";
 import {
   faCaretDown,
-  faCheck,
+  faHandPointer,
   faExternalLinkAlt,
 } from "@fortawesome/free-solid-svg-icons";
-import { ReactNode, useMemo, useState } from "react";
-type Props = {
-  data?: {
-    key: string;
-    value: any;
-  }[];
-  onChange: (key: string) => void;
-  value: any;
-  error: boolean;
-  multiple?: boolean;
+
+export interface DropdownSelectProps {
+  options: DropdownValueType<any>[];
+  id?: string;
+  value?: any;
   disabled?: boolean;
-  valueAccessor?: (e: any) => any;
-};
-export const DropdownSelect = ({
-  data,
-  onChange,
+  error: boolean;
+  containerMaxHeight?: number;
+  onChange: (key: any) => void;
+}
+
+export const DropdownSelect: FC<DropdownSelectProps> = ({
   value,
+  options,
   error,
-  disabled,
-  valueAccessor,
-  multiple,
-}: Props) => {
-  const { theme } = useDeskproAppTheme();
-  const [prompt, setPrompt] = useState<string>("");
+  onChange,
+  ...props
+}: DropdownSelectProps) => {
+  const [input, setInput] = useState<string>("");
+  const selectedValue =
+    value === undefined
+      ? undefined
+      : options.filter((o) => o.value === value)[0]?.label ?? "";
 
-  const accessValue = (e: any) => {
-    return valueAccessor ? valueAccessor(e) : e;
-  };
-  const dataOptions = useMemo(() => {
-    return data
-      ?.filter((e) =>
-        prompt ? e.key.toLowerCase().includes(prompt.toLowerCase()) : data,
-      )
-      ?.map((dataInList) => ({
-        key: dataInList.key,
-        label: <Label label={dataInList.key}></Label>,
-        value: dataInList.value,
-        type: "value" as const,
-      }));
-  }, [data, prompt]) as {
-    value: string;
-    key: string;
-    label: ReactNode;
-    type: "value";
-  }[];
-
-  const accessedValue = multiple
-    ? (value ?? []).map(accessValue)
-    : accessValue(value);
+  const filteredOptions = options.filter((opt) =>
+    (opt.label as string).toLowerCase().includes(input.toLowerCase()),
+  );
 
   return (
-    <Stack
-      vertical
-      style={{ marginTop: "5px", color: theme?.colors.grey80, width: "100%" }}
+    <Dropdown
+      {...props}
+      showInternalSearch
+      options={filteredOptions}
+      inputValue={input}
+      onInputChange={setInput}
+      onSelectOption={(option) => {
+        onChange(option.value);
+      }}
+      fetchMoreText="Fetch more"
+      autoscrollText="Autoscroll"
+      selectedIcon={faHandPointer as AnyIcon}
+      externalLinkIcon={faExternalLinkAlt as AnyIcon}
+      optionsRenderer={(
+        opts,
+        handleSelectOption,
+        activeItem,
+        activeSubItem,
+        setActiveSubItem,
+        hideIcons,
+      ) => (
+        <Infinite
+          maxHeight={"30vh"}
+          anchor={false}
+          scrollSideEffect={() => setActiveSubItem(null)}
+          fetchMoreText="Fetch more"
+          autoscrollText="Autoscroll"
+        >
+          <div style={{ maxHeight: "30vh" }}>
+            {opts.map(
+              dropdownRenderOptions({
+                handleSelectOption,
+                activeItem,
+                activeSubItem,
+                setActiveSubItem,
+                fetchMoreText: "Fetch more",
+                autoscrollText: "Autoscroll",
+                selectedIcon: faHandPointer as AnyIcon,
+                externalLinkIcon: faExternalLinkAlt as AnyIcon,
+                hasSelectedItems: false,
+                hasExpandableItems: false,
+                hideIcons,
+                setActiveValueIndex: () => {},
+                valueOptions: [],
+              }),
+            )}
+          </div>
+        </Infinite>
+      )}
+      hideIcons
     >
-      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any*/}
-      <DropdownComponent<any, HTMLDivElement>
-        placement="bottom-start"
-        onClose={() => setPrompt("")}
-        options={dataOptions.map((e) => ({
-          ...e,
-          selected: ["number", "string"].includes(typeof value)
-            ? accessValue(e.value) === value
-            : value?.includes(accessValue(e.value)),
-        }))}
-        fetchMoreText={"Fetch more"}
-        autoscrollText={"Autoscroll"}
-        selectedIcon={faCheck as AnyIcon}
-        externalLinkIcon={faExternalLinkAlt as AnyIcon}
-        disabled={disabled}
-        showInternalSearch
-        onInputChange={setPrompt}
-        searchPlaceholder="Search"
-        onSelectOption={(option) => {
-          onChange(
-            multiple
-              ? accessedValue?.includes(accessValue(option.value))
-                ? value.filter(
-                    (e: any) => accessValue(option.value) !== accessValue(e),
-                  )
-                : [...(value || []), option.value]
-              : option.value,
-          );
-        }}
-      >
-        {({ targetProps, targetRef }: DropdownTargetProps<HTMLDivElement>) => (
-          <DivAsInput
-            error={error}
-            ref={targetRef}
-            {...targetProps}
-            variant="inline"
-            rightIcon={faCaretDown as AnyIcon}
-            placeholder="Enter value"
-            style={{ fontWeight: "400 !important" }}
-            value={
-              multiple
-                ? dataOptions
-                    .filter((e) => {
-                      return accessedValue?.includes(accessValue(e.value));
-                    })
-                    .reduce(
-                      (a, c, i, arr) =>
-                        a + `${c.key}${i === arr.length - 1 ? "" : ", "} `,
-                      "",
-                    )
-                : dataOptions.find((e) => accessValue(e.value) == accessedValue)
-                    ?.key
-            }
-          />
-        )}
-      </DropdownComponent>
-    </Stack>
+      {({ targetRef, targetProps }: DropdownTargetProps<HTMLDivElement>) => (
+        <DivAsInputWithDisplay
+          error={error}
+          placeholder={"Select value"}
+          value={selectedValue}
+          variant="inline"
+          rightIcon={faCaretDown as AnyIcon}
+          ref={targetRef}
+          {...targetProps}
+          isVisibleRightIcon
+        />
+      )}
+    </Dropdown>
   );
 };

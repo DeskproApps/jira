@@ -35,7 +35,6 @@ export const DateField: FC<MappedFieldProps> = ({
       </Stack>
       <DateInput
         value={value}
-        enableTime
         id="date-input"
         placeholder="DD/MM/YYYY"
         error={!!error}

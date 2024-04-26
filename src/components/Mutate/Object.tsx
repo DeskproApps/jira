@@ -9,15 +9,14 @@ import {
   useQueryWithClient,
 } from "@deskpro/app-sdk";
 import { Button, DropdownValueType, H1, Stack } from "@deskpro/deskpro-ui";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { ZodTypeAny } from "zod";
 import { useNavigate } from "react-router-dom";
+import { ZodTypeAny } from "zod";
 
 import {
   addRemoteLink,
-  buildCustomFieldMeta,
   createIssue,
   getCreateMeta,
   getIssueByKey,
@@ -27,18 +26,16 @@ import {
 } from "../../api/api";
 import IssueJson from "../../mapping/issue.json";
 
-import { CreateMeta } from "../../api/types/createMeta";
 import { useLinkIssues } from "../../hooks/hooks";
-import { IssueMeta } from "../../types";
+import { getSchema } from "../../schema/schema";
 import {
   jiraIssueToFormValues,
   parseJsonErrorMessage,
 } from "../../utils/utils";
+import { ErrorBlock } from "../Error/ErrorBlock";
 import { FormMapping } from "../FormMapping/FormMapping";
 import { LoadingSpinnerCenter } from "../LoadingSpinnerCenter/LoadingSpinnerCenter";
-import { JiraIssueType, JiraProject, JiraUser } from "./types";
-import { getSchema } from "../../schema/schema";
-import { ErrorBlock } from "../Error/ErrorBlock";
+import { JiraProject, JiraUser } from "./types";
 type Props = {
   objectId?: string;
 };
@@ -96,14 +93,14 @@ export const MutateObject = ({ objectId }: Props) => {
             {
               ...values,
             },
-            getCustomFields(values.project, values.issuetype),
+            usableFields,
           )
         : createIssue(
             client,
             {
               ...values,
             },
-            getCustomFields(values.project, values.issuetype),
+            usableFields,
           );
     },
   );
@@ -123,7 +120,9 @@ export const MutateObject = ({ objectId }: Props) => {
       context?.data.ticket.id as string,
       context?.data.ticket.subject as string,
       context?.data.ticket.permalinkUrl as string,
-    ).then(() => linkIssues([submitMutation.data.id as string]));
+    ).then(() => {
+      linkIssues([submitMutation.data.id as string]);
+    });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -199,36 +198,11 @@ export const MutateObject = ({ objectId }: Props) => {
     [isEditMode],
   );
 
-  const getCustomFields = (
-    projectId?: string,
-    issueTypeId?: string,
-  ): Record<string, IssueMeta> => {
-    if (!createMetaQuery.isSuccess) return {};
-
-    const { projects } = createMetaQuery.data as CreateMeta;
-
-    const project =
-      (projects ?? []).filter((p: JiraProject) => p.id === projectId)[0] ??
-      null;
-
-    if (!project) {
-      return {};
-    }
-
-    const issueType =
-      (project.issuetypes ?? []).filter(
-        (i: JiraIssueType) => i.id === issueTypeId,
-      )[0] ?? null;
-    if (!issueType) {
-      return {};
-    }
-
-    return buildCustomFieldMeta(issueType.fields);
-  };
-
   const projectOptions = (createMetaQuery.data?.projects ?? []).map(
     (project: JiraProject) => ({
       key: project.name,
+      label: project.name,
+      type: "value",
       value: project.id,
     }),
   ) as DropdownValueType<any>[];
@@ -242,6 +216,8 @@ export const MutateObject = ({ objectId }: Props) => {
     .filter((u: JiraUser) => u.accountType === "atlassian")
     .map((user: JiraUser) => ({
       key: user.displayName,
+      label: user.displayName,
+      type: "value",
       value: user.accountId,
     })) as DropdownValueType<any>[];
 
@@ -254,6 +230,8 @@ export const MutateObject = ({ objectId }: Props) => {
         (label: string) =>
           ({
             key: label,
+            label,
+            type: "value" as const,
             value: label,
           }) as DropdownValueType<any>,
       );

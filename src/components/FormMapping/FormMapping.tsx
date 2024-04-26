@@ -5,9 +5,12 @@ import { getVersionsByProjectId } from "../../api/api";
 import { Assignee, Attachment, CreateMeta } from "../../api/types/createMeta";
 import { IssueMeta } from "../../types";
 import { AttachmentsField } from "../AttachmentsField/AttachmentsField";
+import { CheckboxesField } from "../Checkbox/CheckboxesField";
 import { DateField } from "../DateField/DateField";
+import { DropdownMultiSelect } from "../DropdownMultiSelect/DropdownMultiSelect";
 import { DropdownSelect } from "../DropdownSelect/DropdownSelect";
 import { SubtaskDropdownWithSearch } from "../SubtaskDropdownWithSearch/SubtaskDropdownWithSearch";
+import { RadioButtonsField } from "../Radio/RadioButtonsField";
 
 export const FormMapping = ({
   dropdownFields,
@@ -62,7 +65,7 @@ export const FormMapping = ({
         case "select":
           content = (
             <DropdownSelect
-              data={dropdownFields[field.key]}
+              options={dropdownFields[field.key]}
               value={values[field.key]?.id}
               error={errors[field.key]?.id}
               onChange={(value) => setValue(`${field.key}.id`, value)}
@@ -71,9 +74,24 @@ export const FormMapping = ({
           break;
 
         case "option":
+          if (
+            field.schema.custom ===
+            "com.atlassian.jira.plugin.system.customfieldtypes:radiobuttons"
+          ) {
+            content = (
+              <RadioButtonsField
+                meta={field}
+                field={values[field.key]?.id}
+                onChange={(value: any) => setValue(`${field.key}.id`, value)}
+                valueAccessor={(e: string) => e}
+              />
+            );
+
+            break;
+          }
           content = (
             <DropdownSelect
-              data={
+              options={
                 field.allowedValues?.map((e) => ({
                   key: e.name || e.value,
                   label: e.name || e.value,
@@ -92,7 +110,7 @@ export const FormMapping = ({
           content = (
             <Input
               type="number"
-              onChange={(e) => setValue(field.key, e.target.value)}
+              onChange={(e) => setValue(field.key, Number(e.target.value))}
               value={values[field.key]}
               error={errors[field.key]}
               id={field.key}
@@ -119,9 +137,25 @@ export const FormMapping = ({
         case "array":
           switch (field.schema?.items) {
             case "option":
+              if (
+                field.schema.custom ===
+                "com.atlassian.jira.plugin.system.customfieldtypes:multicheckboxes"
+              ) {
+                content = (
+                  <CheckboxesField
+                    meta={field}
+                    field={values[field.key]}
+                    onChange={(value: any) => setValue(`${field.key}`, value)}
+                    multiple={true}
+                    valueAccessor={(e: { id: number }) => e?.id}
+                  />
+                );
+
+                break;
+              }
               content = (
-                <DropdownSelect
-                  data={
+                <DropdownMultiSelect
+                  options={
                     field.allowedValues?.map((e) => ({
                       key: e.name || e.value,
                       label: e.name || e.value,
@@ -129,11 +163,10 @@ export const FormMapping = ({
                       type: "value" as const,
                     })) ?? []
                   }
-                  multiple
-                  value={values[field.key]}
-                  valueAccessor={(e) => e.id}
+                  values={values[field.key]}
                   error={errors[field.key]}
                   onChange={(value) => setValue(field.key, value)}
+                  valueAccessor={(e) => e?.id}
                 />
               );
               break;
@@ -141,12 +174,12 @@ export const FormMapping = ({
             case "string":
               if (field.key === "labels") {
                 content = (
-                  <DropdownSelect
-                    data={dropdownFields.labels}
-                    multiple
-                    value={values[field.key]}
+                  <DropdownMultiSelect
+                    options={dropdownFields.labels}
+                    values={values[field.key]}
                     error={errors[field.key]}
                     onChange={(value) => setValue(field.key, value)}
+                    valueAccessor={(e) => e}
                   />
                 );
               }
@@ -163,8 +196,8 @@ export const FormMapping = ({
 
             case "version":
               content = (
-                <DropdownSelect
-                  data={
+                <DropdownMultiSelect
+                  options={
                     versionsByProjIdQuery.data?.map(
                       (e: { id: string; name: string }) => ({
                         key: e.id,
@@ -174,10 +207,10 @@ export const FormMapping = ({
                       }),
                     ) ?? []
                   }
-                  multiple
-                  value={values[field.key]}
+                  values={values[field.key]}
                   error={errors[field.key]}
                   onChange={(value) => setValue(field.key, value)}
+                  valueAccessor={(e) => e}
                 />
               );
               break;
@@ -189,7 +222,7 @@ export const FormMapping = ({
         case "version":
           content = (
             <DropdownSelect
-              data={dropdownFields.versions}
+              options={dropdownFields.versions}
               value={values[field.key]?.id}
               error={errors[field.key]?.id}
               onChange={(value) => setValue(`${field.key}.id`, value)}
@@ -200,7 +233,7 @@ export const FormMapping = ({
         case "user":
           content = (
             <DropdownSelect
-              data={dropdownFields.user}
+              options={dropdownFields.user}
               value={values[field.key]?.id}
               error={errors[field.key]?.id}
               onChange={(value) => setValue(`${field.key}.id`, value)}
@@ -211,7 +244,7 @@ export const FormMapping = ({
         case "priority":
           content = (
             <DropdownSelect
-              data={priorityFields}
+              options={priorityFields}
               value={values[field.key]?.id}
               error={errors[field.key]?.id}
               onChange={(value) => setValue(`${field.key}.id`, value)}
@@ -257,6 +290,8 @@ export const FormMapping = ({
               data-testid={`input=${field.key}`}
             />
           );
+
+          break;
         // eslint-disable-next-line no-fallthrough
         default:
         // content = (
@@ -285,7 +320,7 @@ export const FormMapping = ({
     <Stack vertical style={{ width: "100%" }} gap={10}>
       <Label htmlFor="project" label="Project" error={errors.project?.id}>
         <DropdownSelect
-          data={dropdownFields.project}
+          options={dropdownFields.project}
           disabled={type === "update"}
           value={values.project?.id}
           onChange={(value) => setValue("project.id", value)}
@@ -300,9 +335,11 @@ export const FormMapping = ({
           error={errors.issuetype?.id}
         >
           <DropdownSelect
-            data={
+            options={
               issuetypes?.map((e) => ({
                 key: e.name,
+                label: e.name,
+                type: "value" as const,
                 value: e.id,
               })) ?? []
             }
