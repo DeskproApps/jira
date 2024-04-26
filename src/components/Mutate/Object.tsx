@@ -376,30 +376,32 @@ export const MutateObject = ({ objectId }: Props) => {
           setValue={setValue}
           createMeta={createMetaQuery.data}
         />
-        <Stack style={{ width: "100%", justifyContent: "space-between" }}>
-          <Button
-            type="submit"
-            data-testid="button-submit"
-            text={objectId ? "Save" : "Create"}
-            loading={submitMutation.isLoading}
-            disabled={submitMutation.isLoading}
-            intent="primary"
-          ></Button>
-          {isEditMode && (
+        {values.project?.id && values.issuetype?.id && (
+          <Stack style={{ width: "100%", justifyContent: "space-between" }}>
             <Button
-              text="Cancel"
-              onClick={() => navigate(-1)}
-              intent="secondary"
+              type="submit"
+              data-testid="button-submit"
+              text={objectId ? "Save" : "Create"}
+              loading={submitMutation.isLoading}
+              disabled={submitMutation.isLoading}
+              intent="primary"
             ></Button>
-          )}
-          {!isEditMode && (
-            <Button
-              text="Reset"
-              onClick={() => reset()}
-              intent="secondary"
-            ></Button>
-          )}
-        </Stack>
+            {isEditMode && (
+              <Button
+                text="Cancel"
+                onClick={() => navigate(-1)}
+                intent="secondary"
+              ></Button>
+            )}
+            {!isEditMode && (
+              <Button
+                text="Reset"
+                onClick={() => reset()}
+                intent="secondary"
+              ></Button>
+            )}
+          </Stack>
+        )}
       </Stack>
       <H1>
         {!!submitMutation.error &&

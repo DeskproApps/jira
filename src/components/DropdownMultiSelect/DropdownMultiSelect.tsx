@@ -53,8 +53,8 @@ export const DropdownMultiSelect: FC<DropdownMultiSelectProps> = ({
 
     if (!option) return [v, v, colors.grey20];
     return option?.valueLabel
-      ? [valueAccessor(option.value.id), option.valueLabel, option.color]
-      : [valueAccessor(option.value.id), option.label, option.color];
+      ? [valueAccessor(option.value), option.valueLabel, option.color]
+      : [valueAccessor(option.value), option.label, option.color];
   });
 
   const fixedOptions = options.filter((o) => !vals.includes(o.value));
