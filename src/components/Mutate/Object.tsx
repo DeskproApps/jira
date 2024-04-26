@@ -280,7 +280,6 @@ export const MutateObject = ({ objectId }: Props) => {
           field.key !== "project" &&
           field.key !== "issuetype" &&
           field.name !== "Rank" &&
-          field.name !== "Parent" && //fix
           !field.schema.custom?.includes("integration-plugin")
         );
       })
