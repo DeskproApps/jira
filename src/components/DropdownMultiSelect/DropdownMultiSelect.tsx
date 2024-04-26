@@ -44,6 +44,7 @@ export const DropdownMultiSelect: FC<DropdownMultiSelectProps> = ({
   } = useDeskproAppTheme();
   const [input, setInput] = useState<string>("");
   const vals = Array.isArray(values) ? values : [];
+  const accessedVals = vals.map(valueAccessor);
 
   const valLabels = vals.map((v) => {
     const option = options.find(
@@ -56,7 +57,9 @@ export const DropdownMultiSelect: FC<DropdownMultiSelectProps> = ({
       : [valueAccessor(option.value), option.label, colors.grey20];
   });
 
-  const fixedOptions = options.filter((o) => !vals.includes(o.value));
+  const fixedOptions = options.filter(
+    (o) => !accessedVals.includes(valueAccessor(o.value)),
+  );
 
   const filteredOptions = fixedOptions.filter((opt) =>
     (opt.label as string)?.toLowerCase().includes(input.toLowerCase()),
