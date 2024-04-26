@@ -22,7 +22,10 @@ export const getSchema = (usableFields: any[]) => {
       case "version":
       case "select":
       case "option":
-        return { ...acc, [curr.key]: z.object({ id: z.string() }) };
+        return {
+          ...acc,
+          [curr.key]: z.object({ id: z.coerce.string() }),
+        };
       case "array":
         return { ...acc, [curr.key]: z.array(z.any()) };
       default:

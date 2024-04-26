@@ -261,6 +261,7 @@ export const FormMapping = ({
               setValue={(value: string) => setValue(`${field.key}.id`, value)}
               id={field.key}
               placeholder="Select value"
+              value={values[field.key]?.id}
             />
           );
           break;

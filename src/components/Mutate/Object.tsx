@@ -30,6 +30,7 @@ import { useLinkIssues } from "../../hooks/hooks";
 import { getSchema } from "../../schema/schema";
 import {
   jiraIssueToFormValues,
+  objectToStringWithoutBraces,
   parseJsonErrorMessage,
 } from "../../utils/utils";
 import { ErrorBlock } from "../Error/ErrorBlock";
@@ -330,7 +331,6 @@ export const MutateObject = ({ objectId }: Props) => {
 
       setValue(field, formattedFields[field]);
     });
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [objectId, objectByIdQuery.isSuccess, isEditMode, usableFields]);
   if ((isEditMode && !objectByIdQuery.isSuccess) || !createMetaQuery.data)
@@ -353,13 +353,13 @@ export const MutateObject = ({ objectId }: Props) => {
         )}
         {submitMutation.error ? (
           <ErrorBlock
-            text={
+            text={`${
               (
                 submitMutation.error as {
                   _response: { errorMessages: string[] };
                 }
               )._response.errorMessages
-            }
+            } \n ${objectToStringWithoutBraces((submitMutation.error as { _response: { errors: Record<string, string> } })?._response?.errors ?? {})}`}
           />
         ) : null}
         <FormMapping

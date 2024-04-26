@@ -1,23 +1,22 @@
-import { FC, useState } from "react";
-import {
-  Icon,
-  Stack,
-  AnyIcon,
-  Infinite,
-  Dropdown,
-  DropdownValueType,
-  DropdownTargetProps,
-  DivAsInputWithDisplay,
-  dropdownRenderOptions,
-  Label,
-} from "@deskpro/deskpro-ui";
 import { useDeskproAppTheme } from "@deskpro/app-sdk";
 import {
+  AnyIcon,
+  DivAsInputWithDisplay,
+  Dropdown,
+  DropdownTargetProps,
+  DropdownValueType,
+  Icon,
+  Infinite,
+  Stack,
+  dropdownRenderOptions,
+} from "@deskpro/deskpro-ui";
+import {
   faCaretDown,
-  faTimes,
-  faHandPointer,
   faExternalLinkAlt,
+  faHandPointer,
+  faTimes,
 } from "@fortawesome/free-solid-svg-icons";
+import { FC, useState } from "react";
 
 export interface DropdownMultiSelectValueType extends DropdownValueType<any> {
   valueLabel?: string;
@@ -53,8 +52,8 @@ export const DropdownMultiSelect: FC<DropdownMultiSelectProps> = ({
 
     if (!option) return [v, v, colors.grey20];
     return option?.valueLabel
-      ? [valueAccessor(option.value), option.valueLabel, option.color]
-      : [valueAccessor(option.value), option.label, option.color];
+      ? [valueAccessor(option.value), option.valueLabel, colors.grey20]
+      : [valueAccessor(option.value), option.label, colors.grey20];
   });
 
   const fixedOptions = options.filter((o) => !vals.includes(o.value));
@@ -122,9 +121,13 @@ export const DropdownMultiSelect: FC<DropdownMultiSelectProps> = ({
           value={
             !!valLabels && !!valLabels.length ? (
               <Stack align="center" gap={4} wrap="wrap">
-                {valLabels.map(([val, label, color], idx: number) => (
-                  <Label
-                    color={color ?? colors.grey20}
+                {valLabels.map(([val, label], idx: number) => (
+                  <Stack
+                    style={{
+                      border: `1px solid ${colors.grey20}`,
+                      padding: "3px",
+                      borderRadius: "5px",
+                    }}
                     key={idx}
                     onClick={(e) => {
                       e.preventDefault();
@@ -136,7 +139,7 @@ export const DropdownMultiSelect: FC<DropdownMultiSelectProps> = ({
                       <span style={{ marginRight: "4px" }}>{label}</span>
                       <Icon icon={faTimes as AnyIcon} />
                     </Stack>
-                  </Label>
+                  </Stack>
                 ))}
               </Stack>
             ) : undefined

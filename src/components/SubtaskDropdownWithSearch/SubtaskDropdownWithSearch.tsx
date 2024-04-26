@@ -88,7 +88,7 @@ export const SubtaskDropdownWithSearch: FC<DropdownWithSearchProps> = ({
 
     setLoading(true);
     searchIssues(client, q, { projectId })
-      .then((stories) => setParents(normalize(stories, "key")))
+      .then((stories) => setParents(normalize(stories, "id")))
       .finally(() => setLoading(false));
   }, 500);
 
@@ -105,7 +105,7 @@ export const SubtaskDropdownWithSearch: FC<DropdownWithSearchProps> = ({
         values(parents).map((issue: any) => ({
           key: issue.key,
           label: `[${issue.key}] ${issue.summary}`,
-          value: issue.key,
+          value: issue.id,
           type: "value" as const,
         })),
       );

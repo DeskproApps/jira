@@ -303,3 +303,9 @@ export const jiraIssueToFormValues = (
 
   return values;
 };
+
+export const objectToStringWithoutBraces = (obj: Record<string, string>) => {
+  return Object.entries(obj)
+    .map(([key, value]) => `${key}: ${value}`)
+    .join(" ");
+};

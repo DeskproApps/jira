@@ -12,7 +12,8 @@
     "reporter",
     "priority",
     "attachments",
-    "labels"
+    "labels",
+    "parent"
   ],
   "single": [
     [
