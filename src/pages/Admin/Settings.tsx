@@ -6,10 +6,10 @@ import {
   useInitialisedDeskproAppClient,
   useQueryWithClient,
 } from "@deskpro/app-sdk";
+import { Checkbox, H1, H2, Stack } from "@deskpro/deskpro-ui";
 import { useEffect, useMemo, useState } from "react";
 import { getCreateMeta, getFields } from "../../api/preInstallApi";
-import { DropdownSelect } from "../../components/DropdownSelect1/DropdownSelect";
-import { Checkbox, H1, H2, Stack } from "@deskpro/deskpro-ui";
+import { DropdownSelect } from "../../components/DropdownSelect/DropdownSelect";
 
 export const AdminSettings = () => {
   const [settings, setSettings] = useState<any>({});
@@ -108,6 +108,8 @@ export const AdminSettings = () => {
         ?.issuetypes.map((p) => {
           return {
             key: p.name,
+            label: p.name,
+            type: "value" as const,
             value: p.id,
           };
         }) ?? []
@@ -144,8 +146,8 @@ export const AdminSettings = () => {
           text={
             <DropdownSelect
               error={false}
-              data={projects}
-              onChange={(e) => updateSettings(e, "project")}
+              options={projects}
+              onChange={(e: any) => updateSettings(e, "project")}
               value={selectedSettings.project}
             />
           }
@@ -157,8 +159,8 @@ export const AdminSettings = () => {
             text={
               <DropdownSelect
                 error={false}
-                data={issueTypes}
-                onChange={(e) => updateSettings(e, "issuetype")}
+                options={issueTypes}
+                onChange={(e: any) => updateSettings(e, "issuetype")}
                 value={selectedSettings.issuetype}
               />
             }

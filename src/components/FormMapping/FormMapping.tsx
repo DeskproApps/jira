@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { useQueryWithClient } from "@deskpro/app-sdk";
 import { Input, Label, Stack, TextArea } from "@deskpro/deskpro-ui";
 import { useMemo } from "react";
@@ -79,11 +80,11 @@ export const FormMapping = ({
             "com.atlassian.jira.plugin.system.customfieldtypes:radiobuttons"
           ) {
             content = (
+              //@ts-ignore
               <RadioButtonsField
                 meta={field}
                 field={values[field.key]?.id}
                 onChange={(value: any) => setValue(`${field.key}.id`, value)}
-                valueAccessor={(e: string) => e}
               />
             );
 
@@ -142,6 +143,7 @@ export const FormMapping = ({
                 "com.atlassian.jira.plugin.system.customfieldtypes:multicheckboxes"
               ) {
                 content = (
+                  //@ts-ignore
                   <CheckboxesField
                     meta={field}
                     field={values[field.key]}

@@ -1,9 +1,7 @@
-import { FC } from "react";
 import { Checkbox } from "@deskpro/deskpro-ui";
-import { MappedFieldProps } from "../DateField/DateField";
 import { CreateMeta } from "../../api/types/createMeta";
 
-export const CheckboxesField: FC<MappedFieldProps> = ({
+export const CheckboxesField = ({
   meta,
   field,
   onChange,
