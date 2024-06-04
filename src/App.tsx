@@ -13,7 +13,6 @@ import en from "javascript-time-ago/locale/en.json";
 import { AdminSettings } from "./pages/AdminPage";
 import { ErrorFallback } from "./components/ErrorFallback/ErrorFallback";
 
-import "iframe-resizer/js/iframeResizer.contentWindow.js";
 import "./App.css";
 import "flatpickr/dist/themes/light.css";
 import "tippy.js/dist/tippy.css";
