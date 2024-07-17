@@ -84,8 +84,6 @@ export const MutateObject = ({ objectId }: Props) => {
   );
 
   const submitMutation = useMutationWithClient(
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    //@ts-ignore
     (client, values: any) => {
       return isEditMode
         ? updateIssue(

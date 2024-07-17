@@ -7,7 +7,6 @@ import { HashRouter, Route, Routes } from "react-router-dom";
 import { ErrorFallback } from "./components/ErrorFallback/ErrorFallback";
 import { Home as Main } from "./pages/Main";
 
-import "iframe-resizer/js/iframeResizer.contentWindow.js";
 import "./App.css";
 import "flatpickr/dist/themes/light.css";
 import "simplebar/dist/simplebar.min.css";

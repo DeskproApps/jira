@@ -1,5 +1,5 @@
 import { FC, Fragment } from "react";
-import { AnyIcon, H1, H4, Spinner, Stack } from "@deskpro/deskpro-ui";
+import { H1, H4, Spinner, Stack } from "@deskpro/deskpro-ui";
 import {
   HorizontalDivider,
   Link,
@@ -48,15 +48,10 @@ export const CommentsList: FC<CommentsListProps> = ({
       <Stack>
         <H1>Comments ({comments.length})</H1>
         <FontAwesomeIcon
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          //@ts-ignore
-          icon={faPlus as AnyIcon}
+          icon={faPlus}
           color={theme.colors.grey80}
           size="xs"
-          onClick={
-            () => navigate(`/create/comment/${issueKey}`)
-            //navigate create comment
-          }
+          onClick={() => navigate(`/create/comment/${issueKey}`)}
           className="comment-list-add-comment"
         />
       </Stack>

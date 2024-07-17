@@ -4,7 +4,6 @@ import { Input, Label, Stack, TextArea } from "@deskpro/deskpro-ui";
 import { useMemo } from "react";
 import { getVersionsByProjectId } from "../../api/api";
 import { Assignee, Attachment, CreateMeta } from "../../api/types/createMeta";
-import { IssueMeta } from "../../types";
 import { AttachmentsField } from "../AttachmentsField/AttachmentsField";
 import { CheckboxesField } from "../Checkbox/CheckboxesField";
 import { DateField } from "../DateField/DateField";
@@ -126,10 +125,10 @@ export const FormMapping = ({
         case "datetime":
           content = (
             <DateField
-              meta={{ name: field.name } as unknown as IssueMeta}
+              label={field.name}
               error={errors[field.key]}
               id={field.key}
-              value={new Date(values[field.key])}
+              value={new Date(values[field.key]) as never}
               onChange={(value: Date[]) => setValue(field.key, value[0])}
             />
           );

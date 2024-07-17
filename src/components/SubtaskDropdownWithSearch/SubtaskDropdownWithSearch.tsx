@@ -1,15 +1,6 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { FC, useEffect, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
-//@ts-ignore
-import isEmpty from "lodash.isempty";
-//@ts-ignore
-import values from "lodash.values";
-//@ts-ignore
-import get from "lodash.get";
-//@ts-ignore
-import noop from "lodash.noop";
+import { isEmpty, values, get, noop } from "lodash";
 import { useDeskproAppClient, useDeskproAppTheme } from "@deskpro/app-sdk";
 import {
   AnyIcon,

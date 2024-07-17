@@ -75,11 +75,7 @@ export const ViewObject = () => {
         ],
       });
 
-      client.setTitle(
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        //@ts-ignore
-        (objectQuery.data[0].key as string) || "View",
-      );
+      client.setTitle((objectQuery.data[0].key as string) || "View");
     },
     [objectQuery.isSuccess, objectView],
   );

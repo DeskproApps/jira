@@ -1,8 +1,6 @@
 import { DateInput, useDeskproAppTheme } from "@deskpro/app-sdk";
 import { H1, Stack } from "@deskpro/deskpro-ui";
 import { FC } from "react";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-expect-error
 import { DateTimePickerProps } from "react-flatpickr";
 import "./DateField.css";
 import "flatpickr/dist/themes/light.css";
