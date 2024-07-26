@@ -1,52 +1,57 @@
 import { FC, Fragment } from "react";
-import { AnyIcon, H1, H4, Spinner, Stack } from "@deskpro/deskpro-ui";
+import { H1, H4, Spinner, Stack } from "@deskpro/deskpro-ui";
 import {
   HorizontalDivider,
+  Link,
   useDeskproAppTheme,
+  useDeskproLatestAppContext,
+  useQueryWithClient,
 } from "@deskpro/app-sdk";
-import { useFindIssueComments } from "../../hooks";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useStore } from "../../context/StoreProvider/hooks";
-import { JiraComment } from "../../context/StoreProvider/types/types";
-import { addBlankTargetToLinks } from "../../utils";
 import "./CommentsList.css";
-import { ExternalLink } from "../ExternalLink/ExternalLink";
 import ReactTimeAgo from "react-time-ago";
+import { getIssueComments } from "../../api/api";
+import { JiraComment } from "../../api/types/types";
+import { addBlankTargetToLinks } from "../../utils/utils";
+import { useNavigate } from "react-router-dom";
 
 interface CommentsListProps {
-  domain: string;
   issueKey: string;
 }
 
 export const CommentsList: FC<CommentsListProps> = ({
   issueKey,
-  domain,
 }: CommentsListProps) => {
-  const [, dispatch] = useStore();
   const { theme } = useDeskproAppTheme();
-  const comments = useFindIssueComments(issueKey);
+  const { context } = useDeskproLatestAppContext();
+  const navigate = useNavigate();
 
-  if (!comments) {
+  const commentsQuery = useQueryWithClient(
+    [issueKey],
+    (client) => getIssueComments(client, issueKey),
+    {
+      enabled: !!issueKey,
+    },
+  );
+
+  if (!commentsQuery.isSuccess) {
     return <Spinner size="small" />;
   }
+
+  const comments = commentsQuery.data;
+
+  const domain = context?.settings.domain;
 
   return (
     <>
       <Stack>
         <H1>Comments ({comments.length})</H1>
         <FontAwesomeIcon
-          //@ts-ignore
-          icon={faPlus as AnyIcon}
+          icon={faPlus}
           color={theme.colors.grey80}
           size="xs"
-          onClick={() =>
-            dispatch({
-              type: "changePage",
-              page: "comment",
-              params: { issueKey },
-            })
-          }
+          onClick={() => navigate(`/create/comment/${issueKey}`)}
           className="comment-list-add-comment"
         />
       </Stack>
@@ -74,9 +79,13 @@ export const CommentsList: FC<CommentsListProps> = ({
                 </Stack>
                 <Stack gap={1} align="center">
                   <H4>
-                    <ReactTimeAgo date={comment.created} timeStyle="twitter" />
+                    <ReactTimeAgo
+                      date={comment.created}
+                      timeStyle="twitter"
+                      locale="us"
+                    />
                   </H4>
-                  <ExternalLink
+                  <Link
                     href={`https://${domain}.atlassian.net/browse/${issueKey}?focusedCommentId=${comment.id}`}
                     style={{ marginBottom: "5px" }}
                   />

@@ -5,6 +5,7 @@ module.exports = {
   plugins: ["@typescript-eslint"],
   extends: [
     "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
     "plugin:react-hooks/recommended",
     "prettier",
   ],
@@ -14,7 +15,7 @@ module.exports = {
       "warn",
       { ignoreRestSiblings: true, argsIgnorePattern: "^_" },
     ],
-    "no-undef": 0,
-    "no-console": "error",
+    "no-console": "warn",
+    "@typescript-eslint/no-explicit-any": "off",
   },
 };

@@ -1,7 +1,0 @@
-.create-form-field {
-    width: 100%;
-}
-
-.paragraph-field:focus, .paragraph-field.has-value {
-    min-height: 100px;
-}

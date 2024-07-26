@@ -1,114 +1,153 @@
-import { FC, useEffect, useCallback, useState } from "react";
-import { __, match } from "ts-pattern";
 import {
-  Context,
+  HorizontalDivider,
+  LoadingSpinner,
   TargetAction,
   useDeskproAppClient,
   useDeskproAppEvents,
   useDeskproLatestAppContext,
   useInitialisedDeskproAppClient,
+  useQueryWithClient,
 } from "@deskpro/app-sdk";
-import { useStore } from "../context/StoreProvider/hooks";
-import { Home } from "./Home";
-import { Link } from "./Link";
-import { View } from "./View";
-import { Page } from "../context/StoreProvider/types/types";
-import { ErrorBlock } from "../components/Error/ErrorBlock";
+import { match } from "ts-pattern";
+
+import { AnyIcon, IconButton, Input, Stack } from "@deskpro/deskpro-ui";
+import { faSearch, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { ChangeEvent, FC, useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useDebouncedCallback } from "use-debounce";
-import { Create } from "./Create";
-import {
-  addIssueComment,
-  removeRemoteLink,
-} from "../context/StoreProvider/api";
-import { Edit } from "./Edit";
-import { Comment } from "./Comment";
+import { addIssueComment, getFields } from "../api/api";
+import { FieldMapping } from "../components/FieldMapping/FieldMapping";
+import { useLoadLinkedIssues } from "../hooks/hooks";
+import IssueJson from "../mapping/issue.json";
+import { ReplyBoxNoteSelection } from "../types";
 import {
   registerReplyBoxEmailsAdditionsTargetAction,
   registerReplyBoxNotesAdditionsTargetAction,
   ticketReplyEmailsSelectionStateKey,
   ticketReplyNotesSelectionStateKey,
-} from "../utils";
-import { ReplyBoxNoteSelection } from "../types";
-import { useLoadLinkedIssues, useWhenNoLinkedItems } from "../hooks";
-import { ViewPermissions } from "./ViewPermissions";
-import { VerifySettings } from "./VerifySettings";
+} from "../utils/utils";
 
-export const Main: FC = () => {
+export const Home: FC = () => {
+  const navigate = useNavigate();
   const { client } = useDeskproAppClient();
-  const [state, dispatch] = useStore();
-  const { context } = useDeskproLatestAppContext();
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const [hasMappedFields, setHasMappedFields] = useState<boolean | undefined>(
-    undefined
+    undefined,
   );
-  const loadLinkedIssues = useLoadLinkedIssues(hasMappedFields);
+  const [mappedFields, setMappedFields] = useState<string[]>([]);
+  const { context } = useDeskproLatestAppContext();
+  const [linkedCount, setLinkedCount] = useState<Record<string, number>>({});
+
+  const [searchQuery, setSearchQuery] = useState<string>("");
+
+  const loadLinkedIssues = useLoadLinkedIssues();
+
+  const metadataFieldsQuery = useQueryWithClient(["metadataFields"], (client) =>
+    getFields(client),
+  );
+
+  const linkedIssuesQuery = useQueryWithClient(
+    ["linkedIssues"],
+    async () => loadLinkedIssues(),
+    {
+      enabled: !!client && !!context,
+      async onSuccess(data) {
+        if (data.length === 0) {
+          navigate("/findOrCreate");
+        }
+        const linkedItems: Record<string, number> = {};
+
+        await Promise.all(
+          data.map(
+            async (item) => {
+              linkedItems[item.id] = (
+                await client!.getState(`jira/items/${item.id}`)
+              )?.[0]?.data as number;
+            },
+            {} as Record<string, number>,
+          ),
+        );
+
+        setLinkedCount(linkedItems);
+      },
+    },
+  );
+
+  const linkedIssuesResults = linkedIssuesQuery.data;
 
   useEffect(() => {
     if (!context) return;
-    const data = JSON.parse(context?.settings?.mapping ?? "{}");
 
-    if (!data) return;
-    setHasMappedFields(!!data.detailView?.length);
+    const data = JSON.parse(context?.settings.mapping ?? "{}");
+
+    if (!data) {
+      setMappedFields([]);
+      setHasMappedFields(false);
+    }
+    setMappedFields(data.listView ?? []);
+    setHasMappedFields(!!data.listView?.length);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [context]);
 
-  if (state._error) {
-    // eslint-disable-next-line no-console
-    console.error(state._error);
-  }
+  const usableFields = useMemo(() => {
+    if (!metadataFieldsQuery.data || hasMappedFields === undefined) return [];
 
-  useWhenNoLinkedItems(
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    useCallback(() => dispatch({ type: "changePage", page: "link" }), [])
-  );
-
-  useEffect(() => {
-    client?.registerElement("refresh", { type: "refresh_button" });
-  }, [client]);
+    return metadataFieldsQuery.data.filter((field) =>
+      (hasMappedFields ? mappedFields : IssueJson.main).includes(field.key),
+    );
+  }, [metadataFieldsQuery.data, hasMappedFields, mappedFields]);
 
   const debounceTargetAction = useDebouncedCallback<
     (a: TargetAction<ReplyBoxNoteSelection[]>) => void
   >((action: TargetAction) => {
     match<string>(action.name)
-      .with("linkTicket", () => dispatch({ type: "changePage", page: "link" }))
       .with("jiraReplyBoxNoteAdditions", () =>
         (action.payload ?? []).forEach(
           (selection: { id: string; selected: boolean }) => {
             const ticketId = action.subject;
 
-            if (state.context?.data.ticket.id) {
+            if (context?.data.ticket.id) {
               client
                 ?.setState(
                   ticketReplyNotesSelectionStateKey(ticketId, selection.id),
-                  { id: selection.id, selected: selection.selected }
+                  { id: selection.id, selected: selection.selected },
                 )
                 .then((result) => {
                   if (result.isSuccess) {
-                    registerReplyBoxNotesAdditionsTargetAction(client, state);
+                    registerReplyBoxNotesAdditionsTargetAction(
+                      client,
+                      context.data.ticket.id,
+                      linkedIssues,
+                    );
                   }
                 });
             }
-          }
-        )
+          },
+        ),
       )
       .with("jiraReplyBoxEmailAdditions", () =>
         (action.payload ?? []).forEach(
           (selection: { id: string; selected: boolean }) => {
             const ticketId = action.subject;
 
-            if (state.context?.data.ticket.id) {
+            if (context?.data.ticket.id) {
               client
                 ?.setState(
                   ticketReplyEmailsSelectionStateKey(ticketId, selection.id),
-                  { id: selection.id, selected: selection.selected }
+                  { id: selection.id, selected: selection.selected },
                 )
                 .then((result) => {
                   if (result.isSuccess) {
-                    registerReplyBoxEmailsAdditionsTargetAction(client, state);
+                    registerReplyBoxEmailsAdditionsTargetAction(
+                      client,
+                      context.data.ticket.id,
+                      linkedIssues,
+                    );
                   }
                 });
             }
-          }
-        )
+          },
+        ),
       )
       .with("jiraOnReplyBoxNote", () => {
         const ticketId = action.subject;
@@ -118,21 +157,23 @@ export const Main: FC = () => {
           return;
         }
 
-        if (ticketId !== state.context?.data.ticket.id) {
+        if (ticketId !== context?.data.ticket.id) {
           return;
         }
 
         client.setBlocking(true);
         client
           .getState<{ id: string; selected: boolean }>(
-            `tickets/${ticketId}/notes/*`
+            `tickets/${ticketId}/notes/*`,
           )
           .then((r) => {
             const issueIds = r
               .filter(({ data }) => data?.selected)
               .map(({ data }) => data?.id as string);
             return Promise.all(
-              issueIds.map((issueId) => addIssueComment(client, issueId, note))
+              issueIds.map((issueId) => {
+                return addIssueComment(client, issueId, note);
+              }),
             );
           })
           .then(() => loadLinkedIssues())
@@ -146,21 +187,23 @@ export const Main: FC = () => {
           return;
         }
 
-        if (ticketId !== state.context?.data.ticket.id) {
+        if (ticketId !== context?.data.ticket.id) {
           return;
         }
 
         client.setBlocking(true);
         client
           .getState<{ id: string; selected: boolean }>(
-            `tickets/${ticketId}/emails/*`
+            `tickets/${ticketId}/emails/*`,
           )
           .then((r) => {
             const issueIds = r
               .filter(({ data }) => data?.selected)
               .map(({ data }) => data?.id as string);
             return Promise.all(
-              issueIds.map((issueId) => addIssueComment(client, issueId, email))
+              issueIds.map((issueId) => {
+                addIssueComment(client, issueId, email);
+              }),
             );
           })
           .then(() => loadLinkedIssues())
@@ -169,90 +212,128 @@ export const Main: FC = () => {
       .run();
   }, 500);
 
-  const unlinkTicket = ({ issueKey }: any) => {
-    if (!state?.context?.data.ticket) {
-      return;
+  useInitialisedDeskproAppClient(
+    (client) => {
+      client?.registerElement("addIssue", { type: "plus_button" });
+
+      client.setTitle("JIRA Issues");
+
+      client?.deregisterElement("menuButton");
+      client?.deregisterElement("editButton");
+      client?.deregisterElement("viewContextMenu");
+    },
+    [context],
+  );
+
+  useDeskproAppEvents({
+    onElementEvent(id) {
+      switch (id) {
+        case "addIssue":
+          navigate("/findOrCreate");
+          break;
+
+        case "home":
+          navigate("/redirect");
+          break;
+      }
+    },
+    onTargetAction: (a) => {
+      return debounceTargetAction(a as TargetAction);
+    },
+  });
+
+  const linkedIssues = useMemo(() => {
+    const linkedIssuiesWithDeskproLinkedCount = linkedIssuesResults?.map(
+      (issue) => ({
+        ...issue,
+        linkedCount: linkedCount[issue.id],
+      }),
+    );
+
+    if (!searchQuery) {
+      return linkedIssuiesWithDeskproLinkedCount || [];
     }
-
-    const contextData = state?.context?.data;
-
-    dispatch({ type: "unlinkIssue", key: issueKey });
-
-    client
-      ?.getEntityAssociation("linkedJiraIssues", contextData.ticket.id)
-      .delete(issueKey)
-      .then(() => removeRemoteLink(client, issueKey, contextData.ticket.id))
-      .then(() => dispatch({ type: "changePage", page: "home" }));
-  };
+    if (
+      linkedIssuesQuery.isSuccess &&
+      linkedIssuiesWithDeskproLinkedCount?.length === 0 &&
+      !searchQuery
+    )
+      navigate("/create");
+    return (linkedIssuiesWithDeskproLinkedCount || []).filter(
+      (item) =>
+        item.summary
+          .replace("-", "")
+          .toLowerCase()
+          .includes(searchQuery.replace("-", "").toLowerCase()) ||
+        item.key
+          .replace("-", "")
+          .toLowerCase()
+          .includes(searchQuery.replace("-", "").toLowerCase()),
+    );
+  }, [
+    linkedIssuesResults,
+    searchQuery,
+    linkedIssuesQuery.isSuccess,
+    navigate,
+    linkedCount,
+  ]);
 
   useInitialisedDeskproAppClient(
     (client) => {
-      registerReplyBoxNotesAdditionsTargetAction(client, state);
-      registerReplyBoxEmailsAdditionsTargetAction(client, state);
+      if (!context || linkedIssues.length === 0) return;
+
+      registerReplyBoxNotesAdditionsTargetAction(
+        client,
+        context?.data.ticket.id,
+        linkedIssues,
+      );
+      registerReplyBoxEmailsAdditionsTargetAction(
+        client,
+        context?.data.ticket.id,
+        linkedIssues,
+      );
       client.registerTargetAction("jiraOnReplyBoxNote", "on_reply_box_note");
       client.registerTargetAction("jiraOnReplyBoxEmail", "on_reply_box_email");
     },
-    [state.linkedIssuesResults?.list, state?.context?.data]
+    [context, linkedIssues],
   );
 
-  useDeskproAppEvents(
-    {
-      onChange: (context: Context) => {
-        context && dispatch({ type: "loadContext", context: context });
-      },
-      onShow: () => {
-        client && setTimeout(() => client.resize(), 200);
-      },
-      onElementEvent: (id, type, payload) => {
-        match<[string, any]>([id, payload])
-          .with(["addIssue", __], () =>
-            dispatch({ type: "changePage", page: "link" })
-          )
-          .with(["home", __], () =>
-            dispatch({ type: "changePage", page: "home" })
-          )
-          .with(["edit", __], () =>
-            dispatch({
-              type: "changePage",
-              page: "edit",
-              params: { issueKey: payload },
-            })
-          )
-          .with([__, { action: "unlink", issueKey: __ }], () =>
-            unlinkTicket(payload)
-          )
-          .with([__, { action: "viewPermissions" }], () =>
-            dispatch({ type: "changePage", page: "view_permissions" })
-          )
-          .otherwise(() => {});
-      },
-      onTargetAction: (a) => debounceTargetAction(a as TargetAction),
-    },
-    [client, state.context?.data]
-  );
+  const loading = linkedIssuesQuery.isLoading;
 
-  useEffect(() => {
-    const queryParams = new URLSearchParams(window.location.search);
+  if (loading || hasMappedFields === undefined || !context)
+    return <LoadingSpinner />;
 
-    const page = queryParams.get("page") as Page | null;
+  if (linkedIssues.length === 0 && !searchQuery) navigate("/findOrCreate");
 
-    page && dispatch({ type: "changePage", page });
-  }, [dispatch]);
-
-  const page = match<Page | undefined>(state.page)
-    .with("verify_settings", () => <VerifySettings {...state.pageParams} />)
-    .with("home", () => <Home {...state.pageParams} />)
-    .with("link", () => <Link {...state.pageParams} />)
-    .with("view", () => <View {...state.pageParams} />)
-    .with("create", () => <Create {...state.pageParams} />)
-    .with("edit", () => <Edit {...state.pageParams} />)
-    .with("comment", () => <Comment {...state.pageParams} />)
-    .with("view_permissions", () => <ViewPermissions {...state.pageParams} />)
-    .otherwise(() => <Home {...state.pageParams} />);
   return (
     <>
-      {state._error && <ErrorBlock text="An error occurred" />}
-      {page}
+      <Stack>
+        <Input
+          ref={searchInputRef}
+          value={searchQuery}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setSearchQuery(e.target.value)
+          }
+          leftIcon={faSearch as AnyIcon}
+          rightIcon={
+            <IconButton
+              icon={faTimes}
+              onClick={() => setSearchQuery("")}
+              minimal
+            />
+          }
+        />
+      </Stack>
+      <HorizontalDivider style={{ marginTop: "8px", marginBottom: "8px" }} />
+      <Stack vertical gap={10}>
+        <FieldMapping
+          items={linkedIssues}
+          metadata={usableFields}
+          internalChildUrl={IssueJson.internalChildUrl}
+          externalChildUrl={IssueJson.externalChildUrl}
+          childTitleAccessor={(e) => e[IssueJson.titleKeyName]}
+        />
+      </Stack>
     </>
   );
 };

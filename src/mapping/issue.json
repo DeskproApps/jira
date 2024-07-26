@@ -1,0 +1,78 @@
+{
+  "titleKeyName": "summary",
+  "idKey": "key",
+  "externalUrl": "__client_url__main.aspx?pagetype=entitylist&etn=activity",
+  "externalChildUrl": "https://__domain__.atlassian.net/browse/__key__",
+  "internalChildUrl": "/view/single/__key__",
+  "internalUrl": "/view/list/",
+  "title": "Activity",
+  "create": [
+    "summary",
+    "description",
+    "reporter",
+    "priority",
+    "attachments",
+    "labels"
+  ],
+  "single": [
+    [
+      {
+        "name": "activityid",
+        "label": "Activity Id",
+        "type": "text"
+      }
+    ],
+    [
+      {
+        "name": "description",
+        "label": "Description",
+        "type": "textarea"
+      }
+    ],
+    [
+      {
+        "name": "scheduledstart",
+        "label": "Scheduled Start",
+        "type": "datetime"
+      }
+    ],
+    [
+      {
+        "name": "scheduledend",
+        "label": "Scheduled End",
+        "type": "datetime"
+      }
+    ]
+  ],
+  "list": [
+    [
+      {
+        "name": "subject",
+        "label": "Subject",
+        "type": "text"
+      },
+      {
+        "name": "scheduledstart",
+        "label": "Scheduled Start",
+        "type": "datetime"
+      }
+    ]
+  ],
+  "view": [
+    "key",
+    "project",
+    "status",
+    "reporter",
+    "epic",
+    "description",
+    "priority",
+    "labels"
+  ],
+  "main": [
+    "key",
+    "project",
+    "status",
+    "reporter",
+    "linkedCount"
+  ]
+}

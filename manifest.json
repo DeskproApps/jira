@@ -59,7 +59,9 @@
     "verify_settings": {
       "title": "",
       "type": "app_embedded",
-      "options": { "entrypoint": "?page=verify_settings" },
+      "options": {
+        "entrypoint": "#/verifySettings"
+      },
       "isRequired": false,
       "isBackendOnly": false,
       "order": 40
@@ -91,7 +93,9 @@
     "mapping": {
       "title": "",
       "type": "app_embedded",
-      "options": { "entrypoint": "#/admin_mapping" },
+      "options": {
+        "entrypoint": "#/admin_mapping"
+      },
       "isRequired": false,
       "isBackendOnly": false,
       "order": 80
@@ -101,7 +105,12 @@
     "whitelist": [
       {
         "url": "https://(.*).atlassian.net/rest/api/.*",
-        "methods": ["GET", "POST", "PUT", "DELETE"],
+        "methods": [
+          "GET",
+          "POST",
+          "PUT",
+          "DELETE"
+        ],
         "timeout": 30
       }
     ]

@@ -1,6 +1,7 @@
 import { faRefresh } from "@fortawesome/free-solid-svg-icons";
 
-import { AnyIcon, Button, H1, H2, Stack } from "@deskpro/deskpro-ui";
+import { parseJsonErrorMessage } from "../../utils/utils";
+import { Button, H1, H2, Stack } from "@deskpro/deskpro-ui";
 
 export const ErrorFallback = ({
   error,
@@ -12,11 +13,13 @@ export const ErrorFallback = ({
   return (
     <Stack vertical gap={10} role="alert">
       <H1>Something went wrong:</H1>
-      <H2 style={{ maxWidth: "100%" }}>{error?.message || error}</H2>
+      <H2 style={{ maxWidth: "100%" }}>
+        {parseJsonErrorMessage(error.message) || (error as unknown as string)}
+      </H2>
       <Button
         text="Reload"
         onClick={resetErrorBoundary}
-        icon={faRefresh as AnyIcon}
+        icon={faRefresh}
         intent="secondary"
       />
     </Stack>

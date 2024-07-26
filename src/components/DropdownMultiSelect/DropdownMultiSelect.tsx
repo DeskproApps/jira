@@ -1,25 +1,22 @@
-import { FC, useState } from "react";
-import {
-  Icon,
-  Stack,
-  AnyIcon,
-  Infinite,
-  Dropdown,
-  DropdownValueType,
-  DropdownTargetProps,
-  DivAsInputWithDisplay,
-  dropdownRenderOptions,
-} from "@deskpro/deskpro-ui";
 import { useDeskproAppTheme } from "@deskpro/app-sdk";
 import {
+  AnyIcon,
+  DivAsInputWithDisplay,
+  Dropdown,
+  DropdownTargetProps,
+  DropdownValueType,
+  Icon,
+  Infinite,
+  Stack,
+  dropdownRenderOptions,
+} from "@deskpro/deskpro-ui";
+import {
   faCaretDown,
-  faTimes,
-  faHandPointer,
   faExternalLinkAlt,
+  faHandPointer,
+  faTimes,
 } from "@fortawesome/free-solid-svg-icons";
-import { FieldHelperProps } from "formik";
-import { Label } from "../Label/Label";
-import { sortedUniq } from "lodash";
+import { FC, useState } from "react";
 
 export interface DropdownMultiSelectValueType extends DropdownValueType<any> {
   valueLabel?: string;
@@ -27,39 +24,47 @@ export interface DropdownMultiSelectValueType extends DropdownValueType<any> {
 }
 
 export interface DropdownMultiSelectProps {
-  helpers: FieldHelperProps<any>;
   options: DropdownMultiSelectValueType[];
   id?: string;
-  placeholder?: string;
   values?: any[];
+  error: boolean;
+  onChange: (key: any) => void;
+  valueAccessor: (e: any) => any;
 }
 
 export const DropdownMultiSelect: FC<DropdownMultiSelectProps> = ({
-  helpers,
-  id,
-  placeholder,
   values,
   options,
+  error,
+  onChange,
+  valueAccessor,
 }: DropdownMultiSelectProps) => {
   const {
     theme: { colors },
   } = useDeskproAppTheme();
   const [input, setInput] = useState<string>("");
   const vals = Array.isArray(values) ? values : [];
+  const accessedVals = vals.map(valueAccessor);
 
   const valLabels = vals.map((v) => {
-    const option = options.filter((o) => o.value === v)[0];
+    const option = options.find(
+      (o) => valueAccessor(o.value) === valueAccessor(v),
+    );
+
     if (!option) return [v, v, colors.grey20];
     return option?.valueLabel
-      ? [option.value, option.valueLabel, option.color]
-      : [option.value, option.label, option.color];
+      ? [valueAccessor(option.value), option.valueLabel, colors.grey20]
+      : [valueAccessor(option.value), option.label, colors.grey20];
   });
 
-  const fixedOptions = options.filter((o) => !vals.includes(o.value));
+  const fixedOptions = options.filter(
+    (o) => !accessedVals.includes(valueAccessor(o.value)),
+  );
 
   const filteredOptions = fixedOptions.filter((opt) =>
-    (opt.label as string).toLowerCase().includes(input.toLowerCase())
+    (opt.label as string)?.toLowerCase().includes(input.toLowerCase()),
   );
+
   return (
     <Dropdown
       showInternalSearch
@@ -67,8 +72,7 @@ export const DropdownMultiSelect: FC<DropdownMultiSelectProps> = ({
       onInputChange={setInput}
       options={filteredOptions}
       onSelectOption={(option) => {
-        helpers.setTouched(true);
-        helpers.setValue(sortedUniq([...vals, option.value]));
+        onChange([option.value, ...vals]);
       }}
       fetchMoreText="Fetch more"
       autoscrollText="Autoscroll"
@@ -80,7 +84,7 @@ export const DropdownMultiSelect: FC<DropdownMultiSelectProps> = ({
         activeItem,
         activeSubItem,
         setActiveSubItem,
-        hideIcons
+        hideIcons,
       ) => (
         <Infinite
           maxHeight={"40vh"}
@@ -105,7 +109,7 @@ export const DropdownMultiSelect: FC<DropdownMultiSelectProps> = ({
                 hideIcons,
                 setActiveValueIndex: () => {},
                 valueOptions: [],
-              })
+              }),
             )}
           </div>
         </Infinite>
@@ -114,27 +118,35 @@ export const DropdownMultiSelect: FC<DropdownMultiSelectProps> = ({
     >
       {({ targetRef, targetProps }: DropdownTargetProps<HTMLDivElement>) => (
         <DivAsInputWithDisplay
-          id={id}
-          placeholder={placeholder}
-          value={
-            <Stack align="center" gap={4} wrap="wrap">
-              {valLabels.map(([val, label, color], idx: number) => (
-                <Label
-                  color={color ?? colors.grey20}
-                  key={idx}
-                  onClick={() =>
-                    helpers.setValue(vals.filter((v) => v !== val))
-                  }
-                >
-                  <Stack align="center">
-                    <span style={{ marginRight: "4px" }}>{label}</span>
-                    <Icon icon={faTimes as AnyIcon} />
-                  </Stack>
-                </Label>
-              ))}
-            </Stack>
-          }
+          placeholder={"Select value"}
+          error={error}
           variant="inline"
+          value={
+            !!valLabels && !!valLabels.length ? (
+              <Stack align="center" gap={4} wrap="wrap">
+                {valLabels.map(([val, label], idx: number) => (
+                  <Stack
+                    style={{
+                      border: `1px solid ${colors.grey20}`,
+                      padding: "3px",
+                      borderRadius: "5px",
+                    }}
+                    key={idx}
+                    onClick={(e) => {
+                      e.preventDefault();
+
+                      onChange(vals.filter((v) => valueAccessor(v) !== val));
+                    }}
+                  >
+                    <Stack align="center">
+                      <span style={{ marginRight: "4px" }}>{label}</span>
+                      <Icon icon={faTimes as AnyIcon} />
+                    </Stack>
+                  </Stack>
+                ))}
+              </Stack>
+            ) : undefined
+          }
           rightIcon={faCaretDown as AnyIcon}
           ref={targetRef}
           {...targetProps}

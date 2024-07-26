@@ -13,32 +13,32 @@ import {
   faHandPointer,
   faExternalLinkAlt,
 } from "@fortawesome/free-solid-svg-icons";
-import { FieldHelperProps } from "formik";
 
 export interface DropdownSelectProps {
-  helpers: FieldHelperProps<any>;
   options: DropdownValueType<any>[];
   id?: string;
-  placeholder?: string;
   value?: any;
   disabled?: boolean;
+  error: boolean;
   containerMaxHeight?: number;
+  onChange: (key: any) => void;
 }
 
 export const DropdownSelect: FC<DropdownSelectProps> = ({
-  helpers,
-  id,
-  placeholder,
   value,
   options,
+  error,
+  onChange,
   ...props
 }: DropdownSelectProps) => {
   const [input, setInput] = useState<string>("");
-
   const selectedValue =
-    options.filter((o) => o.value === value)[0]?.label ?? "";
+    value === undefined
+      ? undefined
+      : options.filter((o) => o.value === value)[0]?.label ?? "";
+
   const filteredOptions = options.filter((opt) =>
-    (opt.label as string).toLowerCase().includes(input.toLowerCase())
+    (opt.label as string).toLowerCase().includes(input.toLowerCase()),
   );
 
   return (
@@ -49,8 +49,7 @@ export const DropdownSelect: FC<DropdownSelectProps> = ({
       inputValue={input}
       onInputChange={setInput}
       onSelectOption={(option) => {
-        helpers.setTouched(true);
-        helpers.setValue(option.value);
+        onChange(option.value);
       }}
       fetchMoreText="Fetch more"
       autoscrollText="Autoscroll"
@@ -62,7 +61,7 @@ export const DropdownSelect: FC<DropdownSelectProps> = ({
         activeItem,
         activeSubItem,
         setActiveSubItem,
-        hideIcons
+        hideIcons,
       ) => (
         <Infinite
           maxHeight={"30vh"}
@@ -87,7 +86,7 @@ export const DropdownSelect: FC<DropdownSelectProps> = ({
                 hideIcons,
                 setActiveValueIndex: () => {},
                 valueOptions: [],
-              })
+              }),
             )}
           </div>
         </Infinite>
@@ -96,8 +95,8 @@ export const DropdownSelect: FC<DropdownSelectProps> = ({
     >
       {({ targetRef, targetProps }: DropdownTargetProps<HTMLDivElement>) => (
         <DivAsInputWithDisplay
-          id={id}
-          placeholder={placeholder}
+          error={error}
+          placeholder={"Select value"}
           value={selectedValue}
           variant="inline"
           rightIcon={faCaretDown as AnyIcon}

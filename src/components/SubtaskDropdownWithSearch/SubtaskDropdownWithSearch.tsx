@@ -1,35 +1,28 @@
 import { FC, useEffect, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
-import isEmpty from "lodash/isEmpty";
-import values from "lodash/values";
-import get from "lodash/get";
-import noop from "lodash/noop";
-import { FieldHelperProps } from "formik";
+import { isEmpty, values, get, noop } from "lodash";
+import { useDeskproAppClient, useDeskproAppTheme } from "@deskpro/app-sdk";
 import {
-  Spinner,
   AnyIcon,
-  Infinite,
+  DivAsInputWithDisplay,
   Dropdown,
-  DropdownValueType,
   DropdownHeaderType,
   DropdownTargetProps,
+  DropdownValueType,
+  Infinite,
+  Spinner,
   dropdownRenderOptions,
-  DivAsInputWithDisplay,
 } from "@deskpro/deskpro-ui";
 import {
-  useDeskproAppTheme,
-  useDeskproAppClient,
-} from "@deskpro/app-sdk";
-import {
   faCaretDown,
-  faHandPointer,
   faExternalLinkAlt,
+  faHandPointer,
 } from "@fortawesome/free-solid-svg-icons";
-import { searchIssues } from "../../context/StoreProvider/api";
-import { normalize } from "../../utils";
+import { searchIssues } from "../../api/api";
+import { normalize } from "../../utils/utils";
 
 export interface DropdownWithSearchProps {
-  helpers: FieldHelperProps<any>;
+  setValue: any;
   id?: string;
   placeholder?: string;
   value?: any;
@@ -39,29 +32,34 @@ export interface DropdownWithSearchProps {
 
 const NoFound = () => {
   const { theme } = useDeskproAppTheme();
-  return (
-      <span style={{ color: theme.colors.grey80 }}>
-        No issues found.
-      </span>
-  );
-}
+  return <span style={{ color: theme.colors.grey80 }}>No issues found.</span>;
+};
 
 const SearchForParent = () => {
   const { theme } = useDeskproAppTheme();
   return (
-      <span style={{ color: theme.colors.grey80 }}>
-        Search for a parent issue.
-      </span>
+    <span style={{ color: theme.colors.grey80 }}>
+      Search for a parent issue.
+    </span>
   );
 };
 
-export const SubtaskDropdownWithSearch: FC<DropdownWithSearchProps> = ({ helpers, id, placeholder, value, projectId, ...props }) => {
+export const SubtaskDropdownWithSearch: FC<DropdownWithSearchProps> = ({
+  setValue,
+  id,
+  placeholder,
+  value,
+  projectId,
+  ...props
+}) => {
   const { client } = useDeskproAppClient();
   const [loading, setLoading] = useState<boolean>(false);
   const [isDirtySearch, setIsDirtySearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [parents, setParents] = useState<Record<string, any>>([]);
-  const [parentOptions, setParentOptions] = useState<DropdownValueType<any>[] | DropdownHeaderType[]>([]);
+  const [parentOptions, setParentOptions] = useState<
+    DropdownValueType<any>[] | DropdownHeaderType[]
+  >([]);
 
   const getIssueTitle = (): string => {
     const issue = get(parents, [value], null);
@@ -81,32 +79,42 @@ export const SubtaskDropdownWithSearch: FC<DropdownWithSearchProps> = ({ helpers
 
     setLoading(true);
     searchIssues(client, q, { projectId })
-        .then((stories) => setParents(normalize(stories, "key")))
-        .finally(() => setLoading(false));
+      .then((stories) => setParents(normalize(stories, "id")))
+      .finally(() => setLoading(false));
   }, 500);
 
   useEffect(() => {
     if (isEmpty(parents)) {
-      setParentOptions([{
-        type: "header",
-        label: isDirtySearch ? <NoFound/> : <SearchForParent/>,
-      }]);
+      setParentOptions([
+        {
+          type: "header",
+          label: isDirtySearch ? <NoFound /> : <SearchForParent />,
+        },
+      ]);
     } else {
-      setParentOptions(values(parents).map((issue) => ({
-        key: issue.key,
-        label: `[${issue.key}] ${issue.summary}`,
-        value: issue.key,
-        type: "value" as const,
-      })))
+      setParentOptions(
+        values(parents).map((issue: any) => ({
+          key: issue.key,
+          label: `[${issue.key}] ${issue.summary}`,
+          value: issue.id,
+          type: "value" as const,
+        })),
+      );
     }
   }, [parents, isDirtySearch]);
 
   useEffect(() => {
     if (loading) {
-      setParentOptions([{
-        type: "header",
-        label: (<div style={{ textAlign: "center" }}><Spinner size="small"/></div>),
-      }]);
+      setParentOptions([
+        {
+          type: "header",
+          label: (
+            <div style={{ textAlign: "center" }}>
+              <Spinner size="small" />
+            </div>
+          ),
+        },
+      ]);
     }
   }, [loading]);
 
@@ -122,8 +130,7 @@ export const SubtaskDropdownWithSearch: FC<DropdownWithSearchProps> = ({ helpers
         !isDirtySearch && setIsDirtySearch(true);
       }}
       onSelectOption={(option) => {
-        helpers.setTouched(true);
-        helpers.setValue(option.value);
+        setValue(option.value);
       }}
       fetchMoreText="Fetch more"
       autoscrollText="Autoscroll"
@@ -135,7 +142,7 @@ export const SubtaskDropdownWithSearch: FC<DropdownWithSearchProps> = ({ helpers
         activeItem,
         activeSubItem,
         setActiveSubItem,
-        hideIcons
+        hideIcons,
       ) => (
         <Infinite
           maxHeight={"30vh"}
@@ -160,7 +167,7 @@ export const SubtaskDropdownWithSearch: FC<DropdownWithSearchProps> = ({ helpers
                 hideIcons,
                 setActiveValueIndex: noop,
                 valueOptions: [],
-              })
+              }),
             )}
           </div>
         </Infinite>

@@ -3,7 +3,7 @@ import { AnyIcon, AttachmentTag, Button, Stack } from "@deskpro/deskpro-ui";
 import { faFile } from "@fortawesome/free-regular-svg-icons";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { omit } from "lodash";
-import { AttachmentFile } from "../../context/StoreProvider/types/types";
+import { AttachmentFile } from "../../api/types/types";
 
 interface AttachmentsFieldProps {
   onFiles?: (files: AttachmentFile[]) => void;
@@ -27,8 +27,8 @@ export const AttachmentsField: FC<AttachmentsFieldProps> = ({
         ...all,
         [`file[${idx}]`]: a,
       }),
-      {}
-    )
+      {},
+    ),
   );
 
   const upload = (e: ChangeEvent<HTMLInputElement>, name: string) => {
