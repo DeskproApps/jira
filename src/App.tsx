@@ -11,6 +11,7 @@ import "./App.css";
 import "flatpickr/dist/themes/light.css";
 import "simplebar/dist/simplebar.min.css";
 import "tippy.js/dist/tippy.css";
+import "iframe-resizer/js/iframeResizer.contentWindow.js";
 
 import {
   LoadingSpinner,
