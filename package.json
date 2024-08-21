@@ -1,5 +1,5 @@
 {
-  "name": "horizon-vite-app-template",
+  "name": "@deskpro-apps/jira",
   "version": "0.0.0",
   "license": "BSD-3-Clause",
   "scripts": {
@@ -30,7 +30,6 @@
     "flatpickr": "^4.6.13",
     "formik": "^2.2.9",
     "html-truncate": "^1.2.2",
-    "iframe-resizer": "^4.3.11",
     "javascript-time-ago": "^2.3.13",
     "js-cache": "^1.0.3",
     "lodash": "^4.17.21",
