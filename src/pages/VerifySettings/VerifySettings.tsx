@@ -88,12 +88,12 @@ const VerifySettings: FC = () => {
   }, [client, settings, errorMessage]);
 
   return (
-    <div style={{ margin: "-8px" }}>
+    <>
       <Stack align="baseline">
         <Button
           text="Verify Settings"
           intent="secondary"
-          style={{ minWidth: "72px", justifyContent: "center" }}
+          style={{ justifyContent: "center" }}
           onClick={onVerifySettings}
           loading={isLoading}
           disabled={[
@@ -115,7 +115,7 @@ const VerifySettings: FC = () => {
           <P1 style={{ color: theme.colors.red100 }}>{error}</P1> || ""
         )}
       </Stack>
-    </div>
+    </>
   );
 };
 

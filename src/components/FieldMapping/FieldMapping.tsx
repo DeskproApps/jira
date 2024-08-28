@@ -125,7 +125,7 @@ export const FieldMapping = ({
           <Stack vertical style={{ width: "100%" }} gap={8}>
             <MapFieldValues issue={item} usableFields={metadata} />
           </Stack>
-          {<HorizontalDivider full />}
+          {<HorizontalDivider />}
         </Stack>
       ))}
     </Stack>

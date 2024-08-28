@@ -11,7 +11,6 @@ import "./App.css";
 import "flatpickr/dist/themes/light.css";
 import "simplebar/dist/simplebar.min.css";
 import "tippy.js/dist/tippy.css";
-import "iframe-resizer/js/iframeResizer.contentWindow.js";
 
 import {
   LoadingSpinner,
@@ -54,10 +53,7 @@ function App() {
                     <Route index element={<Main />} />
                     <Route path="create">
                       <Route path="" element={<CreateObject />} />
-                      <Route
-                        path="comment/:issueKey"
-                        element={<CreateComment />}
-                      />
+                      <Route path="comment/:issueKey" element={<CreateComment />} />
                     </Route>
                     <Route path="edit">
                       <Route path=":objectId" element={<EditObject />} />
@@ -66,10 +62,7 @@ function App() {
                     <Route path="admin_mapping" element={<AdminSettings />} />
                     <Route path="verifySettings" element={<VerifySettings />} />
                     <Route path="view">
-                      <Route
-                        path=":objectView/:objectId"
-                        element={<ViewObject />}
-                      />
+                      <Route path=":objectView/:objectId" element={<ViewObject />} />
                     </Route>
                   </Route>
                 </Routes>

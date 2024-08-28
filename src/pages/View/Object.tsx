@@ -14,6 +14,7 @@ import { H2, Stack } from "@deskpro/deskpro-ui";
 import { CommentsList } from "../../components/CommentsList/CommentsList";
 import { useLinkIssues } from "../../hooks/hooks";
 import { queryClient } from "../../query";
+import { Container } from "../../components/Layout";
 
 export const ViewObject = () => {
   const [hasMappedFields, setHasMappedFields] = useState<boolean | undefined>(
@@ -125,14 +126,16 @@ export const ViewObject = () => {
   const data = objectQuery.data;
 
   return (
-    <Stack style={{ width: "100%" }} vertical gap={10}>
-      <FieldMapping
-        items={data}
-        metadata={usableFields}
-        externalChildUrl={IssueJson.externalChildUrl}
-        childTitleAccessor={(e) => e[IssueJson.titleKeyName]}
-      />
-      <CommentsList issueKey={objectId!} />
-    </Stack>
+    <Container>
+      <Stack style={{ width: "100%" }} vertical gap={10}>
+        <FieldMapping
+          items={data}
+          metadata={usableFields}
+          externalChildUrl={IssueJson.externalChildUrl}
+          childTitleAccessor={(e) => e[IssueJson.titleKeyName]}
+          />
+        <CommentsList issueKey={objectId!} />
+      </Stack>
+    </Container>
   );
 };

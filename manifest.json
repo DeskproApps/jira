@@ -59,7 +59,7 @@
     "verify_settings": {
       "title": "",
       "type": "app_embedded",
-      "options": { "entrypoint": "#/verifySettings" },
+      "options": { "entrypoint": "#/verifySettings", "height": "30px" },
       "isRequired": false,
       "isBackendOnly": false,
       "order": 40
