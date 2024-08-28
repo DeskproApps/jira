@@ -147,7 +147,7 @@ export const LinkContact = () => {
               onClick={() => setSelectedIssues([])}
             ></Button>
           </Stack>
-          <HorizontalDivider full />
+          <HorizontalDivider />
         </Stack>
         {issuesQuery.isFetching ? (
           <LoadingSpinnerCenter />

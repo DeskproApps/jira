@@ -7,6 +7,7 @@ import { Button, P8, Stack, TextArea } from "@deskpro/deskpro-ui";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { addIssueComment } from "../../api/api";
+import { Container } from "../../components/Layout";
 
 export const CreateComment = () => {
   const [comment, setComment] = useState<string>("");
@@ -45,8 +46,8 @@ export const CreateComment = () => {
   });
 
   return (
-    <Stack gap={5} vertical>
-      <Stack vertical style={{ width: "100%" }} gap={5}>
+    <Container>
+      <Stack vertical style={{ width: "100%", marginBottom: "10px" }} gap={5}>
         <P8>New Comment</P8>
         <TextArea onChange={(e) => setComment(e.target.value)} />
       </Stack>
@@ -59,6 +60,6 @@ export const CreateComment = () => {
         />
         <Button intent="secondary" text="Cancel" onClick={() => navigate(-1)} />
       </Stack>
-    </Stack>
+    </Container>
   );
 };

@@ -26,6 +26,7 @@ import {
   ticketReplyEmailsSelectionStateKey,
   ticketReplyNotesSelectionStateKey,
 } from "../utils/utils";
+import { Container } from "../components/Layout";
 
 export const Home: FC = () => {
   const navigate = useNavigate();
@@ -307,7 +308,7 @@ export const Home: FC = () => {
 
   return (
     <>
-      <Stack>
+      <Container>
         <Input
           ref={searchInputRef}
           value={searchQuery}
@@ -323,17 +324,19 @@ export const Home: FC = () => {
             />
           }
         />
-      </Stack>
+      </Container>
       <HorizontalDivider style={{ marginTop: "8px", marginBottom: "8px" }} />
-      <Stack vertical gap={10}>
-        <FieldMapping
-          items={linkedIssues}
-          metadata={usableFields}
-          internalChildUrl={IssueJson.internalChildUrl}
-          externalChildUrl={IssueJson.externalChildUrl}
-          childTitleAccessor={(e) => e[IssueJson.titleKeyName]}
-        />
-      </Stack>
+      <Container>
+        <Stack vertical gap={10}>
+          <FieldMapping
+            items={linkedIssues}
+            metadata={usableFields}
+            internalChildUrl={IssueJson.internalChildUrl}
+            externalChildUrl={IssueJson.externalChildUrl}
+            childTitleAccessor={(e) => e[IssueJson.titleKeyName]}
+          />
+        </Stack>
+      </Container>
     </>
   );
 };

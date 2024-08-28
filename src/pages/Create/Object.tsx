@@ -1,5 +1,5 @@
-import { Stack } from "@deskpro/deskpro-ui";
 import { MutateObject } from "../../components/Mutate/Object";
+import { Container } from "../../components/Layout";
 import { useInitialisedDeskproAppClient } from "@deskpro/app-sdk";
 
 export const CreateObject = () => {
@@ -7,8 +7,8 @@ export const CreateObject = () => {
     client.deregisterElement("menuButton");
   });
   return (
-    <Stack>
+    <Container>
       <MutateObject />
-    </Stack>
+    </Container>
   );
 };

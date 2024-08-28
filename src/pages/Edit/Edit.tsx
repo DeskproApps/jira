@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { MutateObject } from "../../components/Mutate/Object";
-import { Stack } from "@deskpro/deskpro-ui";
 import { useInitialisedDeskproAppClient } from "@deskpro/app-sdk";
+import { Container } from "../../components/Layout";
 
 export const EditObject = () => {
   const { objectId } = useParams<{
@@ -13,8 +13,8 @@ export const EditObject = () => {
   });
 
   return (
-    <Stack>
+    <Container>
       <MutateObject objectId={objectId} />
-    </Stack>
+    </Container>
   );
 };
