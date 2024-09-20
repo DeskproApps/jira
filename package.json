@@ -15,7 +15,7 @@
     "bumpManifestVer": "node ./bin/bumpManifestVer.js"
   },
   "dependencies": {
-    "@atlaskit/adf-utils": "14.4.0",
+    "@atlaskit/adf-utils": "19.8.1",
     "@deskpro/app-sdk": "2.1.12",
     "@deskpro/deskpro-ui": "^7.18.3",
     "@emotion/is-prop-valid": "^1.2.1",
