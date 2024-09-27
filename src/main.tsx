@@ -1,11 +1,18 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import "./main.css";
-import App from "./App";
+import TimeAgo from "javascript-time-ago";
+import en from "javascript-time-ago/locale/en.json";
 import { DeskproAppProvider } from "@deskpro/app-sdk";
-import "./main.css";
-import "simplebar/dist/simplebar.min.css";
 import { Scrollbar } from "@deskpro/deskpro-ui";
+import App from "./App";
+import "./main.css";
+import "./App.css";
+import "simplebar/dist/simplebar.min.css";
+import "flatpickr/dist/themes/light.css";
+import "simplebar/dist/simplebar.min.css";
+import "tippy.js/dist/tippy.css";
+
+TimeAgo.addDefaultLocale(en);
 
 const root = ReactDOM.createRoot(document.getElementById("root") as Element);
 root.render(

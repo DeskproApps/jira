@@ -6,12 +6,6 @@ import { ErrorBoundary } from "react-error-boundary";
 import { HashRouter, Route, Routes } from "react-router-dom";
 import { ErrorFallback } from "./components/ErrorFallback/ErrorFallback";
 import { Home as Main } from "./pages/Main";
-
-import "./App.css";
-import "flatpickr/dist/themes/light.css";
-import "simplebar/dist/simplebar.min.css";
-import "tippy.js/dist/tippy.css";
-
 import {
   LoadingSpinner,
   useInitialisedDeskproAppClient,
@@ -27,11 +21,9 @@ import { CreateObject } from "./pages/Create/Object";
 import { EditObject } from "./pages/Edit/Edit";
 import { AdminSettings } from "./pages/Admin/Settings";
 import { VerifySettings } from "./pages/VerifySettings/VerifySettings";
-import TimeAgo from "javascript-time-ago";
-import en from "javascript-time-ago/locale/en.json";
 import { CreateComment } from "./pages/Create/Comment";
 
-TimeAgo.addDefaultLocale(en);
+
 
 function App() {
   useInitialisedDeskproAppClient((client) => {
