@@ -348,8 +348,8 @@ export const MutateObject = ({ objectId }: Props) => {
         {Object.keys(errors).length > 0 && (
           <ErrorBlock
             text={Object.keys(errors).reduce((acc, curr) => {
-              acc.push(`${curr}: ${errors[curr]?.message}`);
-
+              const field = usableFields.find(({ key }) => key === curr);
+              acc.push(`${field?.name ?? curr}: ${errors[curr]?.message}`);
               return acc;
             }, [] as string[])}
           />
