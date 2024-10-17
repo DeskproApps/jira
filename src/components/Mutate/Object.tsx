@@ -23,7 +23,6 @@ import {
   getLabels,
   getUsers,
   updateIssue,
-  getProjectCreateMeta,
 } from "../../api/api";
 import IssueJson from "../../mapping/issue.json";
 
@@ -38,7 +37,6 @@ import { ErrorBlock } from "../Error/ErrorBlock";
 import { FormMapping } from "../FormMapping/FormMapping";
 import { LoadingSpinnerCenter } from "../LoadingSpinnerCenter/LoadingSpinnerCenter";
 import { JiraProject, JiraUser } from "./types";
-import { IssueMeta } from "../../types";
 type Props = {
   objectId?: string;
 };
@@ -85,10 +83,24 @@ export const MutateObject = ({ objectId }: Props) => {
     getLabels(client),
   );
 
-  const submitMutation = useMutationWithClient((client, values: any) => {
-    return isEditMode
-      ? updateIssue(client, objectId, { ...values }, usableFields)
-      : createIssue(client, { ...values }, usableFields);
+  const submitMutation = useMutationWithClient(
+    (client, values: any) => {
+      return isEditMode
+        ? updateIssue(
+            client,
+            objectId,
+            {
+              ...values,
+            },
+            usableFields,
+          )
+        : createIssue(
+            client,
+            {
+              ...values,
+            },
+            usableFields,
+          );
     },
   );
 
@@ -231,48 +243,32 @@ export const MutateObject = ({ objectId }: Props) => {
     )?.issuetypes;
   }, [values.project?.id, createMetaQuery.data?.projects]);
 
-  const fieldsProjectCreateMeta = useQueryWithClient(
-    ["fields", values.project?.id, values.issuetype?.id],
-    (client) => getProjectCreateMeta(client, values.project?.id, values.issuetype?.id),
-    { enabled: Boolean(values.project?.id) && Boolean(values.issuetype?.id) && !isEditMode },
-  );
-
-  const createFieldsMeta = useMemo(() => {
-    return fieldsProjectCreateMeta.data?.fields?.reduce<Record<IssueMeta["key"], IssueMeta>>((acc, field) => {
-      if (!acc[field.key]) {
-        acc[field.key] = field;
-      }
-      return acc;
-    }, {});
-  }, [fieldsProjectCreateMeta.data?.fields]);
-
   const usableFields = useMemo(() => {
     if (
       !values.issuetype?.id ||
       issuetypes?.length === 0 ||
       (isEditMode && !objectByIdQuery.isSuccess)
-    ) {
+    )
       return [];
-    }
 
     const fieldsObj = isEditMode
       ? objectByIdQuery.data.editmeta.fields
-      : createFieldsMeta;
+      : issuetypes?.find((e) => e.id === values.issuetype?.id)?.fields;
 
     if (!fieldsObj) return [];
 
     return [
       ...Object.keys(fieldsObj)
-        .filter((e) => {
-          return (mappedFields.length > 0
-            ? mappedFields.includes(e)
-            : IssueJson.create.includes(e) || e.startsWith("customfield_")
-          ) ||
-          e === "summary" ||
-          e === "description" ||
-          e === "reporter" ||
-          fieldsObj[e].required
-        })
+        .filter(
+          (e) =>
+            (mappedFields.length > 0
+              ? mappedFields.includes(e)
+              : IssueJson.create.includes(e) || e.startsWith("customfield_")) ||
+            e === "summary" ||
+            e === "description" ||
+            e === "reporter" ||
+            fieldsObj[e].required,
+        )
         .map((fieldObjKey) => ({
           ...(fieldsObj[fieldObjKey as keyof typeof fieldsObj] ?? {}),
         })),
@@ -291,14 +287,13 @@ export const MutateObject = ({ objectId }: Props) => {
         if (b.key === "summary") return 1;
         return 0;
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     values.issuetype?.id,
     issuetypes,
     isEditMode,
-    mappedFields,
     objectByIdQuery.isSuccess,
-    objectByIdQuery.data?.editmeta?.fields,
-    createFieldsMeta,
+    mappedFields,
   ]);
 
   const usableFieldNames = usableFields.map((field) => field.key);
@@ -335,7 +330,6 @@ export const MutateObject = ({ objectId }: Props) => {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [objectId, objectByIdQuery.isSuccess, isEditMode, usableFields]);
-
   if ((isEditMode && !objectByIdQuery.isSuccess) || !createMetaQuery.data)
     return <LoadingSpinnerCenter />;
 

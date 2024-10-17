@@ -458,14 +458,3 @@ export interface Watches {
   watchCount: number;
   isWatching: boolean;
 }
-
-export interface FieldMeta {
-  autoCompleteUrl: string;
-  fieldId: string;
-  hasDefaultValue: boolean;
-  key: string;
-  name: string;
-  operations: string[];
-  required: boolean;
-  schema: object;
-}

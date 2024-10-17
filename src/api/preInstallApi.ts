@@ -28,7 +28,7 @@ export const getCreateMeta = async (
   const fetch = await adminGenericProxyFetch(client);
 
   return await fetch(
-    `https://${settings.domain}.atlassian.net/rest/api/3/issue/createmeta`,
+    `https://${settings.domain}.atlassian.net/rest/api/3/issue/createmeta?expand=projects.issuetypes.fields`,
     {
       method: "GET",
       headers: {
