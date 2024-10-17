@@ -6,3 +6,7 @@ updates:
     schedule:
       interval: "monthly"
       time: "09:00"
+    groups:
+      all:
+        patterns:
+          - "*"
