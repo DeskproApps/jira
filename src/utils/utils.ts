@@ -285,10 +285,7 @@ export const jiraIssueToFormValues = (
         }
 
         case "string": {
-          if (
-            usableField.schema.system === "description"
-            || usableField.schema.custom === "com.atlassian.jira.plugin.system.customfieldtypes:textarea"
-          ) {
+          if (usableField.schema.system === "description") {
             acc[key] = useAdfToPlainText(issue[key as keyof IssueItem]);
 
             break;
