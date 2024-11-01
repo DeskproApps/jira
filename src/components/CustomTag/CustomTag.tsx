@@ -8,7 +8,7 @@ type Props = {
 
 export const CustomTag = ({ title }: Props) => {
   let color;
-  title = makeFirstLetterUppercase(title.toString() as string);
+  title = makeFirstLetterUppercase(title.toString());
   const { theme } = useDeskproAppTheme();
 
   switch (title) {
@@ -58,7 +58,7 @@ export const CustomTag = ({ title }: Props) => {
 
   return (
     <RoundedLabelTag
-      label={title as string}
+      label={title}
       backgroundColor={color}
       textColor="white"
     />

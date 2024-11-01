@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   LoadingSpinner,
   Property,
@@ -8,19 +7,18 @@ import {
 } from "@deskpro/app-sdk";
 import { Checkbox, H1, H2, Stack } from "@deskpro/deskpro-ui";
 import { useEffect, useMemo, useState } from "react";
-import { getCreateMeta, getFields } from "../../api/preInstallApi";
+import { getCreateMeta, getFields } from "../../api/api";
 import { DropdownSelect } from "../../components/DropdownSelect/DropdownSelect";
+import { Settings, Layout } from "../../types";
 
 export const AdminSettings = () => {
-  const [settings, setSettings] = useState<any>({});
+  const [settings, setSettings] = useState<Settings>({});
   const [hasSetSelectedSettings, setHasSetSelectedSettings] = useState(false);
-  const [selectedSettings, setSelectedSettings] = useState<
-    Record<string, string[]>
-  >({});
+  const [selectedSettings, setSelectedSettings] = useState<Partial<Layout>>({});
 
   const fieldsQuery = useQueryWithClient(
     ["fields"],
-    (client) => getFields(settings, client),
+    (client) => getFields(client, settings),
     {
       enabled: Boolean(
         settings && settings.domain && settings.username && settings.api_key,
@@ -38,18 +36,15 @@ export const AdminSettings = () => {
     },
   );
 
-  useDeskproAppEvents(
-    {
-      onAdminSettingsChange: setSettings,
-    },
-    [],
-  );
+  useDeskproAppEvents({
+    onAdminSettingsChange: setSettings,
+  }, []);
 
   useEffect(() => {
     if (hasSetSelectedSettings || !settings?.mapping) return;
 
     setHasSetSelectedSettings(true);
-    setSelectedSettings(JSON.parse(settings?.mapping || "{}"));
+    setSelectedSettings(JSON.parse(settings.mapping || "{}") as Partial<Layout>);
   }, [settings, hasSetSelectedSettings]);
 
   useInitialisedDeskproAppClient(
@@ -60,7 +55,7 @@ export const AdminSettings = () => {
     [selectedSettings],
   );
 
-  const updateSettings = (value: any, keyName: string) => {
+  const updateSettings = (value: string, keyName: keyof Layout) => {
     setSelectedSettings((prevState) => {
       if (["project", "issuetype"].includes(keyName)) {
         return {
@@ -68,6 +63,7 @@ export const AdminSettings = () => {
           [keyName]: value,
         };
       }
+
       const newArray = [...(prevState[keyName] || [])];
       const index = newArray.indexOf(value);
 
@@ -136,7 +132,9 @@ export const AdminSettings = () => {
 
   const fields = fieldsQuery.data;
 
-  if (!fields || !fields.length) return <div>No fields found</div>;
+  if (!fields || !fields.length) {
+    return <div>No fields found</div>;
+  }
 
   return (
     <Stack vertical gap={10}>
@@ -147,7 +145,7 @@ export const AdminSettings = () => {
             <DropdownSelect
               error={false}
               options={projects}
-              onChange={(e: any) => updateSettings(e, "project")}
+              onChange={(e: string) => updateSettings(e, "project")}
               value={selectedSettings.project}
             />
           }
@@ -160,7 +158,7 @@ export const AdminSettings = () => {
               <DropdownSelect
                 error={false}
                 options={issueTypes}
-                onChange={(e: any) => updateSettings(e, "issuetype")}
+                onChange={(e: string) => updateSettings(e, "issuetype")}
                 value={selectedSettings.issuetype}
               />
             }
@@ -185,14 +183,14 @@ export const AdminSettings = () => {
               <td>{f.name}</td>
               <td className="text-center">
                 <Checkbox
-                  checked={selectedSettings.detailView?.includes(f.id)}
-                  onClick={() => updateSettings(f.id, "detailView")}
+                  checked={selectedSettings.detailView?.includes(f.id as string)}
+                  onClick={() => updateSettings(f.id as string, "detailView")}
                 />
               </td>
               <td className="text-center">
                 <Checkbox
-                  checked={selectedSettings.listView?.includes(f.id)}
-                  onClick={() => updateSettings(f.id, "listView")}
+                  checked={selectedSettings.listView?.includes(f.id as string)}
+                  onClick={() => updateSettings(f.id as string, "listView")}
                 />
               </td>
             </>

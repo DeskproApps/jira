@@ -16,54 +16,53 @@ import {
   faHandPointer,
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
-import { FC, useState } from "react";
+import { useState } from "react";
+import { Option } from "../../api/types/createMeta";
 
-export interface DropdownMultiSelectValueType extends DropdownValueType<any> {
-  valueLabel?: string;
-  color?: string;
-}
+type DropdownOption = Option["id"]|Option;
 
-export interface DropdownMultiSelectProps {
-  options: DropdownMultiSelectValueType[];
+export type DropdownMultiSelectProps = {
+  options: DropdownValueType<DropdownOption>[];
   id?: string;
-  values?: any[];
+  values?: Option[];
   error: boolean;
-  onChange: (key: any) => void;
-  valueAccessor: (e: any) => any;
+  onChange: (key: DropdownOption[]) => void;
+  valueAccessor: (e: DropdownOption) => DropdownOption;
 }
 
-export const DropdownMultiSelect: FC<DropdownMultiSelectProps> = ({
+export const DropdownMultiSelect = ({
   values,
   options,
   error,
   onChange,
   valueAccessor,
 }: DropdownMultiSelectProps) => {
-  const {
-    theme: { colors },
-  } = useDeskproAppTheme();
+  const { theme: { colors } } = useDeskproAppTheme();
   const [input, setInput] = useState<string>("");
   const vals = Array.isArray(values) ? values : [];
   const accessedVals = vals.map(valueAccessor);
 
   const valLabels = vals.map((v) => {
-    const option = options.find(
-      (o) => valueAccessor(o.value) === valueAccessor(v),
-    );
+    const option = options.find((o) => {
+      return valueAccessor(o.value) === valueAccessor(v);
+    });
 
     if (!option) return [v, v, colors.grey20];
-    return option?.valueLabel
-      ? [valueAccessor(option.value), option.valueLabel, colors.grey20]
-      : [valueAccessor(option.value), option.label, colors.grey20];
+
+    return [valueAccessor(option.value), option.label, colors.grey20];
   });
 
-  const fixedOptions = options.filter(
-    (o) => !accessedVals.includes(valueAccessor(o.value)),
-  );
+  const fixedOptions = options.filter((o) => {
+    return !accessedVals.includes(valueAccessor(o.value));
+  });
 
-  const filteredOptions = fixedOptions.filter((opt) =>
-    (opt.label as string)?.toLowerCase().includes(input.toLowerCase()),
-  );
+  const filteredOptions = fixedOptions.filter((opt) => {
+    if (typeof opt?.label === "string") {
+      return opt.label?.toLowerCase().includes(input.toLowerCase());
+    }
+
+    return false
+  });
 
   return (
     <Dropdown
@@ -139,7 +138,7 @@ export const DropdownMultiSelect: FC<DropdownMultiSelectProps> = ({
                     }}
                   >
                     <Stack align="center">
-                      <span style={{ marginRight: "4px" }}>{label}</span>
+                      <span style={{ marginRight: "4px" }}>{label as Option["name"]}</span>
                       <Icon icon={faTimes as AnyIcon} />
                     </Stack>
                   </Stack>

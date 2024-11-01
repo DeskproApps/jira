@@ -7,7 +7,7 @@ export type MappedFieldProps = DateTimePickerProps & {
   id?: string;
   label: string;
   error?: boolean;
-  value: string;
+  value: Date;
   onChange: (date: Date[]) => void;
 };
 
@@ -21,7 +21,7 @@ export const DateField: FC<MappedFieldProps> = ({
       value={value}
       id="date-input"
       placeholder="DD/MM/YYYY"
-      error={!!error}
+      error={Boolean(error)}
       onChange={onChange}
     />
   );

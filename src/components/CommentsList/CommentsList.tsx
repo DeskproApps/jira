@@ -15,6 +15,7 @@ import { getIssueComments } from "../../api/api";
 import { JiraComment } from "../../api/types/types";
 import { addBlankTargetToLinks } from "../../utils/utils";
 import { useNavigate } from "react-router-dom";
+import { TicketData, Settings } from "../../types";
 
 interface CommentsListProps {
   issueKey: string;
@@ -24,15 +25,13 @@ export const CommentsList: FC<CommentsListProps> = ({
   issueKey,
 }: CommentsListProps) => {
   const { theme } = useDeskproAppTheme();
-  const { context } = useDeskproLatestAppContext();
+  const { context } = useDeskproLatestAppContext<TicketData, Settings>();
   const navigate = useNavigate();
 
   const commentsQuery = useQueryWithClient(
     [issueKey],
     (client) => getIssueComments(client, issueKey),
-    {
-      enabled: !!issueKey,
-    },
+    { enabled: !!issueKey },
   );
 
   if (!commentsQuery.isSuccess) {

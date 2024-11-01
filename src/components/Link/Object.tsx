@@ -14,7 +14,7 @@ import {
   Stack,
 } from "@deskpro/deskpro-ui";
 import { faMagnifyingGlass, faTimes } from "@fortawesome/free-solid-svg-icons";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useDebounce from "../../hooks/debounce";
 import { useLinkIssues } from "../../hooks/hooks";
@@ -23,22 +23,31 @@ import { FieldMapping } from "../FieldMapping/FieldMapping";
 import { HorizontalDivider } from "../HorizontalDivider/HorizontalDivider";
 import { LoadingSpinnerCenter } from "../LoadingSpinnerCenter/LoadingSpinnerCenter";
 import { getFields, searchIssues } from "../../api/api";
+import { getLayout } from "../../utils/utils";
+import { TicketData, Settings } from "../../types";
+
 
 export const LinkContact = () => {
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  const [selectedIssues, setSelectedIssues] = useState<number[]>([]);
+  const [selectedIssues, setSelectedIssues] = useState<string[]>([]);
   const [linkedIssues, setLinkedIssues] = useState<string[]>([]);
   const [prompt, setPrompt] = useState<string>("");
   const [hasMappedFields, setHasMappedFields] = useState<boolean | undefined>(
     undefined,
   );
   const [mappedFields, setMappedFields] = useState<string[]>([]);
-  const { context } = useDeskproLatestAppContext();
+  const { context } = useDeskproLatestAppContext<TicketData, Settings>();
   const { linkIssues, getLinkedIssues } = useLinkIssues();
   const navigate = useNavigate();
 
   const { debouncedValue: debouncedText } = useDebounce(prompt, 300);
+
+  const onLinkIssues = useCallback(() => {
+    if (selectedIssues) {
+      linkIssues(selectedIssues.map((e) => e.toString()))
+    }
+  }, [selectedIssues, linkIssues]);
 
   useInitialisedDeskproAppClient((client) => {
     client.setTitle("Link Issue");
@@ -53,21 +62,21 @@ export const LinkContact = () => {
   }, []);
 
   useEffect(() => {
-    getLinkedIssues().then((data) => setLinkedIssues(data || []));
+    getLinkedIssues()
+      .then((data) => setLinkedIssues(data || []));
   }, [getLinkedIssues]);
 
   useEffect(() => {
-    if (!context) return;
-    const data = JSON.parse(context?.settings.mapping ?? "{}");
+    const data = getLayout(context?.settings?.mapping);
 
     if (!data) return;
+
     setMappedFields(data.listView ?? []);
     setHasMappedFields(!!data.listView?.length);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [context]);
 
   useDeskproAppEvents({
-    async onElementEvent(id) {
+    onElementEvent(id) {
       switch (id) {
         case "homeButton":
           navigate("/redirect");
@@ -133,19 +142,16 @@ export const LinkContact = () => {
             gap={5}
           >
             <Button
-              onClick={() =>
-                selectedIssues &&
-                linkIssues(selectedIssues.map((e) => e.toString()))
-              }
+              onClick={onLinkIssues}
               disabled={selectedIssues.length === 0}
               text="Link Issue"
-            ></Button>
+            />
             <Button
               disabled={selectedIssues.length === 0}
               text="Cancel"
               intent="secondary"
               onClick={() => setSelectedIssues([])}
-            ></Button>
+            />
           </Stack>
           <HorizontalDivider />
         </Stack>
@@ -170,7 +176,7 @@ export const LinkContact = () => {
                             );
                           }
                         }}
-                      ></Checkbox>
+                      />
                     </Stack>
                     <Stack style={{ width: "92%" }}>
                       <FieldMapping
@@ -178,7 +184,7 @@ export const LinkContact = () => {
                         hasCheckbox={true}
                         metadata={usableFields}
                         externalChildUrl={IssueJson.externalChildUrl}
-                        childTitleAccessor={(e) => e[IssueJson.titleKeyName]}
+                        childTitleAccessor={(e) => e[IssueJson.titleKeyName] as string}
                       />
                     </Stack>
                   </Stack>

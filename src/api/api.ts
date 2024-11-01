@@ -1,31 +1,34 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { ADFEntity } from "@atlaskit/adf-utils";
 import { IDeskproClient, proxyFetch } from "@deskpro/app-sdk";
 import { match } from "ts-pattern";
 import { useAdfToPlainText } from "../hooks/hooks";
-import { FieldType, IssueMeta } from "../types";
-import {
-  backlinkCommentDoc,
-  paragraphDoc,
-  removeBacklinkCommentDoc,
-} from "./adf";
+import { paragraphDoc, removeBacklinkCommentDoc } from "./adf";
 import { CreateMeta } from "./types/createMeta";
+import { ApiRequestMethod, FieldType, Settings } from "../types";
 import {
-  ApiRequestMethod,
   AttachmentFile,
-  Field,
   InvalidRequestResponseError,
-  IssueAttachment,
   IssueFormData,
   IssueItem,
-  IssueSearchItem,
   JiraComment,
   SearchParams,
   SearchResponse,
+  IssuesPicker,
+  IssueBean,
+  SearchIssues,
+  FieldMeta,
+  SearchIssueItem,
+  Schemas,
+  IssueComment,
+  FieldsValues,
+  TransfornedFieldMeta,
+  Version,
+  ErrorResponse,
 } from "./types/types";
+import { SprintCustomValue, CustomFieldValue, CustomFieldsValues } from "./types/customFieldsValue";
+import { UserBean } from "./types/fieldsValue";
 // JIRA REST API Base URL
 const API_BASE_URL = "https://__domain__.atlassian.net/rest/api/3";
-
-const SEARCH_DEPS_CACHE_TTL = 1000 * 60 * 60 * 24 * 2;
 
 // Key for search dependency caching (milliseconds)
 
@@ -33,13 +36,7 @@ const SEARCH_DEPS_CACHE_TTL = 1000 * 60 * 60 * 24 * 2;
  * Fetch a single JIRA issue by key, e.g. "DP-1"
  */
 export const getIssueByKey = async (client: IDeskproClient, key: string) =>
-  request(client, "GET", `${API_BASE_URL}/issue/${key}?expand=editmeta`);
-
-/**
- * Get an issue's remote links
- */
-export const getRemoteLinks = async (client: IDeskproClient, key: string) =>
-  request(client, "GET", `${API_BASE_URL}/issue/${key}/remotelink`);
+  request<IssueBean>(client, "GET", `${API_BASE_URL}/issue/${key}?expand=editmeta`);
 
 /**
  * Add remote link
@@ -51,7 +48,7 @@ export const addRemoteLink = async (
   subject: string,
   url: string,
 ) =>
-  request(client, "POST", `${API_BASE_URL}/issue/${key}/remotelink`, {
+  request<Schemas["RemoteIssueLinkIdentifies"]>(client, "POST", `${API_BASE_URL}/issue/${key}/remotelink`, {
     globalId: remoteLinkGlobalId(ticketId),
     object: {
       url,
@@ -61,87 +58,34 @@ export const addRemoteLink = async (
   });
 
 /**
- * Remove remote link
- */
-export const removeRemoteLink = async (
-  client: IDeskproClient,
-  key: string,
-  ticketId: string,
-) =>
-  // eslint-disable-next-line no-console
-  request(
-    client,
-    "DELETE",
-    `${API_BASE_URL}/issue/${key}/remotelink?globalId=${remoteLinkGlobalId(
-      ticketId,
-    )}`,
-  );
-
-/**
- * Add "linked" comment to JIRA issue
- */
-export const addLinkCommentToIssue = async (
-  client: IDeskproClient,
-  key: string,
-  ticketId: string,
-  url: string,
-) => {
-  return request(client, "POST", `${API_BASE_URL}/issue/${key}/comment`, {
-    body: backlinkCommentDoc(ticketId, url),
-  });
-};
-
-/**
- * Get the status of all required Jira permissions
- */
-export const getMyPermissions = async (client: IDeskproClient) => {
-  const required = [
-    "BROWSE_PROJECTS",
-    "CREATE_ISSUES",
-    "EDIT_ISSUES",
-    "ASSIGN_ISSUES",
-    "ADD_COMMENTS",
-    "MANAGE_WATCHERS",
-  ];
-
-  return request(
-    client,
-    "GET",
-    `${API_BASE_URL}/mypermissions?permissions=${required.join(",")}`,
-  );
-};
-
-/**
  * Get list of comments for a given issue key
  */
 export const getIssueComments = async (
   client: IDeskproClient,
   key: string,
 ): Promise<JiraComment[]> => {
-  const data = (await request(
+  const data = await request<{ comments: Array<IssueComment> }>(
     client,
     "GET",
     `${API_BASE_URL}/issue/${key}/comment?expand=renderedBody`,
-  )) as { comments: JiraComment[] };
+  );
 
-  if (!data?.comments || !Array.isArray(data.comments)) {
+  if (data.comments?.length === 0) {
     return [];
   }
 
-  const comments = data.comments.map(
-    (comment) =>
-      ({
-        id: comment.id,
-        created: new Date(comment.created),
-        updated: new Date(comment.updated),
-        body: comment.body,
-        renderedBody: comment.renderedBody,
-        author: {
-          accountId: comment.author.accountId,
-          displayName: comment.author.displayName,
-          avatarUrl: comment.author.avatarUrls["24x24"],
-        },
-      }) as JiraComment,
+  const comments = data.comments.map((comment) => ({
+      id: comment.id,
+      created: new Date(comment.created),
+      updated: new Date(comment.updated),
+      body: comment.body,
+      renderedBody: comment.renderedBody,
+      author: {
+        accountId: comment.author.accountId,
+        displayName: comment.author.displayName,
+        avatarUrl: comment.author.avatarUrls["24x24"],
+      },
+    }),
   );
 
   return comments.sort((a, b) => b.created.getTime() - a.created.getTime());
@@ -155,7 +99,7 @@ export const addIssueComment = async (
   key: string,
   comment: string,
 ) =>
-  request(client, "POST", `${API_BASE_URL}/issue/${key}/comment`, {
+  request<IssueComment>(client, "POST", `${API_BASE_URL}/issue/${key}/comment`, {
     body: paragraphDoc(comment),
   });
 
@@ -168,7 +112,7 @@ export const addUnlinkCommentToIssue = async (
   ticketId: string,
   url: string,
 ) =>
-  request(client, "POST", `${API_BASE_URL}/issue/${key}/comment`, {
+  request<IssueComment>(client, "POST", `${API_BASE_URL}/issue/${key}/comment`, {
     body: removeBacklinkCommentDoc(ticketId, url),
   });
 
@@ -179,38 +123,33 @@ export const searchIssues = async (
   client: IDeskproClient,
   q: string,
   params: SearchParams = {},
-): Promise<IssueSearchItem[]> => {
+): Promise<SearchIssueItem[]> => {
   const url = `${API_BASE_URL}/issue/picker?query=${q}&currentJQL=&showSubTasks=${
     params.withSubtask ? "true" : "false"
   }${params.projectId ? `&currentProjectId=${params.projectId}` : ""}`;
-  const { sections } = await request(client, "GET", url);
-
-  const { issues: searchIssues } = sections.filter(
-    (s: { id: string }) => s.id === "cs",
-  )[0];
-  const keys = (searchIssues ?? []).map((i: { key: string }) => i.key);
+  const { sections } = await request<IssuesPicker>(client, "GET", url);
+  const { issues: searchIssues } = (sections ?? []).find((s) => s.id === "cs") || {};
+  const keys = (searchIssues ?? []).map((i) => i.key);
 
   if (!keys.length) {
     return [];
   }
 
   const issueJql = encodeURIComponent(`issueKey IN (${keys.join(",")})`);
-  const { issues: fullIssues } = await request(
+  const { issues: fullIssues } = await request<SearchIssues>(
     client,
     "GET",
     `${API_BASE_URL}/search?jql=${issueJql}&expand=editmeta`,
   );
 
-  const issues = (fullIssues ?? []).reduce(
-    (list: unknown[], issue: { key: string }) => ({
-      ...list,
-      [issue.key]: issue,
-    }),
-    {},
-  );
+  const issues: Record<IssueBean["key"], IssueBean> = (fullIssues ?? []).reduce((list, issue) => ({
+    ...list,
+    [issue.key]: issue,
+  }), {});
 
-  const epicKeys = (fullIssues ?? []).reduce((list: unknown[], issue: any) => {
-    const meta = findEpicLinkMeta(issue) as { key: string } | null;
+  const epicKeys: Record<IssueBean["key"], FieldMeta["key"]> = (fullIssues ?? []).reduce((list, issue) => {
+    const meta = findEpicLinkMeta(issue);
+
     if (!meta) {
       return list;
     }
@@ -222,54 +161,46 @@ export const searchIssues = async (
     return { ...list, [issue.key]: issue.fields[meta.key] };
   }, {});
 
-  let epics: { [key: string]: any } = {};
+  let epics: Record<IssueBean["key"], IssueBean> = {};
 
   if (Object.values(epicKeys).length) {
     const epicJql = encodeURIComponent(
       `issueKey IN (${Object.values(epicKeys).join(",")})`,
     );
-    const { issues: fullEpics } = await request(
+
+    const { issues: fullEpics } = await request<SearchIssues>(
       client,
       "GET",
       `${API_BASE_URL}/search?jql=${epicJql}`,
     );
 
-    epics = (fullEpics ?? []).reduce(
-      (list: unknown[], issue: { key: string }) => ({
-        ...list,
-        [issue.key]: issue,
-      }),
-      {},
-    );
+    epics = (fullEpics ?? []).reduce((list, issue) => ({
+      ...list,
+      [issue.key]: issue,
+    }), {});
   }
 
-  return (searchIssues ?? []).map(
-    (searchIssue: any) =>
-      ({
-        ...(issues?.[searchIssue.key]?.fields ?? {}),
-        id: searchIssue.id,
-        key: searchIssue.key,
-        keyHtml: searchIssue.keyHtml,
-        summary: searchIssue.summaryText,
-        summaryHtml: searchIssue.summary,
-        status: issues?.[searchIssue.key]?.fields?.status?.name ?? "-",
-        projectKey: issues?.[searchIssue.key]?.fields?.project?.key ?? "",
-        projectName: issues?.[searchIssue.key]?.fields?.project?.name ?? "-",
-        reporterId:
-          issues?.[searchIssue.key]?.fields?.reporter?.accountId ?? "",
-        reporterName:
-          issues?.[searchIssue.key]?.fields?.reporter?.displayName ?? "-",
-        reporterAvatarUrl:
-          issues?.[searchIssue.key]?.fields?.reporter?.avatarUrls["24x24"] ??
-          "",
-        epicKey: epics[epicKeys[searchIssue.key]]
-          ? epics[epicKeys[searchIssue.key]].key
-          : undefined,
-        epicName: epics[epicKeys[searchIssue.key]]
-          ? epics[epicKeys[searchIssue.key]].fields.summary
-          : undefined,
-      }) as IssueSearchItem,
-  );
+  return (searchIssues ?? []).map((searchIssue) => {
+    const issueFields: IssueBean["fields"] = issues[searchIssue.key]?.fields;
+    const epic: IssueBean|undefined = epics[epicKeys[searchIssue.key]];
+
+    return {
+      ...(issueFields ?? {}),
+      id: `${searchIssue.id}`,
+      key: searchIssue.key,
+      keyHtml: searchIssue.keyHtml,
+      summary: searchIssue.summaryText,
+      summaryHtml: searchIssue.summary,
+      status: issueFields.status?.name || "-",
+      projectKey: issueFields.project?.key ?? "",
+      projectName: issueFields.project?.name ?? "-",
+      reporterId: issueFields.reporter?.accountId ?? "",
+      reporterName: issueFields.reporter?.displayName ?? "-",
+      reporterAvatarUrl: (issueFields.reporter?.avatarUrls ?? {})["24x24"] ?? "",
+      epicKey: epic?.key,
+      epicName: epic?.fields?.summary,
+    };
+  });
 };
 
 /**
@@ -284,13 +215,13 @@ export const listLinkedIssues = async (
   }
   const issueJql = encodeURIComponent(`issueKey IN (${keys.join(",")})`);
 
-  const { issues: fullIssues } = await request(
+  const { issues: fullIssues } = await request<SearchIssues>(
     client,
     "GET",
     `${API_BASE_URL}/search?jql=${issueJql}&expand=editmeta`,
   );
 
-  const epicKeys = (fullIssues ?? []).reduce((list: unknown[], issue: any) => {
+  const epicKeys: Record<IssueBean["key"], FieldMeta["key"]> = (fullIssues ?? []).reduce((list, issue) => {
     const meta = findEpicLinkMeta(issue) as { key: string } | null;
     if (!meta) {
       return list;
@@ -303,8 +234,8 @@ export const listLinkedIssues = async (
     return { ...list, [issue.key]: issue.fields[meta.key] };
   }, {});
 
-  const sprints = (fullIssues ?? []).reduce((list: unknown[], issue: any) => {
-    const meta = findSprintLinkMeta(issue) as { key: string } | null;
+  const sprints: Record<IssueBean["key"], FieldMeta["key"]> = (fullIssues ?? []).reduce((list, issue) => {
+    const meta = findSprintLinkMeta(issue);
     if (!meta) {
       return list;
     }
@@ -316,84 +247,52 @@ export const listLinkedIssues = async (
     return { ...list, [issue.key]: issue.fields[meta.key] };
   }, {});
 
-  let epics: { [key: string]: any } = {};
+  let epics: Record<IssueBean["key"], IssueBean> = {};
 
   if (Object.values(epicKeys).length) {
     const epicJql = encodeURIComponent(
       `issueKey IN (${Object.values(epicKeys).join(",")})`,
     );
-    const { issues: fullEpics } = await request(
+    const { issues: fullEpics } = await request<SearchIssues>(
       client,
       "GET",
       `${API_BASE_URL}/search?jql=${epicJql}`,
     );
 
-    epics = (fullEpics ?? []).reduce(
-      (list: unknown[], issue: { key: string }) => ({
-        ...list,
-        [issue.key]: issue,
-      }),
-      {},
-    );
+    epics = (fullEpics ?? []).reduce((list, issue) => ({
+      ...list,
+      [issue.key]: issue,
+    }), {});
   }
 
-  return fullIssues.map(
-    (issue: { fields: any; key: string; id: string; editmeta: any }) => ({
+  return fullIssues.map((issue) => {
+    const epic = epics[epicKeys[issue.key]];
+    const issueSprints = ((sprints[issue.key] || []) as SprintCustomValue[]).map((sprint) => ({
+      sprintBoardId: sprint.boardId,
+      sprintName: sprint.name,
+      sprintState: sprint.state,
+    }));
+
+    return {
       ...issue.fields,
-      epicKey: epics[epicKeys[issue.key]]
-        ? epics[epicKeys[issue.key]].key
-        : undefined,
-      epicName: epics[epicKeys[issue.key]]
-        ? epics[epicKeys[issue.key]].fields.summary
-        : undefined,
-      sprints: (sprints[issue.key] ?? []).map((sprint: any) => ({
-        sprintBoardId: sprint.boardId,
-        sprintName: sprint.name,
-        sprintState: sprint.state,
-      })),
+      id: issue.id,
+      key: issue.key,
+      epicKey: epic?.key,
+      epicName: epic?.fields.summary,
+      status: issue.fields.status?.name || "-",
+      sprints: issueSprints,
       customFields: combineCustomFieldValueAndMeta(
         extractCustomFieldValues(issue.fields),
         buildCustomFieldMeta(issue.editmeta.fields),
       ),
-      key: issue.key,
-      id: issue.id,
-    }),
-  );
-};
-
-/**
- * Get attachments for a JIRA issue
- */
-export const getIssueAttachments = async (
-  client: IDeskproClient,
-  key: string,
-): Promise<IssueAttachment[]> => {
-  const res = await request(
-    client,
-    "GET",
-    `${API_BASE_URL}/issue/${key}?fields=attachment`,
-  );
-
-  if (!res.fields.attachment) {
-    return [];
-  }
-
-  return res.fields.attachment.map(
-    (attachment: any) =>
-      ({
-        id: attachment.id,
-        filename: attachment.filename,
-        sizeBytes: attachment.size,
-        sizeMb: attachment.size > 0 ? attachment.size / 1042 / 1024 : 0,
-        url: attachment.content,
-      }) as IssueAttachment,
-  );
+    };
+  });
 };
 
 export const createIssue = async (
   client: IDeskproClient,
   data: IssueFormData,
-  meta: any,
+  meta: Record<TransfornedFieldMeta["key"], TransfornedFieldMeta>,
 ) => {
   const customFields = {
     ...Object.keys(data.customFields ?? []).reduce((fields, key) => {
@@ -417,21 +316,18 @@ export const createIssue = async (
 
   const attachments = [...(data.attachments ?? [])];
 
-  Object.keys(data)
-    .filter(
-      (e) =>
-        e.startsWith("customfield_") &&
-        meta.find((metaField: { key: string }) => metaField.key === e).schema
-          .custom ===
-          "com.atlassian.jira.plugin.system.customfieldtypes:textarea",
-    )
+  Object.keys(data).filter((e) => {
+    const fieldMeta = meta[e];
+    return e.startsWith("customfield_")
+      && fieldMeta?.schema?.custom === FieldType.TEXT_PARAGRAPH
+  })
     .forEach((key) => {
-      (data as any)[key] = paragraphDoc((data as any)[key]);
+      data[key] = paragraphDoc(data[key] as string);
     });
 
   delete data.attachments;
 
-  const body: any = {
+  const body = {
     fields: {
       ...data,
       description: paragraphDoc(data.description),
@@ -440,10 +336,10 @@ export const createIssue = async (
     },
   };
 
-  const res = await request(client, "POST", `${API_BASE_URL}/issue`, body);
+  const res = await request<IssueBean>(client, "POST", `${API_BASE_URL}/issue`, body);
 
-  if (!res.id || !res.key) {
-    throw new InvalidRequestResponseError("Failed to create JIRA issue", res);
+  if ((res as unknown as ErrorResponse)?.errors || (res as unknown as ErrorResponse)?.errorMessages) {
+    throw new InvalidRequestResponseError("Failed to create JIRA issue", res as unknown as ErrorResponse);
   }
 
   if ((attachments ?? []).length) {
@@ -467,65 +363,70 @@ export const createIssue = async (
   return res;
 };
 
-export const getFields = async (client: IDeskproClient): Promise<Field[]> => {
-  const res = await request(client, "GET", `${API_BASE_URL}/field`);
+export const getFields = async (
+  client: IDeskproClient,
+  settings?: Settings,
+): Promise<FieldMeta[]> => {
+  const isAdmin = Boolean(settings?.domain);
+  const baseUrl = isAdmin
+    ? `https://${settings?.domain}.atlassian.net/rest/api/3/field`
+    : `${API_BASE_URL}/field`;
+
+  const res = await request<FieldMeta[]>(client, "GET", baseUrl, undefined, settings);
 
   return [
     ...res,
-    {
-      id: "linkedCount",
-      name: "Linked Issues",
-      key: "linkedCount",
-      schema: {
-        type: "string",
+    ...(isAdmin ? [] : [
+      {
+        id: "linkedCount",
+        name: "Linked Issues",
+        key: "linkedCount",
+        schema: {
+          type: "string",
+          custom: "custom",
+        },
       },
-    },
-    {
-      id: "key",
-      name: "Key",
-      key: "key",
-      schema: {
-        type: "string",
-      },
-    },
-  ];
+      {
+        id: "key",
+        name: "Key",
+        key: "key",
+        schema: {
+          type: "string",
+          custom: "custom",
+        },
+      }
+    ]),
+  ] as FieldMeta[];
 };
 
 export const updateIssue = async (
   client: IDeskproClient,
   issueKey: string,
   data: IssueFormData,
-  meta: any,
+  meta: Record<TransfornedFieldMeta["key"], TransfornedFieldMeta>,
 ) => {
-  const customFields = Object.keys(data.customFields ?? []).reduce(
-    (fields, key) => {
-      const value = formatCustomFieldValue(meta[key], data.customFields?.[key]);
+  const customFields = Object.keys(data.customFields ?? []).reduce((fields, key) => {
+    const value = formatCustomFieldValue(meta[key], data.customFields?.[key]);
 
-      if (value === undefined) {
-        return fields;
-      }
+    if (value === undefined) {
+      return fields;
+    }
 
-      return {
-        ...fields,
-        [key]: value,
-      };
-    },
-    {},
-  );
+    return {
+      ...fields,
+      [key]: value,
+    };
+  }, {});
 
-  Object.keys(data)
-    .filter(
-      (e) =>
-        e.startsWith("customfield_") &&
-        meta.find((metaField: { key: string }) => metaField.key === e).schema
-          .custom ===
-          "com.atlassian.jira.plugin.system.customfieldtypes:textarea",
-    )
-    .forEach((key) => {
-      (data as any)[key] = paragraphDoc((data as any)[key]);
-    });
+  Object.keys(data).filter((e) => {
+    const fieldMeta = meta[e];
+    return e.startsWith("customfield_") && fieldMeta?.schema?.custom === FieldType.TEXT_PARAGRAPH
+  })
+  .forEach((key) => {
+    data[key] = paragraphDoc(data[key] as string);
+  });
 
-  const body: any = {
+  const body = {
     fields: {
       ...data,
       description: paragraphDoc(data.description),
@@ -534,15 +435,15 @@ export const updateIssue = async (
     },
   };
 
-  const res = await request(
+  const res = await request<IssueBean>(
     client,
     "PUT",
     `${API_BASE_URL}/issue/${issueKey}`,
     body,
   );
 
-  if (res?.errors || res?.errorMessages) {
-    throw new InvalidRequestResponseError("Failed to update JIRA issue", res);
+  if ((res as unknown as ErrorResponse)?.errors || (res as unknown as ErrorResponse)?.errorMessages) {
+    throw new InvalidRequestResponseError("Failed to update JIRA issue", res as unknown as ErrorResponse);
   }
 
   if ((data.attachments ?? []).length) {
@@ -578,12 +479,14 @@ export const updateIssue = async (
 
 export const getCreateMeta = async (
   client: IDeskproClient,
+  settings?: Settings,
 ): Promise<CreateMeta> => {
-  const res = await request(
-    client,
-    "GET",
-    `${API_BASE_URL}/issue/createmeta`,
-  );
+  const isAdmin = Boolean(settings?.domain);
+  const baseUrl = isAdmin
+    ? `https://${settings?.domain}.atlassian.net/rest/api/3/issue/createmeta`
+    : `${API_BASE_URL}/issue/createmeta`;
+
+  const res = await request<CreateMeta>(client, "GET", baseUrl, undefined, settings);
 
   return res;
 };
@@ -592,7 +495,7 @@ export const getProjectCreateMeta = async (
   client: IDeskproClient,
   projectId: string,
   issueTypeId: string,
-): Promise<{ fields: IssueMeta[] }> => {
+): Promise<{ fields: FieldMeta[] }> => {
   return request(
     client,
     "GET",
@@ -604,25 +507,13 @@ export const getVersionsByProjectId = async (
   client: IDeskproClient,
   projectId: string,
 ) => {
-  const cache_key = "versions";
-
-  const cachedData = await client.getState(cache_key);
-
-  if (!cachedData[0]?.data || !(cachedData[0]?.data as string[]).length) {
-    const res = await request(
-      client,
-      "GET",
-      `${API_BASE_URL}/project/${projectId}/versions`,
-    );
-
-    await client.setState(cache_key, res, {
-      expires: new Date(Date.now() + SEARCH_DEPS_CACHE_TTL),
-    });
+  const res = await request<Version[]>(
+    client,
+    "GET",
+    `${API_BASE_URL}/project/${projectId}/versions`,
+  );
 
     return res;
-  }
-
-  return cachedData[0].data;
 };
 
 export const getUsers = async (client: IDeskproClient) => {
@@ -636,6 +527,7 @@ export const getUsers = async (client: IDeskproClient) => {
 };
 
 export const fetchAll = <T>(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   fn: (...args: any) => Promise<SearchResponse<T>>,
 ) => {
   const MAX = 999;
@@ -672,36 +564,28 @@ export const fetchAll = <T>(
   };
 };
 
-export const getLabels = async (client: IDeskproClient): Promise<string[]> => {
-  const cache_key = "labels";
-  const requestWithFetchAll = fetchAll(request);
+export const getLabels = async (client: IDeskproClient) => {
+  const requestWithFetchAll = fetchAll<string>(request);
+  const res = await requestWithFetchAll(
+    client,
+    "GET",
+    `${API_BASE_URL}/label`,
+  );
 
-  const cachedData = await client.getState(cache_key);
-
-  if (!cachedData[0]?.data || !(cachedData[0]?.data as string[]).length) {
-    const res = await requestWithFetchAll(
-      client,
-      "GET",
-      `${API_BASE_URL}/label`,
-    );
-
-    await client.setState(cache_key, res, {
-      expires: new Date(Date.now() + SEARCH_DEPS_CACHE_TTL),
-    });
-
-    return res as string[];
-  }
-
-  return cachedData[0].data as string[];
+  return res;
 };
 
-const request = async (
+const request = async <T>(
   client: IDeskproClient,
   method: ApiRequestMethod,
   url: string,
-  content?: any,
-) => {
+  content?: object,
+  settings?: Settings,
+): Promise<T> => {
   const dpFetch = await proxyFetch(client);
+  const auth = (settings?.username && settings?.api_key)
+    ? `Basic ${btoa(`${settings.username}:${settings.api_key}`)}`
+    : "Basic __username+':'+api_key.base64__";
 
   let body = undefined;
 
@@ -712,7 +596,7 @@ const request = async (
   }
 
   const headers: Record<string, string> = {
-    Authorization: "Basic __username+':'+api_key.base64__",
+    Authorization: auth,
     Accept: "application/json",
   };
 
@@ -729,7 +613,7 @@ const request = async (
   });
 
   if (res.status === 400) {
-    return res.json();
+    return res.json() as Promise<T>;
   }
 
   if (res.status < 200 || res.status >= 400) {
@@ -737,100 +621,99 @@ const request = async (
   }
 
   try {
-    return await res.json();
+    return await res.json() as Promise<T>;
   } catch (e) {
-    return {};
+    return {} as Promise<T>;
   }
 };
 
-export const buildCustomFieldMeta = (fields: any) => {
-  const customFields: Record<string, any> = extractCustomFieldMeta(fields);
+export const buildCustomFieldMeta = (
+  fields: IssueBean["editmeta"]["fields"]
+): Record<FieldMeta["key"], TransfornedFieldMeta|FieldMeta> => {
+  const customFields = extractCustomFieldMeta(fields);
 
-  return Object.keys(customFields).reduce(
-    (fields, key) => ({
+  return Object.keys(customFields).reduce((fields, key) => {
+    return {
       ...fields,
       [key]: transformFieldMeta(customFields[key]),
-    }),
-    {},
-  );
+    };
+  }, {});
 };
 
-const findEpicLinkMeta = (issue: any) =>
-  Object.values(issue.editmeta.fields).filter(
-    (field: any) =>
-      field.schema.custom === "com.pyxis.greenhopper.jira:gh-epic-link",
-  )[0] ?? null;
+const findEpicLinkMeta = (issue: IssueBean): FieldMeta|null => {
+  return Object.values(issue?.editmeta?.fields ?? {}).filter((field) => {
+    return field.schema.custom === FieldType.EPIC;
+  })[0] ?? null;
+};
 
-const findSprintLinkMeta = (issue: any) =>
-  Object.values(issue.editmeta.fields).filter(
-    (field: any) =>
-      field.schema.custom === "com.pyxis.greenhopper.jira:gh-sprint",
-  )[0] ?? null;
-const extractCustomFieldMeta = (fields: any) =>
-  Object.keys(fields).reduce((customFields, key) => {
+const findSprintLinkMeta = (issue: IssueBean): FieldMeta|null => {
+  return Object.values(issue?.editmeta?.fields ?? {}).filter((field) => {
+    return field.schema.custom === FieldType.SPRINT;
+  })[0] ?? null;
+};
+
+const extractCustomFieldMeta = (
+  fields: IssueBean["editmeta"]["fields"],
+): IssueBean["editmeta"]["fields"] => {
+  return Object.keys(fields).reduce((customFields, key) => {
     if (!isCustomFieldKey(key)) {
       return customFields;
     }
 
     return { ...customFields, [key]: fields[key] };
   }, {});
+};
 
-export const extractCustomFieldValues = (fields: any) =>
-  Object.keys(fields).reduce((customFields, key) => {
+export const extractCustomFieldValues = (
+  fields: FieldsValues,
+): CustomFieldsValues => {
+  return Object.keys(fields).reduce((customFields, key) => {
     if (!isCustomFieldKey(key)) {
       return customFields;
     }
 
     return { ...customFields, [key]: fields[key] };
   }, {});
-const transformFieldMeta = (field: any) => {
-  const { key, name, operations, schema, required, ...rest } = field;
+};
+
+export const transformFieldMeta = (field: FieldMeta): TransfornedFieldMeta => {
   return {
-    type: field.schema.custom,
-    key: field.key,
-    name: field.name,
-    required: field.required,
-    ...rest,
+    ...field,
+    type: field.schema?.custom as FieldType,
   };
 };
 
-const combineCustomFieldValueAndMeta = (values: any, meta: any) =>
-  Object.keys(meta).reduce(
-    (fields, key) => ({
-      ...fields,
-      [key]: {
-        value: values[key],
-        meta: meta[key],
-      },
-    }),
-    {},
-  );
+const combineCustomFieldValueAndMeta = (
+  values: CustomFieldsValues,
+  meta: Record<FieldMeta["key"], TransfornedFieldMeta|FieldMeta>,
+): Record<FieldMeta["key"], { value: CustomFieldValue, meta: FieldMeta }> => {
+  return Object.keys(meta).reduce((fields, key) => ({
+    ...fields,
+    [key]: {
+      value: values[key],
+      meta: meta[key],
+    },
+  }), {});
+};
 
-const isCustomFieldKey = (key: string): boolean =>
-  /^customfield_[0-9]+$/.test(key);
+const isCustomFieldKey = (key: string): boolean => /^customfield_[0-9]+$/.test(key);
 
 const remoteLinkGlobalId = (ticketId: string) => `deskpro_ticket_${ticketId}`;
 
 /**
  * Format fields when sending values to API
  */
-const formatCustomFieldValue = (meta: IssueMeta, value: any) =>
-  match<FieldType, any>(meta.type)
+const formatCustomFieldValue = (meta: TransfornedFieldMeta, value: CustomFieldValue) =>
+  match(meta.type)
     .with(FieldType.TEXT_PLAIN, () => value ?? undefined)
-    .with(FieldType.TEXT_PARAGRAPH, () =>
-      value ? paragraphDoc(value) : undefined,
-    )
+    .with(FieldType.TEXT_PARAGRAPH, () => value ? paragraphDoc(value as string) : undefined)
     .with(FieldType.DATETIME, () => value ?? undefined)
     .with(FieldType.DATE, () => value ?? undefined)
-    .with(FieldType.CHECKBOXES, () =>
-      (value ?? []).map((id: string) => ({ id })),
-    )
+    .with(FieldType.CHECKBOXES, () => (Array.isArray(value) ? value : []).map((id: string) => ({ id })))
     .with(FieldType.LABELS, () => value ?? [])
     .with(FieldType.NUMBER, () => (value ? new Number(value) : undefined))
     .with(FieldType.RADIO_BUTTONS, () => (value ? { id: value } : undefined))
-    .with(FieldType.SELECT_MULTI, () =>
-      (value ?? []).map((id: string) => ({ id })),
-    )
+    .with(FieldType.SELECT_MULTI, () => (Array.isArray(value) ? value : []).map((id: string) => ({ id })))
     .with(FieldType.SELECT_SINGLE, () => (value ? { id: value } : undefined))
     .with(FieldType.URL, () => value ?? undefined)
     .with(FieldType.USER_PICKER, () => (value ? { id: value } : undefined))
@@ -838,22 +721,22 @@ const formatCustomFieldValue = (meta: IssueMeta, value: any) =>
 /**
  * Format data when getting values from the API
  */
-export const formatCustomFieldValueForSet = (meta: IssueMeta, value: any) =>
-  match<FieldType, any>(meta.type)
+export const formatCustomFieldValueForSet = (meta: TransfornedFieldMeta, value: unknown) =>
+  match(meta.type)
     .with(FieldType.TEXT_PLAIN, () => value ?? "")
-    .with(FieldType.TEXT_PARAGRAPH, () => useAdfToPlainText(value))
-    .with(FieldType.DATETIME, () => (value ? new Date(value) : undefined))
-    .with(FieldType.DATE, () => (value ? new Date(value) : undefined))
+    .with(FieldType.TEXT_PARAGRAPH, () => useAdfToPlainText(value as ADFEntity))
+    .with(FieldType.DATETIME, () => (value ? new Date(value as Date) : undefined))
+    .with(FieldType.DATE, () => (value ? new Date(value as Date) : undefined))
     .with(FieldType.CHECKBOXES, () =>
-      (value ?? []).map((v: { id: string }) => v.id),
+      (Array.isArray(value) ? value : []).map((v: { id: string }) => v.id),
     )
     .with(FieldType.LABELS, () => value ?? [])
-    .with(FieldType.NUMBER, () => (value ? `${value}` : ""))
-    .with(FieldType.RADIO_BUTTONS, () => value?.id ?? undefined)
+    .with(FieldType.NUMBER, () => (value ? `${value as string}` : ""))
+    .with(FieldType.RADIO_BUTTONS, () => (value as { id: string })?.id ?? undefined)
     .with(FieldType.SELECT_MULTI, () =>
-      (value ?? []).map((v: { id: string }) => v.id),
+      (Array.isArray(value) ? value : []).map((v: { id: string }) => v.id),
     )
-    .with(FieldType.SELECT_SINGLE, () => value?.id ?? undefined)
+    .with(FieldType.SELECT_SINGLE, () => (value as { id: string })?.id ?? undefined)
     .with(FieldType.URL, () => value ?? "")
-    .with(FieldType.USER_PICKER, () => value?.accountId ?? undefined)
+    .with(FieldType.USER_PICKER, () => (value as UserBean)?.accountId ?? undefined)
     .otherwise(() => undefined);

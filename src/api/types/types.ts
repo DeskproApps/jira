@@ -1,100 +1,133 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { Context } from "@deskpro/app-sdk";
-import { Reducer } from "react";
 import { ADFEntity } from "@atlaskit/adf-utils";
-import { IssueMeta } from "../../types";
+import { components } from "./schema";
+import { RequiredProps, DateTime, FieldType } from "../../types";
+import { Issuetype, Project, Watches, Priority, UserBean, Components, Progress, Status, Votes } from "./fieldsValue";
+import { SprintCustomValue, CustomFieldsValues, CustomFieldValue } from "./customFieldsValue";
 
-export type ApiRequestMethod = "GET" | "POST" | "PUT" | "DELETE";
+export type Schemas = components["schemas"];
 
-export type StoreReducer = Reducer<State, Action>;
+export type IssuePicker = Required<components["schemas"]["SuggestedIssue"]>;
 
-export type Dispatch = (action: Action) => void;
+export type PickerSection = Omit<
+  components["schemas"]["IssuePickerSuggestionsIssueType"],
+  "id"|"issues"
+> & {
+  id: string;
+  issues: IssuePicker[];
+};
 
-export type Page =
-  | "home"
-  | "link"
-  | "view"
-  | "create"
-  | "edit"
-  | "comment"
-  | "view_permissions"
-  | "verify_settings";
+export type IssuesPicker = Omit<components["schemas"]["IssuePickerSuggestions"], "sections"> & {
+  sections: PickerSection[];
+};
 
-export interface State {
-  page?: Page;
-  pageParams?: any;
-  context?: TicketContext;
-  linkIssueSearchResults?: { loading: boolean; list: IssueSearchItem[] };
-  linkedIssuesResults?: { loading: boolean; list: IssueItem[] };
-  linkedIssueAttachments?: {
-    loading: boolean;
-    list: { [key: string]: IssueAttachment[] };
+export type FieldsValues = {
+  description: ADFEntity;
+  summary: string;
+  issuetype: Issuetype;
+  project: Project;
+  workratio: number;
+  watches: Watches;
+  priority: Priority;
+  labels: string[];
+  fixVersions: { id: number }[];
+  versions: { id: number }[];
+  assignee: UserBean;
+  creator: UserBean;
+  reporter: UserBean;
+  created: DateTime;
+  updated: DateTime;
+  resolutiondate: DateTime;
+  statuscategorychangedate: DateTime;
+  components: Components[];
+  duedate: DateTime;
+  status: Status;
+  votes: Votes;
+  timespent: string|null;
+  subtasks: [];
+  aggregateprogress: Progress;
+  timeoriginalestimate: null;
+  security: null;
+  resolution: null;
+  lastViewed: null;
+  timeestimate: null;
+  aggregatetimespent: null;
+  aggregatetimeoriginalestimate: null;
+  aggregatetimeestimate: null;
+  environment: null;
+  progress: Progress;
+} & CustomFieldsValues;
+
+export type IssueBean = RequiredProps<
+  components["schemas"]["IssueBean"],
+  "id"|"key"|"self"|"expand"
+> & {
+  fields: FieldsValues;
+  editmeta: {
+    fields: Record<FieldMeta["key"], FieldMeta>;
   };
-  // ToDo: need typings
-  dataDependencies?: any;
-  hasGeneratedIssueFormSuccessfully?: boolean;
-  isUnlinkingIssue?: boolean;
-  issueComments?: Record<string, JiraComment[]>;
-  _error?: Error | unknown;
+};
+
+export type SearchIssues = Omit<components["schemas"]["SearchResults"], "issues"> & {
+  issues: IssueBean[];
+};
+
+export type AvatarUrls = Required<components["schemas"]["AvatarUrlsBean"]>;
+
+export type SearchIssueItem = Omit<
+  FieldsValues,
+  "summary"|"status"
+> & {
+  id: string;
+  key: string;
+  keyHtml?: string;
+  summary: string;
+  summaryHtml?: string;
+  status: string;
+  projectKey?: string;
+  projectName?: string;
+  reporterId?: string;
+  reporterName?: string;
+  reporterAvatarUrl?: string;
+  epicKey?: string;
+  epicName?: string;
+  linkedCount?: number;
+};
+
+export type IssueItem = SearchIssueItem & {
+  assigneeId?: string;
+  assigneeName?: string;
+  assigneeAvatarUrl?: string;
+  priority?: Priority;
+  priorityId?: string;
+  priorityIconUrl?: string;
+  sprints?: {
+    sprintBoardId: SprintCustomValue["boardId"];
+    sprintName: SprintCustomValue["name"];
+    sprintState: SprintCustomValue["state"];
+  }[];
+  description?: ADFEntity;
+  labels?: string[];
+  parentKey?: string;
+  customFields?: Record<FieldMeta["key"], { value: CustomFieldValue, meta: FieldMeta }>;
 }
 
-export type Action =
-  | { type: "changePage"; page: Page; params?: object }
-  | { type: "loadContext"; context: Context }
-  | { type: "linkIssueSearchListLoading" }
-  | { type: "linkIssueSearchList"; list: IssueSearchItem[] }
-  | { type: "linkIssueSearchListReset" }
-  | { type: "linkedIssuesListLoading" }
-  | { type: "linkedIssuesList"; list: IssueItem[] }
-  | { type: "unlinkIssue"; key: string }
-  | { type: "issueAttachmentsLoading" }
-  | { type: "issueAttachments"; key: string; attachments: IssueAttachment[] }
-  | { type: "loadDataDependencies"; deps: any }
-  | { type: "failedToGenerateIssueForm" }
-  | { type: "error"; error: string }
-  | { type: "issueComments"; key: string; comments: JiraComment[] };
+export type IssueComment = {
+  id: string;
+  author: UserBean;
+  created: DateTime;
+  updated: DateTime;
+  renderedBody: string;
+  body: ADFEntity;
+};
 
-export interface TicketContext extends Context {
-  data: { ticket: { id: string; permalinkUrl: string; subject: string } };
-}
+export type Version = RequiredProps<
+  components["schemas"]["Version"],
+  "archived"|"description"|"id"|"name"|"projectId"|"released"|"self"
+>;
 
 export interface SearchParams {
   withSubtask?: boolean;
   projectId?: string;
-}
-
-export interface IssueItem {
-  id: number;
-  key: string;
-  summary: string;
-  projectKey: string;
-  projectName: string;
-  status: string;
-  reporterId: string;
-  reporterName: string;
-  reporterAvatarUrl: string;
-  assigneeId: string;
-  assigneeName: string;
-  assigneeAvatarUrl: string;
-  epicKey?: string;
-  epicName?: string;
-  priority: string;
-  priorityId: string;
-  priorityIconUrl: string;
-  sprints?: {
-    sprintBoardId?: number;
-    sprintName?: string;
-    sprintState?: string;
-  }[];
-  description?: ADFEntity;
-  labels?: string[];
-  customFields: Record<string, { value: any; meta: IssueMeta }>;
-  parentKey?: string;
-}
-
-export interface IssueSearchItem extends IssueItem {
-  keyHtml: string;
-  summaryHtml: string;
 }
 
 export interface IssueAttachment {
@@ -105,7 +138,7 @@ export interface IssueAttachment {
   url: string;
 }
 
-export interface IssueFormData {
+export type IssueFormData = {
   summary: string;
   description: string;
   issuetype: string;
@@ -115,10 +148,10 @@ export interface IssueFormData {
   assignee: string;
   labels: string[];
   priority: string;
-  customFields?: Record<string, any>;
+  customFields?: Record<FieldMeta["key"], unknown>;
   attachments?: AttachmentFile[];
   parent: string;
-}
+} & Record<FieldMeta["key"], unknown>
 
 export interface AttachmentFile {
   name: string;
@@ -128,12 +161,17 @@ export interface AttachmentFile {
   delete?: boolean;
 }
 
+export type ErrorResponse = {
+  errorMessages: [],
+  errors: Record<FieldMeta["key"], string>;
+};
+
 export class InvalidRequestResponseError extends Error {
-  constructor(
-    message: string,
-    private _response: any,
-  ) {
+  public _response: ErrorResponse;
+
+  constructor(message: string, _response: ErrorResponse) {
     super(message);
+    this._response = _response;
   }
 
   get response() {
@@ -147,10 +185,9 @@ export interface JiraComment {
   updated: Date;
   body: ADFEntity;
   author: {
-    avatarUrls: any;
-    accountId: string;
-    displayName: string;
-    avatarUrl: string;
+    accountId: UserBean["accountId"];
+    displayName: UserBean["displayName"];
+    avatarUrl: UserBean["avatarUrls"]["24x24"];
   };
   renderedBody: string;
 }
@@ -194,15 +231,15 @@ export interface Field {
   navigable: boolean;
   searchable: boolean;
   clauseNames: string[];
-  schema?: Schema;
+  schema: Schema;
   untranslatedName?: string;
   scope?: Scope;
 }
 
 export interface Schema {
   type: string;
+  custom?: FieldType;
   system?: string;
-  custom?: string;
   customId?: number;
   items?: string;
   configuration?: Configuration;
@@ -215,10 +252,6 @@ export interface Configuration {
 export interface Scope {
   type: string;
   project: Project;
-}
-
-export interface Project {
-  id: string;
 }
 
 export interface FullIssue {
@@ -235,20 +268,16 @@ export interface Editmeta {
 }
 
 export interface EditmetaFields {
+  assignee: PurpleAssignee;
+  components: FieldMeta;
+  description: PurpleAssignee;
   summary: PurpleAssignee;
+  environment: PurpleAssignee;
   issuetype: PurpleAssignee;
   parent: PurpleAssignee;
-  description: PurpleAssignee;
   reporter: PurpleAssignee;
-  customfield_10021: Customfield100;
-  customfield_10000: Customfield100;
   labels: Issuelinks;
-  customfield_10049: Customfield100;
-  customfield_10029: Customfield100;
-  environment: PurpleAssignee;
-  customfield_10019: Customfield100;
   issuelinks: Issuelinks;
-  assignee: PurpleAssignee;
 }
 
 export interface PurpleAssignee {
@@ -262,43 +291,17 @@ export interface PurpleAssignee {
   hasDefaultValue?: boolean;
 }
 
-export interface Issuetype {
-  self: string;
-  id: string;
-  description: string;
-  iconUrl: string;
-  name: string;
-  subtask: boolean;
-  avatarId: number;
-  entityId: string;
-  hierarchyLevel: number;
-}
+
 
 export interface AssigneeSchema {
   type: string;
   system: string;
 }
 
-export interface Customfield100 {
-  required: boolean;
-  schema: Customfield10000_Schema;
-  name: string;
-  key: string;
-  operations: string[];
-  allowedValues?: AllowedValue[];
-}
-
 export interface AllowedValue {
   self: string;
   value: string;
   id: string;
-}
-
-export interface Customfield10000_Schema {
-  type: string;
-  custom: string;
-  customId: number;
-  items?: string;
 }
 
 export interface Issuelinks {
@@ -316,156 +319,73 @@ export interface IssuelinksSchema {
   system: string;
 }
 
-export interface FullIssueFields {
+export interface FullIssueFields extends Record<FieldMeta["key"], unknown> {
   statuscategorychangedate: string;
   issuetype: Issuetype;
   timespent: null;
-  customfield_10030: null;
   project: Project;
-  customfield_10031: null;
-  customfield_10032: null;
-  fixVersions: any[];
-  customfield_10033: null;
-  customfield_10034: null;
+  fixVersions: Version[];
   aggregatetimespent: null;
   resolution: null;
-  customfield_10035: any[];
-  customfield_10036: null;
-  customfield_10037: null;
-  customfield_10029: null;
   resolutiondate: null;
   workratio: number;
   lastViewed: null;
   watches: Watches;
   created: string;
-  customfield_10020: null;
-  customfield_10021: null;
-  customfield_10022: null;
-  customfield_10023: null;
   priority: Priority;
-  customfield_10024: null;
-  customfield_10025: null;
-  labels: any[];
-  customfield_10016: null;
-  customfield_10017: null;
-  customfield_10018: Customfield10018;
-  customfield_10019: string;
+  labels: string[];
   timeestimate: null;
   aggregatetimeoriginalestimate: null;
-  versions: any[];
-  issuelinks: any[];
-  assignee: AssigneeClass;
+  versions: Version[];
+  issuelinks: Issuelinks[];
+  assignee: UserBean;
   updated: string;
   status: Status;
-  components: any[];
-  customfield_10050: null;
+  components: Components[];
   timeoriginalestimate: null;
   description: null;
-  customfield_10010: null;
-  customfield_10014: null;
-  customfield_10015: null;
-  customfield_10005: null;
-  customfield_10006: null;
   security: null;
-  customfield_10007: null;
-  customfield_10008: null;
-  customfield_10009: null;
   aggregatetimeestimate: null;
   summary: string;
-  creator: AssigneeClass;
-  subtasks: any[];
-  customfield_10040: null;
-  customfield_10041: null;
-  customfield_10042: null;
-  reporter: AssigneeClass;
-  customfield_10043: null;
-  customfield_10044: null;
+  creator: UserBean;
+  subtasks: IssueBean[];
+  reporter: UserBean;
   aggregateprogress: Progress;
-  customfield_10000: string;
-  customfield_10001: null;
-  customfield_10002: null;
-  customfield_10046: any[];
-  customfield_10003: null;
-  customfield_10047: null;
-  customfield_10048: null;
-  customfield_10004: null;
-  customfield_10038: null;
-  customfield_10039: null;
   environment: null;
   duedate: null;
   progress: Progress;
   votes: Votes;
-}
-
-export interface Progress {
-  progress: number;
-  total: number;
-}
-
-export interface AssigneeClass {
-  self: string;
-  accountId: string;
-  avatarUrls: { [key: string]: string };
-  displayName: string;
-  active: boolean;
-  timeZone: string;
-  accountType: string;
-}
-
-export interface Customfield10018 {
-  hasEpicLinkFieldDependency: boolean;
-  showField: boolean;
-  nonEditableReason: NonEditableReason;
-}
+};
 
 export interface NonEditableReason {
   reason: string;
   message: string;
 }
 
-export interface Priority {
-  self: string;
-  iconUrl: string;
-  name: string;
-  id: string;
-}
-
-export interface Status {
-  self: string;
-  description: string;
-  iconUrl: string;
-  name: string;
-  id: string;
-  statusCategory: StatusCategory;
-}
-
-export interface StatusCategory {
-  self: string;
-  id: number;
+export type FieldMeta<V = unknown> = {
+  /** @description The list of values allowed in the field. */
+  allowedValues?: V[];
+  /** @description The URL that can be used to automatically complete the field. */
+  autoCompleteUrl?: string;
+  /** @description The configuration properties. */
+  configuration?: { [key: string]: unknown };
+  /** @description The default value of the field. */
+  defaultValue?: unknown;
+  /** @description Whether the field has a default value. */
+  hasDefaultValue?: boolean;
+  /** @description The key of the field. */
   key: string;
-  colorName: string;
+  /** @description The name of the field. */
   name: string;
-}
+  /** @description The list of operations that can be performed on the field. */
+  operations?: string[];
+  /** @description Whether the field is required. */
+  required?: boolean;
+  /** @description The data type of the field. */
+  schema?: Schema;
+  id?: string;
+};
 
-export interface Votes {
-  self: string;
-  votes: number;
-  hasVoted: boolean;
-}
-
-export interface Watches {
-  self: string;
-  watchCount: number;
-  isWatching: boolean;
-}
-
-export interface FieldMeta {
-  autoCompleteUrl: string;
-  fieldId: string;
-  hasDefaultValue: boolean;
-  key: string;
-  name: string;
-  operations: string[];
-  required: boolean;
-  schema: object;
-}
+export type TransfornedFieldMeta = FieldMeta & {
+  type: FieldType;
+};

@@ -7,22 +7,21 @@ import {
 import { H1, H3, Icon, Stack } from "@deskpro/deskpro-ui";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
-import { Field } from "../../api/types/types";
+import { FieldMeta, IssueItem } from "../../api/types/types";
 import { substitutePlaceholders } from "../../utils/utils";
 import { AppLogo } from "../AppLogo/AppLogo";
 import { HorizontalDivider } from "../HorizontalDivider/HorizontalDivider";
 import { MapFieldValues } from "../MapFieldValues/MapFieldValues";
+import { TicketData, Settings } from "../../types";
 
 type Props = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  items: any[];
+  items: IssueItem[];
   internalUrl?: string;
   externalUrl?: string;
-  metadata: Field[];
+  metadata: FieldMeta[];
   internalChildUrl?: string;
   externalChildUrl?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  childTitleAccessor?: (field: any) => string;
+  childTitleAccessor?: (field: IssueItem) => string;
   title?: string;
   hasCheckbox?: boolean;
   createPage?: string;
@@ -41,7 +40,7 @@ export const FieldMapping = ({
 }: Props) => {
   const { theme } = useDeskproAppTheme();
   const navigate = useNavigate();
-  const { context } = useDeskproLatestAppContext();
+  const { context } = useDeskproLatestAppContext<TicketData, Settings>();
 
   return (
     <Stack vertical gap={4} style={{ width: "100%" }}>
@@ -80,10 +79,10 @@ export const FieldMapping = ({
           {externalUrl && (
             <ExternalIconLink
               href={substitutePlaceholders(externalUrl, {
-                ...context?.settings,
+                ...(context?.settings || {}),
               })}
               icon={<AppLogo />}
-            ></ExternalIconLink>
+            />
           )}
         </Stack>
       )}
@@ -100,9 +99,7 @@ export const FieldMapping = ({
               {internalChildUrl && childTitleAccessor && (
                 <Link
                   as={RouterLink}
-                  to={substitutePlaceholders(internalChildUrl, {
-                    ...item,
-                  })}
+                  to={substitutePlaceholders(internalChildUrl, { ...item })}
                   replace={true}
                 >
                   {childTitleAccessor(item)}

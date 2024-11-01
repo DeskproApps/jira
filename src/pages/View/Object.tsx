@@ -15,12 +15,14 @@ import { CommentsList } from "../../components/CommentsList/CommentsList";
 import { useLinkIssues } from "../../hooks/hooks";
 import { queryClient } from "../../query";
 import { Container } from "../../components/Layout";
+import { getLayout } from "../../utils/utils";
+import { TicketData, Settings } from "../../types";
 
 export const ViewObject = () => {
   const [hasMappedFields, setHasMappedFields] = useState<boolean | undefined>(
     undefined,
   );
-  const { context } = useDeskproLatestAppContext();
+  const { context } = useDeskproLatestAppContext<TicketData, Settings>();
   const [mappedFields, setMappedFields] = useState<string[]>([]);
   const navigate = useNavigate();
   const { objectId, objectView } = useParams();
@@ -29,18 +31,13 @@ export const ViewObject = () => {
   const objectQuery = useQueryWithClient(
     [objectId as string, objectView as string],
     (client) => listLinkedIssues(client, [objectId as string]),
-    {
-      enabled: !!objectId,
-    },
+    { enabled: !!objectId },
   );
 
-  const metadataFieldsQuery = useQueryWithClient(["metadataFields"], (client) =>
-    getFields(client),
-  );
+  const metadataFieldsQuery = useQueryWithClient(["metadataFields"], getFields);
 
   useEffect(() => {
-    if (!context) return;
-    const data = JSON.parse(context?.settings.mapping ?? "{}");
+    const data = getLayout(context?.settings.mapping);
 
     if (!data) {
       setMappedFields([]);
@@ -48,20 +45,14 @@ export const ViewObject = () => {
     }
     setMappedFields(data.detailView ?? []);
     setHasMappedFields(!!data.detailView?.length);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [context]);
 
   useInitialisedDeskproAppClient(
     (client) => {
       if (!objectQuery.isSuccess) return;
 
-      client.registerElement("editButton", {
-        type: "edit_button",
-      });
-
-      client.registerElement("homeButton", {
-        type: "home_button",
-      });
+      client.registerElement("editButton", { type: "edit_button" });
+      client.registerElement("homeButton", { type: "home_button" });
 
       client.registerElement("menuButton", {
         type: "menu",
@@ -76,13 +67,13 @@ export const ViewObject = () => {
         ],
       });
 
-      client.setTitle((objectQuery.data[0].key as string) || "View");
+      client.setTitle(objectQuery.data[0].key || "View");
     },
     [objectQuery.isSuccess, objectView],
   );
 
   useDeskproAppEvents({
-    async onElementEvent(id) {
+    onElementEvent(id) {
       switch (id) {
         case "homeButton":
           navigate("/redirect");
@@ -132,7 +123,7 @@ export const ViewObject = () => {
           items={data}
           metadata={usableFields}
           externalChildUrl={IssueJson.externalChildUrl}
-          childTitleAccessor={(e) => e[IssueJson.titleKeyName]}
+          childTitleAccessor={(e) => e[IssueJson.titleKeyName] as string}
           />
         <CommentsList issueKey={objectId!} />
       </Stack>

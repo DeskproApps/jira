@@ -9,11 +9,7 @@ import {
 import { P1 } from "@deskpro/deskpro-ui";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  getIssueAttachments,
-  getIssueComments,
-  listLinkedIssues,
-} from "../api/api";
+import { getIssueComments, listLinkedIssues } from "../api/api";
 import { IssueAttachment, IssueItem, JiraComment } from "../api/types/types";
 import { queryClient } from "../query";
 import {
@@ -21,66 +17,65 @@ import {
   ticketReplyEmailsSelectionStateKey,
   ticketReplyNotesSelectionStateKey,
 } from "../utils/utils";
+import { Settings, TicketData } from "../types";
 
 export const useLinkIssues = () => {
-  const { context } = useDeskproLatestAppContext();
+  const { context } = useDeskproLatestAppContext<TicketData, Settings>();
   const { client } = useDeskproAppClient();
   const [isLinking, setIsLinking] = useState(false);
   const navigate = useNavigate();
 
-  const deskproTicket = context?.data.ticket;
+  const deskproTicket = context?.data?.ticket;
 
-  const linkIssues = useCallback(
-    async (issuesIds: string[]) => {
-      if (!context || !client) return;
+  const linkIssues = useCallback(async (issuesIds: string[]) => {
+    if (!context || !client || !deskproTicket) {
+      return;
+    }
 
-      setIsLinking(true);
+    setIsLinking(true);
 
-      const commentOnNote =
-        context.settings?.default_comment_on_ticket_note === true;
-      const commentOnReply =
-        context.settings?.default_comment_on_ticket_reply === true;
+    const commentOnNote =
+      context.settings?.default_comment_on_ticket_note === true;
+    const commentOnReply =
+      context.settings?.default_comment_on_ticket_reply === true;
 
-      await Promise.all(
-        issuesIds.map((issueId) =>
-          client
-            ?.getEntityAssociation("linkedJiraIssues", deskproTicket.id)
-            .set(issueId)
-            .then(async () => {
-              await client.setState(
-                `jira/items/${issueId}`,
-                (((await client.getState(`jira/items/${issueId}`))[0]
-                  ?.data as number) ?? 0) + 1,
-              );
-              commentOnNote &&
-                (await client?.setState(
-                  ticketReplyNotesSelectionStateKey(deskproTicket.id, issueId),
-                  {
-                    id: issueId,
-                    selected: true,
-                  },
-                ));
-              commentOnReply &&
-                (await client?.setState(
-                  ticketReplyEmailsSelectionStateKey(deskproTicket.id, issueId),
-                  {
-                    id: issueId,
-                    selected: true,
-                  },
-                ));
-            }),
-        ),
-      );
+    await Promise.all(
+      issuesIds.map((issueId) =>
+        client
+          ?.getEntityAssociation("linkedJiraIssues", deskproTicket.id)
+          .set(issueId)
+          .then(async () => {
+            await client.setState(
+              `jira/items/${issueId}`,
+              (((await client.getState(`jira/items/${issueId}`))[0]
+                ?.data as number) ?? 0) + 1,
+            );
+            commentOnNote &&
+              (await client?.setState(
+                ticketReplyNotesSelectionStateKey(deskproTicket.id, issueId),
+                {
+                  id: issueId,
+                  selected: true,
+                },
+              ));
+            commentOnReply &&
+              (await client?.setState(
+                ticketReplyEmailsSelectionStateKey(deskproTicket.id, issueId),
+                {
+                  id: issueId,
+                  selected: true,
+                },
+              ));
+          }),
+      ),
+    );
 
-      queryClient.clear();
+    queryClient.clear();
 
-      navigate("/redirect");
+    navigate("/redirect");
 
-      setIsLinking(false);
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [context, client],
-  );
+    setIsLinking(false);
+  }, [context, client, deskproTicket, navigate]);
 
   const getLinkedIssues = useCallback(async () => {
     if (!client || !deskproTicket) return;
@@ -90,11 +85,10 @@ export const useLinkIssues = () => {
       .list();
   }, [client, deskproTicket]);
 
-  const unlinkIssues = useCallback(
-    async (issues: string[]) => {
-      if (!context || !client) return;
+  const unlinkIssues = useCallback(async (issues: string[]) => {
+      if (!context || !client || !deskproTicket?.id) return;
 
-      await Promise.all(
+      return Promise.all(
         issues.map(async (issue) => {
           client
             ?.getEntityAssociation("linkedJiraIssues", deskproTicket.id)
@@ -102,13 +96,13 @@ export const useLinkIssues = () => {
 
           await client.setState(
             `jira/items/${issue}`,
-            (((await client.getState(`azure/items/${issue}`))[0]
-              ?.data as number) ?? 1) - 1,
+            (
+              ((await client.getState(`jira/items/${issue}`))[0]?.data as number) ?? 1
+            ) - 1,
           );
         }),
-      );
-
-      navigate("/redirect");
+      )
+      .then(() => navigate("/redirect"));
     },
     [client, context, deskproTicket, navigate],
   );
@@ -123,7 +117,7 @@ export const useLinkIssues = () => {
   };
 };
 
-export const useGetLinkedIssuesData = async () => {
+export const useGetLinkedIssuesData = () => {
   const { getLinkedIssues } = useLinkIssues();
 
   const issues = useQueryWithClient(["linkedIssues"], async (client) => {
@@ -142,36 +136,29 @@ export const useSetAppTitle = (title: string): void => {
 
 export const useWhenNoLinkedItems = (onNoLinkedItems: () => void) => {
   const { client } = useDeskproAppClient();
-  const { context } = useDeskproLatestAppContext();
+  const { context } = useDeskproLatestAppContext<TicketData, Settings>();
 
   useEffect(() => {
-    if (!client || !context?.data.ticket.id) {
+    if (!client || !context?.data?.ticket.id) {
       return;
     }
 
-    client
-      .getEntityAssociation(
-        "linkedJiraIssues",
-        context?.data.ticket.id as string,
-      )
+    client.getEntityAssociation("linkedJiraIssues", context.data.ticket.id)
       .list()
       .then((items) => items.length === 0 && onNoLinkedItems());
-  }, [client, context?.data.ticket.id, onNoLinkedItems]);
+  }, [client, context?.data?.ticket.id, onNoLinkedItems]);
 };
 
 export const useLoadLinkedIssues = () => {
   const { client } = useDeskproAppClient();
-  const { context } = useDeskproLatestAppContext();
+  const { context } = useDeskproLatestAppContext<TicketData, Settings>();
   return async () => {
-    if (!client || !context?.data.ticket.id) {
+    if (!client || !context?.data?.ticket) {
       return [];
     }
 
     const keys = await client
-      .getEntityAssociation(
-        "linkedJiraIssues",
-        context?.data.ticket.id as string,
-      )
+      .getEntityAssociation("linkedJiraIssues", context.data.ticket.id)
       .list();
 
     const list = await listLinkedIssues(client, keys);
@@ -181,23 +168,14 @@ export const useLoadLinkedIssues = () => {
     const idToKeyUpdates = keys
       .filter((key) => /^[0-9]+$/.test(key.toString()))
       .map((id) => {
-        const item = list.filter(
-          (item: { id: { toString: () => string } }) =>
-            item.id.toString() === id.toString(),
-        )[0];
-        if (item) {
+        const item = list.filter((item) => {
+          return item.id.toString() === id.toString();
+        })[0];
+        if (item && context.data?.ticket) {
           return Promise.all([
-            client
-              .getEntityAssociation(
-                "linkedJiraIssues",
-                context?.data.ticket.id as string,
-              )
+            client.getEntityAssociation("linkedJiraIssues", context.data.ticket.id)
               .delete(id),
-            client
-              .getEntityAssociation(
-                "linkedJiraIssues",
-                context?.data.ticket.id as string,
-              )
+            client.getEntityAssociation("linkedJiraIssues", context.data.ticket.id)
               .set(item.key),
           ]);
         }
@@ -209,20 +187,6 @@ export const useLoadLinkedIssues = () => {
     await Promise.all(idToKeyUpdates);
 
     return list;
-  };
-};
-
-export const useLoadLinkedIssueAttachment = () => {
-  const { client } = useDeskproAppClient();
-
-  return async (key: string) => {
-    if (!client) {
-      return;
-    }
-
-    const attachments = await getIssueAttachments(client, key);
-
-    return attachments;
   };
 };
 
@@ -266,16 +230,20 @@ export const parseJiraDescription = (description: ADFEntity) => {
       case "hardBreak":
         return <br />;
       case "inlineCard":
-        return (
-          <Link href={node.attrs?.url} target="_blank">
-            {node.attrs?.url}
-          </Link>
-        );
+        if (node.attrs?.url) {
+          return (
+            <Link href={node.attrs.url as string} target="_blank">
+              {node.attrs?.url}
+            </Link>
+          );
+        } else {
+          return "";
+        }
     }
   });
 };
 
-export const useAdfToPlainText = (document: ADFEntity) => {
+export const useAdfToPlainText = (document: ADFEntity): string => {
   if (!document) {
     return "";
   }
@@ -349,18 +317,14 @@ export const useFindIssueComments = (
 ): JiraComment[] | null => {
   const [comments, setComments] = useState<JiraComment[] | null>(null);
 
-  useInitialisedDeskproAppClient(
-    (client) => {
-      if (!issueKey) {
-        return;
-      }
+  useInitialisedDeskproAppClient((client) => {
+    if (!issueKey) {
+      return;
+    }
 
-      getIssueComments(client, issueKey).then((comments) =>
-        setComments(comments),
-      );
-    },
-    [issueKey],
-  );
+    getIssueComments(client, issueKey)
+      .then((comments) => setComments(comments));
+  }, [issueKey]);
 
   return comments;
 };
