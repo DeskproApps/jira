@@ -117,6 +117,18 @@ export const MapFieldValues = ({
               content = <H2>{usedField.map((e: any) => e.name).join(",")}</H2>;
             } else if (field.schema.items === "option") {
               content = <H2>{usedField.map((e: any) => e.value).join(",")}</H2>;
+            } else if (field.schema.items === "issuelinks") {
+              content = <div>
+                {(usedField?.length === 0)
+                  ? "-"
+                  : usedField.map((value: { inwardIssue: { key?: string } }) => (
+                    <Stack style={{ alignItems: "center" }} gap={5}>
+                      <H2>{value?.inwardIssue?.key}</H2>
+                      <ExternalIconLink href={`https://${domain}.atlassian.net/browse/${value?.inwardIssue?.key}`} />
+                    </Stack>
+                  ))
+                }
+              </div>;
             } else {
               content = <H2>{usedField.join(",")}</H2>;
             }
@@ -161,6 +173,16 @@ export const MapFieldValues = ({
 
               break;
             }
+            if (field.schema?.custom === "com.atlassian.jira.plugin.system.customfieldtypes:textarea") {
+              const value = issue[field.key];
+              content = (
+                <Stack gap={2} wrap="wrap" style={{ wordBreak: "break-all" }}>
+                  {parseJiraDescription(value)}
+                </Stack>
+              );
+              break;
+            }
+
             //@ts-ignore
             if (haslinkedAndIssueKey && field.key === "key") return;
             //@ts-ignore
