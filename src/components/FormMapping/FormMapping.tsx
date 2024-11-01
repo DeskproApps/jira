@@ -173,7 +173,10 @@ export const FormMapping = ({
               break;
 
             case "string":
-              if (field.key === "labels") {
+              if (
+                field.key === "labels"
+                || field.schema.custom === "com.atlassian.jira.plugin.system.customfieldtypes:labels"
+              ) {
                 content = (
                   <DropdownMultiSelect
                     options={dropdownFields.labels}
@@ -266,7 +269,10 @@ export const FormMapping = ({
           break;
 
         case "string":
-          if (field.schema.system === "description") {
+          if (
+            field.schema.system === "description"
+            || field.schema.custom === "com.atlassian.jira.plugin.system.customfieldtypes:textarea"
+          ) {
             content = (
               <TextArea
                 onChange={(e) => setValue(field.key, e.target.value)}
