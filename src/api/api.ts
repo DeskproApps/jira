@@ -582,10 +582,22 @@ export const getCreateMeta = async (
   const res = await request(
     client,
     "GET",
-    `${API_BASE_URL}/issue/createmeta?expand=projects.issuetypes.fields`,
+    `${API_BASE_URL}/issue/createmeta`,
   );
 
   return res;
+};
+
+export const getProjectCreateMeta = async (
+  client: IDeskproClient,
+  projectId: string,
+  issueTypeId: string,
+): Promise<{ fields: IssueMeta[] }> => {
+  return request(
+    client,
+    "GET",
+    `${API_BASE_URL}/issue/createmeta/${projectId}/issuetypes/${issueTypeId}`,
+  );
 };
 
 export const getVersionsByProjectId = async (
