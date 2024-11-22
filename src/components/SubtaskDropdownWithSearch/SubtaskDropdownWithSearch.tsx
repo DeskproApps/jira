@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
-import { isEmpty, values, get, noop } from "lodash";
+import { isEmpty, values, get, noop } from "lodash-es";
 import { useDeskproAppClient, useDeskproAppTheme } from "@deskpro/app-sdk";
 import {
   AnyIcon,
@@ -20,14 +20,16 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { searchIssues } from "../../api/api";
 import { normalize } from "../../utils/utils";
+import { Project, IssueLink } from "../../api/types/fieldsValue";
+import { SearchIssueItem } from "../../api/types/types";
 
 export interface DropdownWithSearchProps {
-  setValue: any;
+  setValue: (issueLink: IssueLink["id"]) => void;
   id?: string;
   placeholder?: string;
-  value?: any;
+  value?: IssueLink["id"];
   disabled?: boolean;
-  projectId: string;
+  projectId: Project["id"];
 }
 
 const NoFound = () => {
@@ -56,13 +58,13 @@ export const SubtaskDropdownWithSearch: FC<DropdownWithSearchProps> = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [isDirtySearch, setIsDirtySearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [parents, setParents] = useState<Record<string, any>>([]);
+  const [parents, setParents] = useState<Record<SearchIssueItem["id"], SearchIssueItem>>({});
   const [parentOptions, setParentOptions] = useState<
-    DropdownValueType<any>[] | DropdownHeaderType[]
+    DropdownValueType<SearchIssueItem["id"]>[] | DropdownHeaderType[]
   >([]);
 
   const getIssueTitle = (): string => {
-    const issue = get(parents, [value], null);
+    const issue = get(parents, [value as string], null);
 
     if (isEmpty(issue)) {
       return value ? value : "";
@@ -73,7 +75,7 @@ export const SubtaskDropdownWithSearch: FC<DropdownWithSearchProps> = ({
 
   const debouncedSearch = useDebouncedCallback<(v: string) => void>((q) => {
     if (!q || !client) {
-      setParents([]);
+      setParents({});
       return;
     }
 
@@ -93,7 +95,7 @@ export const SubtaskDropdownWithSearch: FC<DropdownWithSearchProps> = ({
       ]);
     } else {
       setParentOptions(
-        values(parents).map((issue: any) => ({
+        values(parents).map((issue: SearchIssueItem) => ({
           key: issue.key,
           label: `[${issue.key}] ${issue.summary}`,
           value: issue.id,
@@ -105,16 +107,14 @@ export const SubtaskDropdownWithSearch: FC<DropdownWithSearchProps> = ({
 
   useEffect(() => {
     if (loading) {
-      setParentOptions([
-        {
-          type: "header",
-          label: (
-            <div style={{ textAlign: "center" }}>
-              <Spinner size="small" />
-            </div>
-          ),
-        },
-      ]);
+      setParentOptions([{
+        type: "header",
+        label: (
+          <div style={{ textAlign: "center" }}>
+            <Spinner size="small" />
+          </div>
+        ),
+      }]);
     }
   }, [loading]);
 

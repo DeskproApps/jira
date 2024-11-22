@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import {
   useDeskproAppClient,
   useDeskproAppEvents,
@@ -14,7 +12,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { ZodTypeAny } from "zod";
-
 import {
   addRemoteLink,
   createIssue,
@@ -23,29 +20,35 @@ import {
   getLabels,
   getUsers,
   updateIssue,
+  getProjectCreateMeta,
+  transformFieldMeta,
 } from "../../api/api";
+import { FieldMeta, IssueFormData, InvalidRequestResponseError } from "../../api/types/types";
 import IssueJson from "../../mapping/issue.json";
-
 import { useLinkIssues } from "../../hooks/hooks";
-import { getSchema } from "../../schema/schema";
+import { getSchema, JiraIssueSchema } from "../../schema/schema";
 import {
   jiraIssueToFormValues,
-  objectToStringWithoutBraces,
+  errorToStringWithoutBraces,
   parseJsonErrorMessage,
+  getLayout,
 } from "../../utils/utils";
 import { ErrorBlock } from "../Error/ErrorBlock";
 import { FormMapping } from "../FormMapping/FormMapping";
 import { LoadingSpinnerCenter } from "../LoadingSpinnerCenter/LoadingSpinnerCenter";
 import { JiraProject, JiraUser } from "./types";
+import { TicketData, Settings,  } from "../../types";
+
 type Props = {
   objectId?: string;
 };
+
 export const MutateObject = ({ objectId }: Props) => {
   const navigate = useNavigate();
   const { client } = useDeskproAppClient();
   const [schema, setSchema] = useState<ZodTypeAny | null>(null);
   const [mappedFields, setMappedFields] = useState<string[]>([]);
-  const { context } = useDeskproLatestAppContext();
+  const { context } = useDeskproLatestAppContext<TicketData, Settings>();
   const { linkIssues } = useLinkIssues();
 
   const isEditMode = !!objectId;
@@ -56,7 +59,7 @@ export const MutateObject = ({ objectId }: Props) => {
     setValue,
     watch,
     reset,
-  } = useForm<any>({
+  } = useForm<JiraIssueSchema>({
     resolver: zodResolver(schema!),
   });
 
@@ -65,44 +68,21 @@ export const MutateObject = ({ objectId }: Props) => {
   const objectByIdQuery = useQueryWithClient(
     ["objectByIdQuery", objectId as string],
     (client) => getIssueByKey(client, objectId as string),
-
-    {
-      enabled: isEditMode && !!objectId,
-    },
+    { enabled: isEditMode && !!objectId },
   );
 
-  const usersQuery = useQueryWithClient(["users"], (client) =>
-    getUsers(client),
-  );
+  const usersQuery = useQueryWithClient(["users"], getUsers);
 
-  const createMetaQuery = useQueryWithClient(["createMeta"], (client) => {
-    return getCreateMeta(client);
+  const createMetaQuery = useQueryWithClient(["createMeta"], getCreateMeta);
+
+  const labelsQuery = useQueryWithClient(["labels"], getLabels);
+
+  const submitMutation = useMutationWithClient((client, values: IssueFormData) => {
+    const metaMap = usableFields.map(transformFieldMeta).reduce((acc, meta) => ({ ...acc, [meta.key]: meta }), {});
+    return isEditMode
+      ? updateIssue(client, objectId, { ...values }, metaMap)
+      : createIssue(client, { ...values }, metaMap);
   });
-
-  const labelsQuery = useQueryWithClient(["labels"], (client) =>
-    getLabels(client),
-  );
-
-  const submitMutation = useMutationWithClient(
-    (client, values: any) => {
-      return isEditMode
-        ? updateIssue(
-            client,
-            objectId,
-            {
-              ...values,
-            },
-            usableFields,
-          )
-        : createIssue(
-            client,
-            {
-              ...values,
-            },
-            usableFields,
-          );
-    },
-  );
 
   useEffect(() => {
     if (!submitMutation.isSuccess || !client || !context) return;
@@ -116,11 +96,11 @@ export const MutateObject = ({ objectId }: Props) => {
     addRemoteLink(
       client,
       submitMutation.data.key,
-      context?.data.ticket.id as string,
-      context?.data.ticket.subject as string,
-      context?.data.ticket.permalinkUrl as string,
+      context?.data?.ticket.id as string,
+      context?.data?.ticket.subject as string,
+      context?.data?.ticket.permalinkUrl as string,
     ).then(() => {
-      linkIssues([submitMutation.data.id as string]);
+      linkIssues([submitMutation?.data?.id]);
     });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -134,10 +114,9 @@ export const MutateObject = ({ objectId }: Props) => {
   ]);
 
   useEffect(() => {
-    if (!context) return;
-    const data = JSON.parse(context?.settings.mapping ?? "{}");
+    const data = getLayout(context?.settings?.mapping);
 
-    if (!data) return;
+    if (!data.project || !data.issuetype) return;
 
     setMappedFields(data.detailView ?? []);
 
@@ -146,10 +125,10 @@ export const MutateObject = ({ objectId }: Props) => {
     setValue("project", { id: data.project });
     setValue("issuetype", { id: data.issuetype });
 
-    context.settings.ticket_subject_as_issue_summary &&
+    context?.settings.ticket_subject_as_issue_summary &&
       setValue(
         "summary",
-        `[Ticket #${context?.data.ticket.id}] ${context?.data.ticket.subject}`,
+        `[Ticket #${context?.data?.ticket.id}] ${context?.data?.ticket.subject}`,
       );
   }, [context, setValue, isEditMode]);
 
@@ -174,7 +153,7 @@ export const MutateObject = ({ objectId }: Props) => {
   ]);
 
   useDeskproAppEvents({
-    async onElementEvent(id) {
+    onElementEvent(id) {
       switch (id) {
         case "homeButton":
           navigate("/redirect");
@@ -184,18 +163,12 @@ export const MutateObject = ({ objectId }: Props) => {
     },
   });
 
-  useInitialisedDeskproAppClient(
-    (client) => {
-      client.deregisterElement("addIssue");
-
-      client.deregisterElement("menuButton");
-
-      client.setTitle(`${isEditMode ? "Edit" : "Create"} issue`);
-
-      client.deregisterElement("editButton");
-    },
-    [isEditMode],
-  );
+  useInitialisedDeskproAppClient((client) => {
+    client.deregisterElement("addIssue");
+    client.deregisterElement("menuButton");
+    client.setTitle(`${isEditMode ? "Edit" : "Create"} issue`);
+    client.deregisterElement("editButton");
+  }, [isEditMode]);
 
   const projectOptions = (createMetaQuery.data?.projects ?? []).map(
     (project: JiraProject) => ({
@@ -204,7 +177,7 @@ export const MutateObject = ({ objectId }: Props) => {
       type: "value",
       value: project.id,
     }),
-  ) as DropdownValueType<any>[];
+  ) as DropdownValueType<string>[];
 
   const users = ((usersQuery.data as JiraUser[]) ?? []).sort((a, b) =>
     a.displayName.localeCompare(b.displayName),
@@ -218,59 +191,71 @@ export const MutateObject = ({ objectId }: Props) => {
       label: user.displayName,
       type: "value",
       value: user.accountId,
-    })) as DropdownValueType<any>[];
+    })) as DropdownValueType<string>[];
 
   const buildLabelOptions = () => {
     const labels = [...(labelsQuery.data ?? [])];
 
     return labels
       .filter((e, i) => labels.indexOf(e) === i)
-      .map(
-        (label: string) =>
-          ({
-            key: label,
-            label,
-            type: "value" as const,
-            value: label,
-          }) as DropdownValueType<any>,
-      );
+      .map((label: string) => ({
+        key: label,
+        label,
+        type: "value" as const,
+        value: label,
+      }) as DropdownValueType<string>);
   };
 
   const issuetypes = useMemo(() => {
-    if (!values.project?.id) return [];
-    return createMetaQuery.data?.projects.find(
-      (e) => e.id === values.project.id,
-    )?.issuetypes;
+    if (!values.project?.id) {
+      return [];
+    }
+
+    return createMetaQuery.data?.projects.find((e) => {
+      return e.id === values.project.id;
+    })?.issuetypes;
   }, [values.project?.id, createMetaQuery.data?.projects]);
 
-  const usableFields = useMemo(() => {
+  const fieldsProjectCreateMeta = useQueryWithClient(
+    ["fields", values.project?.id, values.issuetype?.id],
+    (client) => getProjectCreateMeta(client, values.project?.id, values.issuetype?.id),
+    { enabled: Boolean(values.project?.id) && Boolean(values.issuetype?.id) && !isEditMode },
+  );
+  const createFieldsMeta = useMemo(() => {
+    return fieldsProjectCreateMeta.data?.fields?.reduce<Record<FieldMeta["key"], FieldMeta>>((acc, field) => {
+      if (!acc[field.key]) {
+        acc[field.key] = field;
+      }
+      return acc;
+    }, {});
+  }, [fieldsProjectCreateMeta.data?.fields]);
+
+  const usableFields: FieldMeta[] = useMemo(() => {
     if (
       !values.issuetype?.id ||
       issuetypes?.length === 0 ||
       (isEditMode && !objectByIdQuery.isSuccess)
-    )
+    ) {
       return [];
+    }
 
-    const fieldsObj = isEditMode
-      ? objectByIdQuery.data.editmeta.fields
-      : issuetypes?.find((e) => e.id === values.issuetype?.id)?.fields;
+    const fieldsObj = isEditMode ? objectByIdQuery.data?.editmeta.fields : createFieldsMeta;
 
     if (!fieldsObj) return [];
 
     return [
       ...Object.keys(fieldsObj)
-        .filter(
-          (e) =>
-            (mappedFields.length > 0
-              ? mappedFields.includes(e)
-              : IssueJson.create.includes(e) || e.startsWith("customfield_")) ||
-            e === "summary" ||
-            e === "description" ||
-            e === "reporter" ||
-            fieldsObj[e].required,
-        )
+        .filter((fieldKey) => {
+            return (mappedFields.length > 0
+              ? mappedFields.includes(fieldKey)
+              : IssueJson.create.includes(fieldKey) || fieldKey.startsWith("customfield_")) ||
+            fieldKey === "summary" ||
+            fieldKey === "description" ||
+            fieldKey === "reporter" ||
+            fieldsObj[fieldKey].required
+        })
         .map((fieldObjKey) => ({
-          ...(fieldsObj[fieldObjKey as keyof typeof fieldsObj] ?? {}),
+          ...(fieldsObj[fieldObjKey] ?? {}),
         })),
     ]
       .filter((field) => {
@@ -278,7 +263,7 @@ export const MutateObject = ({ objectId }: Props) => {
           field.key !== "project" &&
           field.key !== "issuetype" &&
           field.name !== "Rank" &&
-          !field.schema.custom?.includes("integration-plugin")
+          !field.schema?.custom?.includes("integration-plugin")
         );
       })
       .sort((a, b) => {
@@ -287,16 +272,21 @@ export const MutateObject = ({ objectId }: Props) => {
         if (b.key === "summary") return 1;
         return 0;
       });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     values.issuetype?.id,
     issuetypes,
     isEditMode,
-    objectByIdQuery.isSuccess,
     mappedFields,
+    objectByIdQuery.isSuccess,
+    objectByIdQuery.data?.editmeta?.fields,
+    createFieldsMeta,
   ]);
 
   const usableFieldNames = usableFields.map((field) => field.key);
+
+  const metaMap = useMemo(() => {
+    return usableFields.reduce((acc, meta) => ({ ...acc, [meta.key]: meta }), {});
+  }, [usableFields]);
 
   useEffect(() => {
     if (usableFields.length === 0) return;
@@ -330,33 +320,36 @@ export const MutateObject = ({ objectId }: Props) => {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [objectId, objectByIdQuery.isSuccess, isEditMode, usableFields]);
-  if ((isEditMode && !objectByIdQuery.isSuccess) || !createMetaQuery.data)
+
+  if ((isEditMode && !objectByIdQuery.isSuccess) || !createMetaQuery.data) {
     return <LoadingSpinnerCenter />;
+  }
 
   return (
     <form
-      onSubmit={handleSubmit((data) => submitMutation.mutate(data))}
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      onSubmit={handleSubmit((data) => {
+        submitMutation.mutate(data);
+      })}
       style={{ width: "100%", minHeight: "400px" }}
     >
       <Stack vertical style={{ width: "100%" }} gap={6}>
         {Object.keys(errors).length > 0 && (
           <ErrorBlock
             text={Object.keys(errors).reduce((acc, curr) => {
-              acc.push(`${curr}: ${errors[curr]?.message}`);
-
+              const field = usableFields.find(({ key }) => key === curr);
+              acc.push(`${field?.name ?? curr}: ${errors[curr]?.message as string}`);
               return acc;
             }, [] as string[])}
           />
         )}
-        {submitMutation.error ? (
+        {(submitMutation.error && submitMutation.error instanceof InvalidRequestResponseError)  ? (
           <ErrorBlock
-            text={`${
-              (
-                submitMutation.error as {
-                  _response: { errorMessages: string[] };
-                }
-              )._response.errorMessages
-            } \n ${objectToStringWithoutBraces((submitMutation.error as { _response: { errors: Record<string, string> } })?._response?.errors ?? {})}`}
+            text={`
+              ${submitMutation.error?._response?.errorMessages as unknown as string}
+              \n
+              ${errorToStringWithoutBraces(submitMutation.error?._response?.errors ?? {}, metaMap)}
+            `}
           />
         ) : null}
         <FormMapping
@@ -382,20 +375,20 @@ export const MutateObject = ({ objectId }: Props) => {
               loading={submitMutation.isLoading}
               disabled={submitMutation.isLoading}
               intent="primary"
-            ></Button>
+            />
             {isEditMode && (
               <Button
                 text="Cancel"
                 onClick={() => navigate(-1)}
                 intent="secondary"
-              ></Button>
+              />
             )}
             {!isEditMode && (
               <Button
                 text="Reset"
                 onClick={() => reset()}
                 intent="secondary"
-              ></Button>
+              />
             )}
           </Stack>
         )}

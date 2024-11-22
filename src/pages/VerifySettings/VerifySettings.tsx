@@ -36,7 +36,7 @@ export const preInstalledRequest = async (
   }
 
   try {
-    return await res.json();
+    return await res.json() as User;
   } catch (e) {
     return null;
   }
@@ -77,7 +77,7 @@ const VerifySettings: FC = () => {
     setError("");
     setCurrentUser(null);
 
-    return preInstalledRequest(client, {
+    preInstalledRequest(client, {
       domain: settings.domain,
       username: settings.username,
       api_key: settings.api_key,
@@ -112,7 +112,9 @@ const VerifySettings: FC = () => {
             </span>
           </P1>
         ) : (
-          <P1 style={{ color: theme.colors.red100 }}>{error}</P1> || ""
+          <>
+            {error ? <P1 style={{ color: theme.colors.red100 }}>{error}</P1> : ""}
+          </>
         )}
       </Stack>
     </>

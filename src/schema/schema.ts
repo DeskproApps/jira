@@ -1,13 +1,23 @@
-import { z } from "zod";
+import { z, ZodTypeAny } from "zod";
+import { FieldType } from "../types";
+import { FieldMeta } from "../api/types/types";
 
-export const getSchema = (usableFields: any[]) => {
-  const objects = usableFields.reduce((acc, curr) => {
+const baseSchema = z.object({
+  project: z.object({
+    id: z.string(),
+  }),
+  issuetype: z.object({
+    id: z.string(),
+  }),
+}).catchall(z.any());
+
+export type JiraIssueSchema = z.infer<typeof baseSchema>;
+
+export const getSchema = (usableFields: FieldMeta[]) => {
+  const objects = usableFields.reduce<Record<string, ZodTypeAny>>((acc, curr) => {
     switch (curr.schema?.type) {
       case "string":
-        if (
-          curr.schema?.custom ===
-          "com.atlassian.jira.plugin.system.customfieldtypes:url"
-        ) {
+        if (curr.schema?.custom === FieldType.URL) {
           return { ...acc, [curr.key]: z.string().url() };
         }
         return { ...acc, [curr.key]: z.string() };
@@ -40,15 +50,5 @@ export const getSchema = (usableFields: any[]) => {
     }
   });
 
-  const schema = z.object({
-    project: z.object({
-      id: z.string(),
-    }),
-    issuetype: z.object({
-      id: z.string(),
-    }),
-    ...objects,
-  });
-
-  return schema;
+  return baseSchema.extend(objects);
 };

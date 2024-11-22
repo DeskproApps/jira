@@ -1,3 +1,4 @@
+import { ADFEntity } from "@atlaskit/adf-utils";
 import { IDeskproClient, useDeskproAppClient } from "@deskpro/app-sdk";
 import {
   QueryKey,
@@ -6,10 +7,13 @@ import {
   useQuery,
 } from "@tanstack/react-query";
 import { parseISO } from "date-fns";
-import { Assignee, Attachment, ProjectElement } from "../api/types/createMeta";
-import { IssueItem } from "../api/types/types";
+import { ProjectElement } from "../api/types/createMeta";
+import { FieldMeta, IssueBean, IssueItem } from "../api/types/types";
 import { JiraIssueType, JiraProject } from "../components/Mutate/types";
 import { useAdfToPlainText } from "../hooks/hooks";
+import { Layout, Settings, FieldType, DateTime } from "../types";
+import { JiraIssueSchema } from "../schema/schema";
+import { UserBean } from "../api/types/fieldsValue";
 
 export const testUrlRegex = /^https?:\/\/[^\s$.?#].[^\s]*$/;
 
@@ -30,20 +34,22 @@ export const getDateFromValue = (value: unknown): Date => {
   }
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const normalize = (source: undefined | any[], fieldName = "id") => {
+export const normalize = <T extends { id: string }>(
+  source: undefined|T[],
+  fieldName: keyof T = "id",
+): Record<string, T> => {
   if (!Array.isArray(source)) {
     return {};
   }
 
-  return source.reduce((acc, item) => {
-    const key = item[fieldName];
+  return source.reduce<Record<string, T>>((acc, item) => {
+    const key = item[fieldName] as string;
     acc[key] = item;
     return acc;
   }, {});
 };
 
-export const registerReplyBoxNotesAdditionsTargetAction = (
+export const registerReplyBoxNotesAdditionsTargetAction = async (
   client: IDeskproClient,
   ticketId: string,
   linkedIssues: IssueItem[],
@@ -52,14 +58,14 @@ export const registerReplyBoxNotesAdditionsTargetAction = (
     return;
   }
 
-  Promise.all(
+  await Promise.all(
     linkedIssues.map((issue) =>
       client.getState<{ selected: boolean }>(
         ticketReplyNotesSelectionStateKey(ticketId, issue.id),
       ),
     ),
   ).then((flags) => {
-    client.registerTargetAction(
+    return client.registerTargetAction(
       "jiraReplyBoxNoteAdditions",
       "reply_box_note_item_selection",
       {
@@ -74,7 +80,7 @@ export const registerReplyBoxNotesAdditionsTargetAction = (
   });
 };
 
-export const registerReplyBoxEmailsAdditionsTargetAction = (
+export const registerReplyBoxEmailsAdditionsTargetAction = async (
   client: IDeskproClient,
   ticketId: string,
   linkedIssues: IssueItem[],
@@ -83,14 +89,14 @@ export const registerReplyBoxEmailsAdditionsTargetAction = (
     return;
   }
 
-  Promise.all(
+  await Promise.all(
     linkedIssues.map((issue) =>
       client.getState<{ selected: boolean }>(
         ticketReplyEmailsSelectionStateKey(ticketId, issue.id),
       ),
     ),
   ).then((flags) => {
-    client.registerTargetAction(
+    return client.registerTargetAction(
       "jiraReplyBoxEmailAdditions",
       "reply_box_email_item_selection",
       {
@@ -168,38 +174,16 @@ export const useQueryWithClient = <
 
 export const parseJsonErrorMessage = (error: string) => {
   try {
-    const parsedError = JSON.parse(error);
+    const parsedError = JSON.parse(error) as { status: string; message: string };
 
-    return `Status: ${parsedError.status} \n Message: ${parsedError.message}`;
+    if (parsedError.status && parsedError.message) {
+      return `Status: ${parsedError.status} \n Message: ${parsedError.message}`;
+    }
+
+    return error;
   } catch {
     return error;
   }
-};
-
-export const parseJsonResponse = (response?: string) => {
-  try {
-    if (!response) return undefined;
-    return JSON.parse(response);
-  } catch {
-    return undefined;
-  }
-};
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const getObjectValue = (obj: any, keyString: string) => {
-  const keys = keyString.split(".");
-
-  let value = obj;
-
-  for (const key of keys) {
-    value = value[key];
-
-    if (value === undefined) {
-      return undefined;
-    }
-  }
-
-  return value;
 };
 
 export const makeFirstLetterUppercase = (str: string) => {
@@ -210,23 +194,26 @@ export const makeFirstLetterUppercase = (str: string) => {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 };
 
+export const isNil = (value: unknown): value is null|undefined => {
+  return value === null || value === undefined;
+};
+
+export const isPrimitive = (value: unknown): value is string|number|boolean => {
+  return typeof value === "string" || typeof value === "number" || typeof value === "boolean";
+};
+
 export const substitutePlaceholders = (
   string: string,
-  obj: Record<string, string>,
-) => {
+  obj: Pick<Settings, "domain"|"username"|"api_key"> & Partial<IssueItem>,
+): string => {
   if (!obj) return string;
 
   for (const [key, value] of Object.entries(obj)) {
-    string = string.replace(`__${key}__`, value);
+    if (isPrimitive(value)) {
+      string = string.replace(`__${key}__`, String(value));
+    }
   }
   return string;
-};
-
-export const deleteRegexGroups = (string: string, regex: RegExp) => {
-  return string.replace(regex, function (match, group1, group2) {
-    // Return the match without the capture groups
-    return match.replace(group1, "").replace(group2, "");
-  });
 };
 
 export const isNeedField = ({
@@ -250,62 +237,83 @@ export const isNeedField = ({
     return false;
   }
 
-  const issueType = project.issuetypes.find(
-    ({ id }: JiraIssueType) => id === issueTypeId,
-  );
+  const issueType = project.issuetypes.find(({ id }) => id === issueTypeId);
 
   return issueType?.fields?.[fieldName] !== undefined;
 };
 
 export const jiraIssueToFormValues = (
-  issue: Record<string, any>,
-  usableFields: (Assignee | Attachment)[],
+  issue: IssueBean["fields"],
+  usableFields: FieldMeta[],
 ) => {
-  const values = Object.keys(issue).reduce(
-    (acc, key) => {
-      if (!usableFields.find((e) => e.key === key)) return acc;
+  const values = Object.keys(issue).reduce<JiraIssueSchema>((acc, key) => {
+    const usableField = usableFields.find((e) => e.key === key)
 
-      const usableField = usableFields.find((e) => e.key === key);
+    if (!usableField) {
+      return acc;
+    }
 
-      switch (usableField?.schema.type) {
-        case "user": {
-          acc[key] = {
-            id: issue[key as keyof IssueItem]?.accountId,
-          };
+    switch (usableField?.schema?.type) {
+      case "user": {
+        acc[key] = {
+          id: (issue[key] as UserBean)?.accountId,
+        };
 
-          break;
-        }
-
-        case "date":
-        case "datetime": {
-          if (!issue[key as keyof IssueItem]) break;
-          acc[key] = new Date(issue[key as keyof IssueItem]);
-
-          break;
-        }
-
-        case "string": {
-          if (usableField.schema.system === "description") {
-            acc[key] = useAdfToPlainText(issue[key as keyof IssueItem]);
-
-            break;
-          }
-        }
-        // eslint-disable-next-line no-fallthrough
-        default:
-          acc[key] = issue[key as keyof IssueItem];
+        break;
       }
 
-      return acc;
-    },
-    {} as Record<string, unknown>,
-  );
+      case "date":
+      case "datetime": {
+        if (!issue[key]) break;
+        acc[key] = new Date(issue[key] as DateTime);
+
+        break;
+      }
+
+      case "string": {
+        if (usableField.schema.system === "description" || usableField.schema.custom === FieldType.TEXT_PARAGRAPH) {
+          acc[key] = useAdfToPlainText(issue[key] as ADFEntity);
+
+          break;
+        }
+      }
+      // eslint-disable-next-line no-fallthrough
+      default:
+        acc[key] = issue[key];
+    }
+
+    return acc;
+  }, {} as JiraIssueSchema);
 
   return values;
 };
 
-export const objectToStringWithoutBraces = (obj: Record<string, string>) => {
+export const errorToStringWithoutBraces = (
+  obj: Record<string, string>,
+  metaMap: Record<FieldMeta["key"], FieldMeta>,
+) => {
   return Object.entries(obj)
-    .map(([key, value]) => `${key}: ${value}`)
-    .join(" ");
+    .map(([key, value]) => `${metaMap[key]?.name || key}: ${value}`)
+    .join("; ");
+};
+
+export const getLayout = (mapping: Settings["mapping"]): Layout => {
+  const settingsLayout = mapping || "{}";
+  let data: Layout;
+
+  try {
+    data = JSON.parse(settingsLayout) as Layout;
+
+    if (Array.isArray(data.detailView) && Array.isArray(data.listView)) {
+      // eslint-disable-next-line no-console
+      console.error("Invalid Layout JSON");
+      data = { detailView: [], listView: [] };
+    }
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error("Invalid Layout JSON:", error);
+    data = { detailView: [], listView: [] };
+  }
+
+  return data;
 };

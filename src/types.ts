@@ -1,3 +1,41 @@
+import type { Context } from "@deskpro/app-sdk";
+
+/** common */
+export type RequiredProps<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
+
+/** An ISO-8601 encoded UTC date time string. Example value: `"2022-07-26T14:30:00.000+0100"` */
+export type DateTime = string;
+
+/** request */
+export type ApiRequestMethod = "GET" | "POST" | "PUT" | "DELETE";
+
+/** Deskpro */
+export type TicketData = {
+  ticket: { id: string; permalinkUrl: string; subject: string }
+};
+export interface TicketContext extends Context {
+  data: TicketData;
+};
+
+export type Settings = {
+  domain?: string;
+  username?: string;
+  api_key?: string;
+  verify_settings?: string;
+  default_comment_on_ticket_reply?: boolean;
+  default_comment_on_ticket_note?: boolean;
+  ticket_subject_as_issue_summary?: boolean;
+  mapping?: string; // "{ "detailView": [], "listView": [] }"
+};
+
+export type Layout = {
+  detailView: string[];
+  listView: string[];
+  project?: string;
+  issuetype?: string;
+};
+
+/** Jira */
 export enum FieldType {
     REQUEST_LANG = "com.atlassian.servicedesk.servicedesk-lingo-integration-plugin:sd-request-language",
     TEXT_PLAIN = "com.atlassian.jira.plugin.system.customfieldtypes:textfield",
@@ -13,6 +51,9 @@ export enum FieldType {
     SELECT_SINGLE = "com.atlassian.jira.plugin.system.customfieldtypes:select",
     URL = "com.atlassian.jira.plugin.system.customfieldtypes:url",
     USER_PICKER = "com.atlassian.jira.plugin.system.customfieldtypes:userpicker",
+    EPIC = "com.pyxis.greenhopper.jira:gh-epic-link",
+    SPRINT = "com.pyxis.greenhopper.jira:gh-sprint",
+
 }
 
 export type IssueMeta = {
@@ -114,21 +155,21 @@ export type IssueMeta = {
     }
 ;
 
-export interface ReplyBoxNoteSelection {
+export interface ReplyBoxSelection {
     id: string;
     selected: boolean;
 }
 
-export interface ReplyBoxOnReply {
+export interface ReplyBoxOnReplyNote {
     note: string;
 }
 
-export type Settings = {
-    domain?: string,
-    username?: string,
-    api_key?: string,
-    verify_settings?: string,
-    default_comment_on_ticket_reply?: string,
-    default_comment_on_ticket_note?: string,
-    ticket_subject_as_issue_summary?: string,
+export interface ReplyBoxOnReplyEmail {
+  email: string;
+}
+
+export type JiraIssueSchema = {
+  project: { id: string };
+  issuetype: { id: string };
+  [key: string]: unknown;
 };

@@ -1,25 +1,30 @@
 import { Radio } from "@deskpro/deskpro-ui";
-import { CreateMeta } from "../../api/types/createMeta";
+import { Option } from "../../api/types/createMeta";
+import { FieldMeta } from "../../api/types/types";
 
 export const RadioButtonsField = ({
   meta,
   field,
   onChange,
 }: {
-  meta: CreateMeta["projects"]["0"]["issuetypes"]["0"]["fields"]["0"];
-  field: any;
-  onChange: (value: any) => void;
+  meta: FieldMeta;
+  field: Option["id"];
+  onChange: (value: Option["id"]) => void;
 }) => {
-  const allowedValues = meta?.allowedValues ?? [];
+  const allowedValues = meta?.allowedValues as Option[] ?? [];
 
-  return allowedValues.map((allowedValue, idx: number) => (
-    <Radio
-      key={idx}
-      label={allowedValue.value}
-      value={allowedValue.id}
-      checked={allowedValue.id === field}
-      id={allowedValue.id}
-      onChange={(e) => onChange(e.target.value)}
-    />
-  ));
+  return (
+    <>
+      {allowedValues.map((allowedValue) => (
+        <Radio
+          key={allowedValue.id}
+          label={allowedValue.value}
+          value={allowedValue.id}
+          checked={allowedValue.id === field}
+          id={allowedValue.id}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      ))}
+    </>
+  );
 };

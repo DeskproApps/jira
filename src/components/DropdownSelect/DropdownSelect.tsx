@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { useState } from "react";
 import {
   AnyIcon,
   DivAsInputWithDisplay,
@@ -14,23 +14,23 @@ import {
   faExternalLinkAlt,
 } from "@fortawesome/free-solid-svg-icons";
 
-export interface DropdownSelectProps {
-  options: DropdownValueType<any>[];
+export type DropdownSelectProps<T> = {
+  options: DropdownValueType<T>[];
   id?: string;
-  value?: any;
+  value?: T;
   disabled?: boolean;
   error: boolean;
   containerMaxHeight?: number;
-  onChange: (key: any) => void;
+  onChange: (key: T) => void;
 }
 
-export const DropdownSelect: FC<DropdownSelectProps> = ({
+export const DropdownSelect = <T,>({
   value,
   options,
   error,
   onChange,
   ...props
-}: DropdownSelectProps) => {
+}: DropdownSelectProps<T>) => {
   const [input, setInput] = useState<string>("");
   const selectedValue =
     value === undefined
@@ -48,9 +48,7 @@ export const DropdownSelect: FC<DropdownSelectProps> = ({
       options={filteredOptions}
       inputValue={input}
       onInputChange={setInput}
-      onSelectOption={(option) => {
-        onChange(option.value);
-      }}
+      onSelectOption={(option) => onChange(option.value)}
       fetchMoreText="Fetch more"
       autoscrollText="Autoscroll"
       selectedIcon={faHandPointer as AnyIcon}
