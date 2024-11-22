@@ -1,5 +1,5 @@
 import { ADFEntity } from "@atlaskit/adf-utils";
-import { IDeskproClient, proxyFetch } from "@deskpro/app-sdk";
+import { IDeskproClient, proxyFetch, adminGenericProxyFetch } from "@deskpro/app-sdk";
 import { match } from "ts-pattern";
 import { useAdfToPlainText } from "../hooks/hooks";
 import { paragraphDoc, removeBacklinkCommentDoc } from "./adf";
@@ -582,9 +582,10 @@ const request = async <T>(
   content?: object,
   settings?: Settings,
 ): Promise<T> => {
-  const dpFetch = await proxyFetch(client);
-  const auth = (settings?.username && settings?.api_key)
-    ? `Basic ${btoa(`${settings.username}:${settings.api_key}`)}`
+  const isAdmin = Boolean(settings?.username && settings?.api_key);
+  const dpFetch = await (isAdmin ? adminGenericProxyFetch : proxyFetch)(client);
+  const auth = isAdmin
+    ? `Basic ${btoa(`${settings?.username}:${settings?.api_key}`)}`
     : "Basic __username+':'+api_key.base64__";
 
   let body = undefined;
