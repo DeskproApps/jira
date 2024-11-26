@@ -2,7 +2,7 @@ import { ADFEntity } from "@atlaskit/adf-utils";
 import { components } from "./schema";
 import { RequiredProps, DateTime, FieldType } from "../../types";
 import { Issuetype, Project, Watches, Priority, UserBean, Components, Progress, Status, Votes } from "./fieldsValue";
-import { SprintCustomValue, CustomFieldsValues, CustomFieldValue } from "./customFieldsValue";
+import { SprintValue, CustomFieldsValues, CustomFieldValue } from "./customFieldsValue";
 
 export type Schemas = components["schemas"];
 
@@ -101,9 +101,9 @@ export type IssueItem = SearchIssueItem & {
   priorityId?: string;
   priorityIconUrl?: string;
   sprints?: {
-    sprintBoardId: SprintCustomValue["boardId"];
-    sprintName: SprintCustomValue["name"];
-    sprintState: SprintCustomValue["state"];
+    sprintBoardId: SprintValue["boardId"];
+    sprintName: SprintValue["name"];
+    sprintState: SprintValue["state"];
   }[];
   description?: ADFEntity;
   labels?: string[];
@@ -139,18 +139,18 @@ export interface IssueAttachment {
 }
 
 export type IssueFormData = {
-  summary: string;
-  description: string;
-  issuetype: string;
-  issue: string;
-  project: string;
-  reporter: string;
-  assignee: string;
-  labels: string[];
-  priority: string;
+  summary?: string;
+  description?: string;
+  issuetype?: string;
+  issue?: string;
+  project?: string;
+  reporter?: string;
+  assignee?: string;
+  labels?: string[];
+  priority?: string;
   customFields?: Record<FieldMeta["key"], unknown>;
   attachments?: AttachmentFile[];
-  parent: string;
+  parent?: string;
 } & Record<FieldMeta["key"], unknown>
 
 export interface AttachmentFile {
@@ -388,4 +388,10 @@ export type FieldMeta<V = unknown> = {
 
 export type TransfornedFieldMeta = FieldMeta & {
   type: FieldType;
+};
+
+export type GroupPicker = Required<components["schemas"]["FoundGroup"]>;
+
+export type GroupsPicker = Omit<components["schemas"]["FoundGroups"], "groups"> & {
+  groups: GroupPicker[]
 };

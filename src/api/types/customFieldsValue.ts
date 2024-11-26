@@ -2,7 +2,7 @@ import { ADFEntity } from "@atlaskit/adf-utils";
 import { DateTime } from "../../types";
 import { FieldMeta } from "./types";
 
-export type SprintCustomValue = {
+export type SprintValue = {
   boardId: number;
   endDate: DateTime;
   goal: string;
@@ -16,7 +16,7 @@ export type CustomFieldValue =
   | string
   | number
   | boolean
-  | SprintCustomValue
+  | SprintValue
   | ADFEntity
   // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   | unknown
