@@ -7,8 +7,10 @@ import {
 } from "@deskpro/app-sdk";
 import { H2, Stack } from "@deskpro/deskpro-ui";
 import { parseJiraDescription } from "../../hooks/hooks";
-import { isNil } from "../../utils/utils";
+import { isNil } from "../../utils";
+import { format } from "../../utils/date";
 import { FieldMeta, SearchIssueItem, IssueItem } from "../../api/types/types";
+import { DeskproTickets } from "../DeskproTickets";
 import {
   Progress,
   Votes,
@@ -34,19 +36,18 @@ export const MapFieldValues = ({
   const { context } = useDeskproLatestAppContext<TicketData, Settings>();
   const domain = context?.settings?.domain;
 
-  const haslinkedAndIssueKey = Boolean(!isNaN(Number(issue.linkedCount)) && issue.key);
-
   return (
     <Stack vertical style={{ width: "100%" }}>
-      {haslinkedAndIssueKey && (
-        <PropertyRow>
-          <Property label="Issue Key" text={issue.key} />
-          <Property label="Deskpro Tickets" text={issue.linkedCount} />
-        </PropertyRow>
-      )}
+      <PropertyRow>
+        <Property label="Issue Key" text={issue.key} />
+        <Property label="Deskpro Tickets" text={<DeskproTickets issue={issue} />} />
+      </PropertyRow>
       {usableFields.map((field) => {
-        const fieldValue = issue[field.key];
+        if (field.key === "key") return;
 
+        if (field.key === "linkedCount") return;
+
+        const fieldValue = issue[field.key];
         let content;
 
         if (isNil(fieldValue)) {
@@ -56,17 +57,15 @@ export const MapFieldValues = ({
         switch (field.schema?.type) {
           case "progress":
             content = <H2>{(fieldValue as Progress).progress}</H2>;
-
             break;
+
           case "votes":
             content = <H2>{(fieldValue as Votes).votes}</H2>;
-
             break;
 
-          case "datetime":
           case "date":
-            content = <H2>{new Date(fieldValue as DateTime).toDateString()}</H2>;
-
+          case "datetime":
+            content = <H2>{format(fieldValue as DateTime, { time: field.schema?.type === "datetime" })}</H2>;
             break;
 
           case "issuetype":
@@ -117,35 +116,55 @@ export const MapFieldValues = ({
             );
 
             break;
+
           case "array":
             if ((fieldValue as []).length === 0) {
               content = <H2>-</H2>;
-            } else if (field.schema.custom === FieldType.CHECKBOXES) {
-              content = <H2>{(fieldValue as { value: string }[]).map((e) => e.value).join(",")}</H2>;
-            } else if (
-              field.schema.items === "component" ||
-              field.schema.items === "version"
+              break;
+            }
+
+            if (
+              field.schema.items === "component"
+              || field.schema.items === "version"
+              || field.schema.items === "group"
             ) {
-              content = <H2>{(fieldValue as Components[]).map((e) => e.name).join(",")}</H2>;
+              content = <H2>{(fieldValue as Components[]).map((e) => e.name).join(", ")}</H2>;
             } else if (field.schema.items === "option") {
-              content = <H2>{(fieldValue as Option[]).map((e) => e.value).join(",")}</H2>;
+              content = <H2>{(fieldValue as Option[]).map((e) => e.value).join(", ")}</H2>;
             } else if (field.schema.items === "issuelinks") {
-              content = <div>
-                {((fieldValue as [])?.length === 0)
-                  ? "-"
-                  : (fieldValue as IssueLink[]).map((value) => (
+              content = (
+                <div>
+                  {(fieldValue as IssueLink[]).map((value) => (
                     <Stack style={{ alignItems: "center" }} gap={5}>
                       <H2>{value?.inwardIssue?.key}</H2>
                       <ExternalIconLink href={`https://${domain}.atlassian.net/browse/${value?.inwardIssue?.key}`} />
                     </Stack>
-                  ))
-                }
-              </div>;
+                  ))}
+                </div>
+              );
+            } else if (field.schema.items === "user") {
+              content = (
+                <>
+                  {(fieldValue as UserBean[] ?? []).map((u) => (
+                    <Stack style={{ alignItems: "center" }} gap={5}>
+                      <img
+                      src={u.avatarUrls["16x16"]}
+                      className="comment-list-item-avatar"
+                      width="16"
+                      alt={u?.displayName}
+                    />
+                    <H2>{u?.displayName}</H2>
+                    <ExternalIconLink href={`https://${domain}.atlassian.net/jira/people/${u.accountId}`} />
+                  </Stack>
+                  ))}
+                </>
+              );
+              break;
             } else {
-              content = <H2>{(fieldValue as []).join(",")}</H2>;
+              content = <H2>{(fieldValue as []).join(", ")}</H2>;
             }
-
             break;
+
           case "priority":
             content = (
               <Stack align="center" gap={5}>
@@ -155,19 +174,19 @@ export const MapFieldValues = ({
                 </H2>
               </Stack>
             );
-
             break;
-          case "status":
-            content = <H2>{(fieldValue as Status).name || fieldValue as string}</H2>;
 
+          case "status":
+          case "group":
+          case "version":
+            content = <H2>{(fieldValue as Status).name || fieldValue as string}</H2>;
             break;
 
           case "option":
-            if (field.schema.custom === FieldType.SELECT_SINGLE) {
-              content = <H2>{(fieldValue as Option).value}</H2>;
-            }
-
+          case "option-with-child":
+            content = <H2>{(fieldValue as Option).value}</H2>;
             break;
+
           case "sd-feedback":
           case "resolution":
           case "string":
@@ -181,21 +200,17 @@ export const MapFieldValues = ({
 
               break;
             }
+
             if (field.schema?.custom === FieldType.TEXT_PARAGRAPH) {
-              const value = issue[field.key];
               content = (
                 <Stack gap={2} wrap="wrap" style={{ wordBreak: "break-all" }}>
-                  {parseJiraDescription(value as ADFEntity)}
+                  {parseJiraDescription(fieldValue as ADFEntity)}
                 </Stack>
               );
               break;
             }
 
-            if (haslinkedAndIssueKey && field.key === "key") return;
-
-            if (haslinkedAndIssueKey && field.key === "linkedCount") return;
-
-            content = <H2>{fieldValue?.toString()}</H2>;
+            content = <H2>{fieldValue?.toString() || "-"}</H2>;
         }
 
         return <Property key={field.key} label={field.name} text={<>{content}</>} />;

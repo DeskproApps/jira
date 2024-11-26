@@ -21,3 +21,4 @@ export { substitutePlaceholders } from "./substitutePlaceholders";
 export { testUrlRegex } from "./testUrlRegex";
 export { toBase64 } from "./toBase64";
 export { useQueryWithClient } from "./useQueryWithClient";
+export { getFormValuesToData } from "./getFormValuesToData";

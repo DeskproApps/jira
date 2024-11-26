@@ -1,13 +1,14 @@
 import { DateInput } from "@deskpro/app-sdk";
 import { FC } from "react";
-import { DateTimePickerProps } from "react-flatpickr";
 import "./DateField.css";
 import "flatpickr/dist/themes/light.css";
-export type MappedFieldProps = DateTimePickerProps & {
+
+type MappedFieldProps = {
   id?: string;
   label: string;
   error?: boolean;
   value: Date;
+  enableTime?: boolean;
   onChange: (date: Date[]) => void;
 };
 
@@ -15,6 +16,7 @@ export const DateField: FC<MappedFieldProps> = ({
   error,
   value,
   onChange,
+  enableTime,
 }: MappedFieldProps) => {
   return (
     <DateInput
@@ -23,6 +25,7 @@ export const DateField: FC<MappedFieldProps> = ({
       placeholder="DD/MM/YYYY"
       error={Boolean(error)}
       onChange={onChange}
+      enableTime={enableTime}
     />
   );
 };

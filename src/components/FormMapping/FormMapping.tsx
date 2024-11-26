@@ -1,17 +1,19 @@
 import { DropdownValueType } from "@deskpro/deskpro-ui";
-import { useQueryWithClient } from "@deskpro/app-sdk";
 import { Input, Label, Stack, TextArea } from "@deskpro/deskpro-ui";
 import { useMemo } from "react";
-import { getVersionsByProjectId } from "../../api/api";
-import { Option, Priority, Issuetype, CreateMeta } from "../../api/types/createMeta";
-import { FieldMeta, AttachmentFile, Version } from "../../api/types/types";
+import { Option, Priority, Project, Issuetype, CreateMeta } from "../../api/types/createMeta";
+import { FieldMeta, AttachmentFile, Version, GroupPicker } from "../../api/types/types";
 import { FieldType, DateTime } from "../../types";
 import { JiraIssueSchema } from "../../schema/schema";
 import { AttachmentsField } from "../AttachmentsField/AttachmentsField";
 import { CheckboxesMultiField } from "../Checkbox/CheckboxesMultiField";
 import { DateField } from "../DateField/DateField";
-import { DropdownMultiSelect } from "../DropdownMultiSelect/DropdownMultiSelect";
-import { DropdownSelect } from "../DropdownSelect/DropdownSelect";
+import {
+  GroupMultiSelect,
+  VersionMultiSelect,
+  DropdownMultiSelect,
+} from "../DropdownMultiSelect";
+import { DropdownSelect, VersionSelect, GroupSelect } from "../DropdownSelect";
 import { SubtaskDropdownWithSearch } from "../SubtaskDropdownWithSearch/SubtaskDropdownWithSearch";
 import { RadioButtonsField } from "../Radio/RadioButtonsField";
 import { FieldErrors, UseFormSetValue } from "react-hook-form";
@@ -19,9 +21,9 @@ import { IssueLink } from "../../api/types/fieldsValue";
 
 type Props = {
   dropdownFields: {
-    project: DropdownValueType<string>[];
-    user: DropdownValueType<string>[];
-    labels: DropdownValueType<string>[];
+    project: DropdownValueType<Option["id"]>[];
+    user: DropdownValueType<Option["id"]>[];
+    labels: DropdownValueType<Option["id"]>[];
     issuetypes?: Issuetype[];
   };
   values: JiraIssueSchema;
@@ -41,19 +43,6 @@ export const FormMapping = ({
   errors,
   setValue,
 }: Props) => {
-  const versionsByProjIdQuery = useQueryWithClient(
-    ["versionsByProjId"],
-    (client) => getVersionsByProjectId(client, values.project?.id),
-    { enabled: !!values.project?.id },
-  );
-
-  const versionOptions = versionsByProjIdQuery.data?.map((ver) => ({
-    key: ver.id,
-    label: ver.name,
-    value: ver.id,
-    type: "value" as const,
-  })) ?? [];
-
   const issuetypes = useMemo(() => {
     if (!values.project?.id) return [];
     return createMeta.projects.find((e) => e.id === values.project.id)
@@ -78,11 +67,14 @@ export const FormMapping = ({
     ?.map((field) => {
       let content;
 
+      const fieldKey = field.key as keyof Omit<Props["dropdownFields"], "issuetypes">;
+      const options: DropdownValueType<Option["id"]>[] = dropdownFields[fieldKey] ?? [];
+
       switch (field.schema?.type) {
         case "select":
           content = (
             <DropdownSelect<Option["id"]>
-              options={dropdownFields[field.key as keyof Omit<Props["dropdownFields"], "issuetypes">] || []}
+              options={options}
               value={(values[field.key] as Option)?.id}
               error={Boolean(errors[field.key])}
               onChange={(value) => setValue(`${field.key}.id`, value)}
@@ -90,7 +82,18 @@ export const FormMapping = ({
           );
           break;
 
+        case "group":
+          content = (
+            <GroupSelect
+              value={values[field.key] as GroupPicker}
+              error={Boolean(errors[field.key])}
+              onChange={(value) => setValue(field.key, value)}
+            />
+          );
+          break;
+
         case "option":
+        case "option-with-child":
           if (field.schema.custom === FieldType.RADIO_BUTTONS) {
             content = (
               <RadioButtonsField
@@ -99,7 +102,6 @@ export const FormMapping = ({
                 onChange={(value: Option["id"]) => setValue(`${field.key}.id`, value)}
               />
             );
-
             break;
           }
           content = (
@@ -141,6 +143,7 @@ export const FormMapping = ({
               label={field.name}
               error={Boolean(errors[field.key])}
               id={field.key}
+              enableTime={field.schema?.type === "datetime"}
               value={new Date(values[field.key] as DateTime)}
               onChange={(value: Date[]) => setValue(field.key, value[0])}
             />
@@ -158,9 +161,9 @@ export const FormMapping = ({
                     onChange={(value) => setValue(`${field.key}`, value)}
                   />
                 );
-
                 break;
               }
+
               content = (
                 <DropdownMultiSelect
                   options={(field.allowedValues as Option[])?.map((e) => ({
@@ -181,7 +184,7 @@ export const FormMapping = ({
               if (field.schema.system === "labels" || field.schema.custom === FieldType.LABELS) {
                 content = (
                   <DropdownMultiSelect
-                    options={dropdownFields.labels as DropdownValueType<Option|Option["id"]>[]}
+                    options={dropdownFields.labels as DropdownValueType<Option["id"]|Option>[]}
                     values={values[field.key] as Option[]}
                     error={Boolean(errors[field.key])}
                     onChange={(value) => setValue(field.key, value)}
@@ -202,15 +205,37 @@ export const FormMapping = ({
 
             case "version":
               content = (
-                <DropdownMultiSelect
-                  options={versionOptions}
-                  values={values[field.key] as Option[]}
-                  error={Boolean(errors[field.key])}
+                <VersionMultiSelect
+                  projectId={values.project?.id}
+                  value={values[field.key] as Version[]}
                   onChange={(value) => setValue(field.key, value)}
-                  valueAccessor={(e) => e}
+                  error={Boolean(errors[field.key])}
                 />
               );
               break;
+
+            case "group":
+              content = (
+                <GroupMultiSelect
+                  value={values[field.key] as GroupPicker[]}
+                  error={Boolean(errors[field.key])}
+                  onChange={(value) => setValue(field.key, value)}
+                />
+              );
+              break;
+
+            case "user":
+              content = (
+                <DropdownMultiSelect
+                  options={dropdownFields.user as DropdownValueType<Option["id"]|Option>[]}
+                  values={values[field.key] as Option[]}
+                  error={Boolean(errors[field.key])}
+                  onChange={(value) => setValue(field.key, value)}
+                  valueAccessor={(e) => (e as Option).id}
+                />
+              );
+              break;
+
             default:
               break;
           }
@@ -218,11 +243,11 @@ export const FormMapping = ({
 
         case "version":
           content = (
-            <DropdownSelect
-              options={versionOptions}
-              value={(values[field.key] as Version)?.id}
+            <VersionSelect
+              projectId={values.project?.id}
+              value={values[field.key] as Version}
               error={Boolean(errors[field.key])}
-              onChange={(value) => setValue(`${field.key}.id`, value)}
+              onChange={(value) => setValue(field.key, value)}
             />
           );
           break;
@@ -243,6 +268,22 @@ export const FormMapping = ({
             <DropdownSelect
               options={priorityFields}
               value={(values[field.key] as Priority)?.id}
+              error={Boolean(errors[field.key])}
+              onChange={(value) => setValue(`${field.key}.id`, value)}
+            />
+          );
+          break;
+
+        case "project":
+          content = (
+            <DropdownSelect
+              options={((field.allowedValues as Project[]).map((project) => ({
+                key: project.id,
+                label: project.name,
+                value: project.id,
+                type: "value" as const,
+              })))}
+              value={(values[field.key] as Project)?.id}
               error={Boolean(errors[field.key])}
               onChange={(value) => setValue(`${field.key}.id`, value)}
             />
@@ -291,20 +332,10 @@ export const FormMapping = ({
               data-testid={`input=${field.key}`}
             />
           );
-
           break;
-        default:
-        // content = (
-        //   <Input
-        //     onChange={(e) => setValue(field.key, e.target.value)}
-        //     value={values[field.key]}
-        //     error={errors[field.key]}
-        //     id={field.key}
-        //     variant="inline"
-        //     placeholder="Add value"
-        //     data-testid={`input=${field.key}`}
-        //   />
-        // );
+
+          default:
+          break;
       }
 
       return (
@@ -323,7 +354,10 @@ export const FormMapping = ({
           options={dropdownFields.project}
           disabled={type === "update"}
           value={values.project?.id}
-          onChange={(value) => setValue("project.id", value)}
+          onChange={(value) => {
+            setValue("project.id", value);
+            setValue("issuetype.id", ""); // reset issueType if project changed
+          }}
           error={Boolean(errors.project?.id)}
         />
       </Label>
