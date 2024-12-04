@@ -32,7 +32,8 @@ import {
   errorToStringWithoutBraces,
   parseJsonErrorMessage,
   getLayout,
-} from "../../utils/utils";
+  getFormValuesToData,
+} from "../../utils";
 import { ErrorBlock } from "../Error/ErrorBlock";
 import { FormMapping } from "../FormMapping/FormMapping";
 import { LoadingSpinnerCenter } from "../LoadingSpinnerCenter/LoadingSpinnerCenter";
@@ -80,8 +81,8 @@ export const MutateObject = ({ objectId }: Props) => {
   const submitMutation = useMutationWithClient((client, values: IssueFormData) => {
     const metaMap = usableFields.map(transformFieldMeta).reduce((acc, meta) => ({ ...acc, [meta.key]: meta }), {});
     return isEditMode
-      ? updateIssue(client, objectId, { ...values }, metaMap)
-      : createIssue(client, { ...values }, metaMap);
+      ? updateIssue(client, objectId, getFormValuesToData(values, metaMap))
+      : createIssue(client, getFormValuesToData(values, metaMap));
   });
 
   useEffect(() => {
@@ -187,7 +188,7 @@ export const MutateObject = ({ objectId }: Props) => {
     .filter((u: JiraUser) => u.active)
     .filter((u: JiraUser) => u.accountType === "atlassian")
     .map((user: JiraUser) => ({
-      key: user.displayName,
+      key: user.accountId,
       label: user.displayName,
       type: "value",
       value: user.accountId,

@@ -53,7 +53,6 @@ export enum FieldType {
     USER_PICKER = "com.atlassian.jira.plugin.system.customfieldtypes:userpicker",
     EPIC = "com.pyxis.greenhopper.jira:gh-epic-link",
     SPRINT = "com.pyxis.greenhopper.jira:gh-sprint",
-
 }
 
 export type IssueMeta = {

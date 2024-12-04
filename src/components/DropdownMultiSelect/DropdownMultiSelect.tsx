@@ -18,6 +18,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 import { Option } from "../../api/types/createMeta";
+import { isPrimitive } from "../../utils";
 
 type DropdownOption = Option["id"]|Option;
 
@@ -66,6 +67,7 @@ export const DropdownMultiSelect = ({
 
   return (
     <Dropdown
+      closeOnSelect={false}
       showInternalSearch
       inputValue={input}
       onInputChange={setInput}
@@ -133,12 +135,13 @@ export const DropdownMultiSelect = ({
                     key={idx}
                     onClick={(e) => {
                       e.preventDefault();
-
                       onChange(vals.filter((v) => valueAccessor(v) !== val));
                     }}
                   >
                     <Stack align="center">
-                      <span style={{ marginRight: "4px" }}>{label as Option["name"]}</span>
+                      <span style={{ marginRight: "4px" }}>
+                        {isPrimitive(label) ? label : `${valueAccessor(label as Option) as string}`}
+                        </span>
                       <Icon icon={faTimes as AnyIcon} />
                     </Stack>
                   </Stack>
