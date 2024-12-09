@@ -152,6 +152,7 @@ export const useWhenNoLinkedItems = (onNoLinkedItems: () => void) => {
 export const useLoadLinkedIssues = () => {
   const { client } = useDeskproAppClient();
   const { context } = useDeskproLatestAppContext<TicketData, Settings>();
+
   return async () => {
     if (!client || !context?.data?.ticket) {
       return [];

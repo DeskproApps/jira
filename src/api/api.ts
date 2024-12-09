@@ -1,7 +1,4 @@
-import { ADFEntity } from "@atlaskit/adf-utils";
 import { IDeskproClient, proxyFetch, adminGenericProxyFetch } from "@deskpro/app-sdk";
-import { match } from "ts-pattern";
-import { useAdfToPlainText } from "../hooks/hooks";
 import { paragraphDoc, removeBacklinkCommentDoc } from "./adf";
 import { CreateMeta } from "./types/createMeta";
 import { ApiRequestMethod, FieldType, Settings } from "../types";
@@ -24,9 +21,9 @@ import {
   TransfornedFieldMeta,
   Version,
   ErrorResponse,
+  GroupsPicker,
 } from "./types/types";
-import { SprintCustomValue, CustomFieldValue, CustomFieldsValues } from "./types/customFieldsValue";
-import { UserBean } from "./types/fieldsValue";
+import { SprintValue, CustomFieldValue, CustomFieldsValues } from "./types/customFieldsValue";
 // JIRA REST API Base URL
 const API_BASE_URL = "https://__domain__.atlassian.net/rest/api/3";
 
@@ -265,9 +262,9 @@ export const listLinkedIssues = async (
     }), {});
   }
 
-  return fullIssues.map((issue) => {
+  return (fullIssues ?? []).map((issue) => {
     const epic = epics[epicKeys[issue.key]];
-    const issueSprints = ((sprints[issue.key] || []) as SprintCustomValue[]).map((sprint) => ({
+    const issueSprints = ((sprints[issue.key] || []) as SprintValue[]).map((sprint) => ({
       sprintBoardId: sprint.boardId,
       sprintName: sprint.name,
       sprintState: sprint.state,
@@ -289,50 +286,30 @@ export const listLinkedIssues = async (
   });
 };
 
+export const getFields = async (
+  client: IDeskproClient,
+  settings?: Settings,
+): Promise<FieldMeta[]> => {
+  const isAdmin = Boolean(settings?.domain);
+  const baseUrl = isAdmin
+    ? `https://${settings?.domain}.atlassian.net/rest/api/3/field`
+    : `${API_BASE_URL}/field`;
+
+  return request<FieldMeta[]>(client, "GET", baseUrl, undefined, settings)
+};
+
 export const createIssue = async (
   client: IDeskproClient,
   data: IssueFormData,
-  meta: Record<TransfornedFieldMeta["key"], TransfornedFieldMeta>,
 ) => {
-  const customFields = {
-    ...Object.keys(data.customFields ?? []).reduce((fields, key) => {
-      const value = formatCustomFieldValue(meta[key], data.customFields?.[key]);
-
-      if (value === undefined) {
-        return fields;
-      }
-
-      return {
-        ...fields,
-        [key]: value,
-      };
-    }, {}),
-  };
-
-  // eslint-disable-next-line no-prototype-builtins
-  if (data.hasOwnProperty("customFields")) {
-    delete data.customFields;
-  }
-
   const attachments = [...(data.attachments ?? [])];
-
-  Object.keys(data).filter((e) => {
-    const fieldMeta = meta[e];
-    return e.startsWith("customfield_")
-      && fieldMeta?.schema?.custom === FieldType.TEXT_PARAGRAPH
-  })
-    .forEach((key) => {
-      data[key] = paragraphDoc(data[key] as string);
-    });
 
   delete data.attachments;
 
   const body = {
     fields: {
       ...data,
-      description: paragraphDoc(data.description),
       ...(!data.labels ? {} : { labels: data.labels }),
-      ...customFields,
     },
   };
 
@@ -363,75 +340,15 @@ export const createIssue = async (
   return res;
 };
 
-export const getFields = async (
-  client: IDeskproClient,
-  settings?: Settings,
-): Promise<FieldMeta[]> => {
-  const isAdmin = Boolean(settings?.domain);
-  const baseUrl = isAdmin
-    ? `https://${settings?.domain}.atlassian.net/rest/api/3/field`
-    : `${API_BASE_URL}/field`;
-
-  const res = await request<FieldMeta[]>(client, "GET", baseUrl, undefined, settings);
-
-  return [
-    ...res,
-    ...(isAdmin ? [] : [
-      {
-        id: "linkedCount",
-        name: "Linked Issues",
-        key: "linkedCount",
-        schema: {
-          type: "string",
-          custom: "custom",
-        },
-      },
-      {
-        id: "key",
-        name: "Key",
-        key: "key",
-        schema: {
-          type: "string",
-          custom: "custom",
-        },
-      }
-    ]),
-  ] as FieldMeta[];
-};
-
 export const updateIssue = async (
   client: IDeskproClient,
   issueKey: string,
   data: IssueFormData,
-  meta: Record<TransfornedFieldMeta["key"], TransfornedFieldMeta>,
 ) => {
-  const customFields = Object.keys(data.customFields ?? []).reduce((fields, key) => {
-    const value = formatCustomFieldValue(meta[key], data.customFields?.[key]);
-
-    if (value === undefined) {
-      return fields;
-    }
-
-    return {
-      ...fields,
-      [key]: value,
-    };
-  }, {});
-
-  Object.keys(data).filter((e) => {
-    const fieldMeta = meta[e];
-    return e.startsWith("customfield_") && fieldMeta?.schema?.custom === FieldType.TEXT_PARAGRAPH
-  })
-  .forEach((key) => {
-    data[key] = paragraphDoc(data[key] as string);
-  });
-
   const body = {
     fields: {
       ...data,
-      description: paragraphDoc(data.description),
       ...(!data.labels ? {} : { labels: data.labels }),
-      ...customFields,
     },
   };
 
@@ -575,6 +492,10 @@ export const getLabels = async (client: IDeskproClient) => {
   return res;
 };
 
+export const getGroups = (client: IDeskproClient) => {
+  return request<GroupsPicker>(client, "GET", `${API_BASE_URL}/groups/picker`);
+};
+
 const request = async <T>(
   client: IDeskproClient,
   method: ApiRequestMethod,
@@ -700,44 +621,3 @@ const combineCustomFieldValueAndMeta = (
 const isCustomFieldKey = (key: string): boolean => /^customfield_[0-9]+$/.test(key);
 
 const remoteLinkGlobalId = (ticketId: string) => `deskpro_ticket_${ticketId}`;
-
-/**
- * Format fields when sending values to API
- */
-const formatCustomFieldValue = (meta: TransfornedFieldMeta, value: CustomFieldValue) =>
-  match(meta.type)
-    .with(FieldType.TEXT_PLAIN, () => value ?? undefined)
-    .with(FieldType.TEXT_PARAGRAPH, () => value ? paragraphDoc(value as string) : undefined)
-    .with(FieldType.DATETIME, () => value ?? undefined)
-    .with(FieldType.DATE, () => value ?? undefined)
-    .with(FieldType.CHECKBOXES, () => (Array.isArray(value) ? value : []).map((id: string) => ({ id })))
-    .with(FieldType.LABELS, () => value ?? [])
-    .with(FieldType.NUMBER, () => (value ? new Number(value) : undefined))
-    .with(FieldType.RADIO_BUTTONS, () => (value ? { id: value } : undefined))
-    .with(FieldType.SELECT_MULTI, () => (Array.isArray(value) ? value : []).map((id: string) => ({ id })))
-    .with(FieldType.SELECT_SINGLE, () => (value ? { id: value } : undefined))
-    .with(FieldType.URL, () => value ?? undefined)
-    .with(FieldType.USER_PICKER, () => (value ? { id: value } : undefined))
-    .run();
-/**
- * Format data when getting values from the API
- */
-export const formatCustomFieldValueForSet = (meta: TransfornedFieldMeta, value: unknown) =>
-  match(meta.type)
-    .with(FieldType.TEXT_PLAIN, () => value ?? "")
-    .with(FieldType.TEXT_PARAGRAPH, () => useAdfToPlainText(value as ADFEntity))
-    .with(FieldType.DATETIME, () => (value ? new Date(value as Date) : undefined))
-    .with(FieldType.DATE, () => (value ? new Date(value as Date) : undefined))
-    .with(FieldType.CHECKBOXES, () =>
-      (Array.isArray(value) ? value : []).map((v: { id: string }) => v.id),
-    )
-    .with(FieldType.LABELS, () => value ?? [])
-    .with(FieldType.NUMBER, () => (value ? `${value as string}` : ""))
-    .with(FieldType.RADIO_BUTTONS, () => (value as { id: string })?.id ?? undefined)
-    .with(FieldType.SELECT_MULTI, () =>
-      (Array.isArray(value) ? value : []).map((v: { id: string }) => v.id),
-    )
-    .with(FieldType.SELECT_SINGLE, () => (value as { id: string })?.id ?? undefined)
-    .with(FieldType.URL, () => value ?? "")
-    .with(FieldType.USER_PICKER, () => (value as UserBean)?.accountId ?? undefined)
-    .otherwise(() => undefined);
