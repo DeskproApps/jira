@@ -1,4 +1,4 @@
-import { testUrlRegex } from "../utils/utils";
+import { testUrlRegex } from "../utils/testUrlRegex";
 
 export const backlinkCommentDoc = (ticketId: string, url: string) => ({
   version: 1,

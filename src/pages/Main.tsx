@@ -260,6 +260,7 @@ export const Home: FC = () => {
     linkedCount,
   ]);
 
+  // register reply-box
   useInitialisedDeskproAppClient((client) => {
     const ticketId = context?.data?.ticket.id;
     if (!context || !ticketId || linkedIssues.length === 0) {

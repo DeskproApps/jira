@@ -32,7 +32,8 @@ import {
   errorToStringWithoutBraces,
   parseJsonErrorMessage,
   getLayout,
-} from "../../utils/utils";
+  getFormValuesToData,
+} from "../../utils";
 import { ErrorBlock } from "../Error/ErrorBlock";
 import { FormMapping } from "../FormMapping/FormMapping";
 import { LoadingSpinnerCenter } from "../LoadingSpinnerCenter/LoadingSpinnerCenter";
@@ -80,8 +81,8 @@ export const MutateObject = ({ objectId }: Props) => {
   const submitMutation = useMutationWithClient((client, values: IssueFormData) => {
     const metaMap = usableFields.map(transformFieldMeta).reduce((acc, meta) => ({ ...acc, [meta.key]: meta }), {});
     return isEditMode
-      ? updateIssue(client, objectId, { ...values }, metaMap)
-      : createIssue(client, { ...values }, metaMap);
+      ? updateIssue(client, objectId, getFormValuesToData(values, metaMap))
+      : createIssue(client, getFormValuesToData(values, metaMap));
   });
 
   useEffect(() => {
@@ -115,21 +116,20 @@ export const MutateObject = ({ objectId }: Props) => {
 
   useEffect(() => {
     const data = getLayout(context?.settings?.mapping);
-
-    if (!data.project || !data.issuetype) return;
-
     setMappedFields(data.detailView ?? []);
-
-    if (isEditMode) return;
-
-    setValue("project", { id: data.project });
-    setValue("issuetype", { id: data.issuetype });
 
     context?.settings.ticket_subject_as_issue_summary &&
       setValue(
         "summary",
         `[Ticket #${context?.data?.ticket.id}] ${context?.data?.ticket.subject}`,
       );
+
+    if (isEditMode) return;
+
+    if (!data.project || !data.issuetype) return;
+
+    setValue("project", { id: data.project });
+    setValue("issuetype", { id: data.issuetype });
   }, [context, setValue, isEditMode]);
 
   useEffect(() => {
@@ -187,7 +187,7 @@ export const MutateObject = ({ objectId }: Props) => {
     .filter((u: JiraUser) => u.active)
     .filter((u: JiraUser) => u.accountType === "atlassian")
     .map((user: JiraUser) => ({
-      key: user.displayName,
+      key: user.accountId,
       label: user.displayName,
       type: "value",
       value: user.accountId,
@@ -246,13 +246,10 @@ export const MutateObject = ({ objectId }: Props) => {
     return [
       ...Object.keys(fieldsObj)
         .filter((fieldKey) => {
-            return (mappedFields.length > 0
-              ? mappedFields.includes(fieldKey)
-              : IssueJson.create.includes(fieldKey) || fieldKey.startsWith("customfield_")) ||
-            fieldKey === "summary" ||
-            fieldKey === "description" ||
-            fieldKey === "reporter" ||
-            fieldsObj[fieldKey].required
+          return (mappedFields.length > 0
+            ? mappedFields.includes(fieldKey)
+            : IssueJson.create.includes(fieldKey)
+          )
         })
         .map((fieldObjKey) => ({
           ...(fieldsObj[fieldObjKey] ?? {}),

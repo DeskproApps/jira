@@ -51,13 +51,8 @@ export const LinkContact = () => {
 
   useInitialisedDeskproAppClient((client) => {
     client.setTitle("Link Issue");
-
-    client.registerElement("homeButton", {
-      type: "home_button",
-    });
-
+    client.registerElement("homeButton", { type: "home_button" });
     client.deregisterElement("addIssue");
-
     client.deregisterElement("menuButton");
   }, []);
 
@@ -92,17 +87,13 @@ export const LinkContact = () => {
   const issuesQuery = useQueryWithClient(
     ["getContactsByEmail", debouncedText],
     (client) => searchIssues(client, debouncedText),
-    {
-      enabled: debouncedText.length > 2,
-    },
+    { enabled: debouncedText.length > 2 },
   );
 
   const metadataFieldsQuery = useQueryWithClient(
     ["metadataFields"],
     (client) => getFields(client),
-    {
-      enabled: mappedFields && mappedFields?.length !== 0,
-    },
+    { enabled: mappedFields && mappedFields?.length !== 0 },
   );
 
   const usableFields = useMemo(() => {
