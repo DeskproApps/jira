@@ -116,21 +116,20 @@ export const MutateObject = ({ objectId }: Props) => {
 
   useEffect(() => {
     const data = getLayout(context?.settings?.mapping);
-
-    if (!data.project || !data.issuetype) return;
-
     setMappedFields(data.detailView ?? []);
-
-    if (isEditMode) return;
-
-    setValue("project", { id: data.project });
-    setValue("issuetype", { id: data.issuetype });
 
     context?.settings.ticket_subject_as_issue_summary &&
       setValue(
         "summary",
         `[Ticket #${context?.data?.ticket.id}] ${context?.data?.ticket.subject}`,
       );
+
+    if (isEditMode) return;
+
+    if (!data.project || !data.issuetype) return;
+
+    setValue("project", { id: data.project });
+    setValue("issuetype", { id: data.issuetype });
   }, [context, setValue, isEditMode]);
 
   useEffect(() => {
@@ -247,13 +246,10 @@ export const MutateObject = ({ objectId }: Props) => {
     return [
       ...Object.keys(fieldsObj)
         .filter((fieldKey) => {
-            return (mappedFields.length > 0
-              ? mappedFields.includes(fieldKey)
-              : IssueJson.create.includes(fieldKey) || fieldKey.startsWith("customfield_")) ||
-            fieldKey === "summary" ||
-            fieldKey === "description" ||
-            fieldKey === "reporter" ||
-            fieldsObj[fieldKey].required
+          return (mappedFields.length > 0
+            ? mappedFields.includes(fieldKey)
+            : IssueJson.create.includes(fieldKey)
+          )
         })
         .map((fieldObjKey) => ({
           ...(fieldsObj[fieldObjKey] ?? {}),

@@ -21,7 +21,7 @@ const getFormValuesToData = (
         .with({ type: "date" }, () => formatISO(value as Date, { representation: "date" }))
         .with({ type: "datetime" }, () => formatISO(value as Date))
         .with({ type: "group" }, () => ({ name: (value as Option).id }))
-        .with({ type: "array", items: "version" }, () => (value as Option[] ?? []).map((id) => ({ id })))
+        .with({ type: "array", items: "version" }, () => (value as Option[] ?? []).map(({ id }) => ({ id })))
         .with({ type: "array", items: "user" }, () => (value as Option[] ?? []).map((id) => ({ id })))
         .with({ type: "array", items: "option" }, () => (value as Option[] ?? []).map(({ id }) => ({ id })))
         .with({ type: "array", items: "group" }, () => (value as Components[] ?? []).map((name) => ({ name })))
