@@ -1,40 +1,28 @@
 import {
-  LoadingSpinner,
   Property,
+  LoadingSpinner,
   useDeskproAppEvents,
   useInitialisedDeskproAppClient,
-  useQueryWithClient,
 } from "@deskpro/app-sdk";
-import { Checkbox, H1, H2, Stack } from "@deskpro/deskpro-ui";
-import { useEffect, useMemo, useState } from "react";
-import { getCreateMeta, getFields } from "../../api/api";
+import { Checkbox, H1, Stack, P5 } from "@deskpro/deskpro-ui";
+import { useEffect, useState } from "react";
+import { useMetadata } from "./hooks";
 import { DropdownSelect } from "../../components/DropdownSelect/DropdownSelect";
 import { Settings, Layout } from "../../types";
 
 export const AdminSettings = () => {
-  const [settings, setSettings] = useState<Settings>({});
+  const [settings, setSettings] = useState<Settings|undefined>();
   const [hasSetSelectedSettings, setHasSetSelectedSettings] = useState(false);
   const [selectedSettings, setSelectedSettings] = useState<Partial<Layout>>({});
 
-  const fieldsQuery = useQueryWithClient(
-    ["fields"],
-    (client) => getFields(client, settings),
-    {
-      enabled: Boolean(
-        settings && settings.domain && settings.username && settings.api_key,
-      ),
-    },
-  );
+  const {
+    fields,
+    isLoading,
+    projectOptions,
+    issueTypeOptions,
+  } = useMetadata(settings, selectedSettings.project);
 
-  const createMetaQuery = useQueryWithClient(
-    ["createMetaQuery"],
-    (client) => getCreateMeta(client, settings),
-    {
-      enabled: Boolean(
-        settings && settings.domain && settings.username && settings.api_key,
-      ),
-    },
-  );
+  console.log(">>> mapping:", settings);
 
   useDeskproAppEvents({
     onAdminSettingsChange: setSettings,
@@ -82,59 +70,31 @@ export const AdminSettings = () => {
     });
   };
 
-  const projects = useMemo(() => {
-    if (!createMetaQuery.isSuccess) return [];
 
-    return createMetaQuery.data.projects.map((p) => {
-      return {
-        key: p.name,
-        label: p.name,
-        value: p.id,
-        type: "value" as const,
-      };
-    });
-  }, [createMetaQuery]);
-
-  const issueTypes = useMemo(() => {
-    if (!createMetaQuery.isSuccess || !selectedSettings.project) return [];
-
-    return (
-      createMetaQuery.data.projects
-        .find((e) => e.id === (selectedSettings.project as unknown as string))
-        ?.issuetypes.map((p) => {
-          return {
-            key: p.name,
-            label: p.name,
-            type: "value" as const,
-            value: p.id,
-          };
-        }) ?? []
-    );
-  }, [
-    createMetaQuery.data?.projects,
-    createMetaQuery.isSuccess,
-    selectedSettings.project,
-  ]);
-
-  if (!settings || !settings.domain || !settings.username || !settings.api_key)
+  if (!settings?.domain || !settings?.username || !settings?.api_key)
     return null;
 
-  if (fieldsQuery.isLoading) return <LoadingSpinner />;
-
-  if (fieldsQuery.error) {
+  // if (fieldsQuery.isLoading) return <LoadingSpinner />;
+  if (isLoading) {
     return (
-      <H2>
-        Wrong Settings. Please ensure you inserted the correct settings before
-        using field mapping
-      </H2>
+      <LoadingSpinner />
     );
   }
 
-  const fields = fieldsQuery.data;
+  // if (fieldsQuery.error) {
+  //   return (
+  //     <H2>
+  //       Wrong Settings. Please ensure you inserted the correct settings before
+  //       using field mapping
+  //     </H2>
+  //   );
+  // }
 
-  if (!fields || !fields.length) {
-    return <div>No fields found</div>;
-  }
+  // const fields = fieldsQuery.data;
+
+  // if (!fields || !fields.length) {
+  //   return <div>No fields found</div>;
+  // }
 
   return (
     <Stack vertical gap={10}>
@@ -144,7 +104,7 @@ export const AdminSettings = () => {
           text={
             <DropdownSelect
               error={false}
-              options={projects}
+              options={projectOptions}
               onChange={(e: string) => updateSettings(e, "project")}
               value={selectedSettings.project}
             />
@@ -157,7 +117,7 @@ export const AdminSettings = () => {
             text={
               <DropdownSelect
                 error={false}
-                options={issueTypes}
+                options={issueTypeOptions}
                 onChange={(e: string) => updateSettings(e, "issuetype")}
                 value={selectedSettings.issuetype}
               />
@@ -165,22 +125,20 @@ export const AdminSettings = () => {
           />
         )}
       </Stack>
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
-          width: "100%",
-          rowGap: "10px",
-        }}
-      >
-        <H1>Fields</H1>
-        <H1>Create &amp; Detail View</H1>
-        <H1>List View</H1>
+      <table style={{ width: "100%" }}>
+        <thead>
+          <tr>
+            <th><H1>Fields</H1></th>
+            <th><H1>Create &amp; Detail View</H1></th>
+            <th><H1>List View</H1></th>
+          </tr>
+        </thead>
+        <tbody>
         {fields
           .filter((e) => e.schema && e.schema.type !== "any")
           .map((f) => (
-            <>
-              <td>{f.name}</td>
+            <tr key={f.id}>
+              <td><P5>{f.name}</P5></td>
               <td className="text-center">
                 <Checkbox
                   checked={selectedSettings.detailView?.includes(f.id as string)}
@@ -193,9 +151,10 @@ export const AdminSettings = () => {
                   onClick={() => updateSettings(f.id as string, "listView")}
                 />
               </td>
-            </>
+            </tr>
           ))}
-      </div>
+        </tbody>
+      </table>
     </Stack>
   );
 };
