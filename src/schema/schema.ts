@@ -15,7 +15,7 @@ export type JiraIssueSchema = z.infer<typeof baseSchema>;
 
 export const getSchema = (usableFields: FieldMeta[]) => {
   const objects = usableFields.reduce<Record<string, ZodTypeAny>>((acc, curr) => {
-    switch (curr.schema?.type) {
+    switch (curr?.schema?.type) {
       case "string":
         if (curr.schema?.custom === FieldType.URL) {
           return { ...acc, [curr.key]: z.string().url() };

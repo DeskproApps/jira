@@ -10,6 +10,9 @@ export const ErrorFallback = ({
   error: Error;
   resetErrorBoundary: () => void;
 }) => {
+  // eslint-disable-next-line no-console
+  console.error(error);
+
   return (
     <Stack vertical gap={10} role="alert">
       <H1>Something went wrong:</H1>
