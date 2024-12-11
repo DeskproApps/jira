@@ -1,3 +1,4 @@
+import { useLocation } from "react-router-dom";
 import { faRefresh } from "@fortawesome/free-solid-svg-icons";
 
 import { parseJsonErrorMessage } from "../../utils/utils";
@@ -10,11 +11,17 @@ export const ErrorFallback = ({
   error: Error;
   resetErrorBoundary: () => void;
 }) => {
+  const { pathname } = useLocation();
+  const isAdmin = pathname.includes("/admin");
+
   return (
     <Stack vertical gap={10} role="alert">
       <H1>Something went wrong:</H1>
       <H2 style={{ maxWidth: "100%" }}>
-        {parseJsonErrorMessage(error.message) || (error as unknown as string)}
+        {isAdmin
+          ? "Wrong Settings. Please ensure you inserted the correct settings before using field mapping"
+          : parseJsonErrorMessage(error.message) || (error as unknown as string)
+        }
       </H2>
       <Button
         text="Reload"

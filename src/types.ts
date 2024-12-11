@@ -1,4 +1,5 @@
 import type { Context } from "@deskpro/app-sdk";
+import type { ProjectElement, Issuetype } from "./api/types/createMeta";
 
 /** common */
 export type RequiredProps<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
@@ -31,8 +32,8 @@ export type Settings = {
 export type Layout = {
   detailView: string[];
   listView: string[];
-  project?: string;
-  issuetype?: string;
+  project?: ProjectElement["id"];
+  issuetype?: Issuetype["id"];
 };
 
 /** Jira */

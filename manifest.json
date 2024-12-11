@@ -91,7 +91,7 @@
     "mapping": {
       "title": "",
       "type": "app_embedded",
-      "options": { "entrypoint": "#/admin_mapping" },
+      "options": { "entrypoint": "#/admin_mapping", "height": "100%" },
       "isRequired": false,
       "isBackendOnly": false,
       "order": 80
