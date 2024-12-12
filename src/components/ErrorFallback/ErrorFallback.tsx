@@ -14,6 +14,9 @@ export const ErrorFallback = ({
   const { pathname } = useLocation();
   const isAdmin = pathname.includes("/admin");
 
+  // eslint-disable-next-line no-console
+  console.error(error);
+
   return (
     <Stack vertical gap={10} role="alert">
       <H1>Something went wrong:</H1>

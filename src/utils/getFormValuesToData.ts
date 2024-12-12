@@ -11,13 +11,13 @@ const getFormValuesToData = (
 ): IssueFormData => {
   return Object.keys(values).reduce((acc, fieldKey) => {
     const value = values[fieldKey];
-    const meta = metaMap[fieldKey];
+    const meta: FieldMeta|undefined = metaMap[fieldKey];
 
     const formatedValue = (fieldKey === "description")
       ? paragraphDoc(value as string)
       : (fieldKey === "project" || fieldKey === "issuetype")
       ? value
-      : match(meta.schema)
+      : match(meta?.schema)
         .with({ type: "date" }, () => formatISO(value as Date, { representation: "date" }))
         .with({ type: "datetime" }, () => formatISO(value as Date))
         .with({ type: "group" }, () => ({ name: (value as Option).id }))
