@@ -7,6 +7,8 @@ import { useEffect, useState } from "react";
 import { useMetadata } from "./hooks";
 import { Mapping } from "../../components/Admin";
 import type { Settings, Layout } from "../../types";
+import type { FieldMeta } from "../../api/types/types";
+import type { ProjectElement, Issuetype } from "../../api/types/createMeta";
 
 export const AdminSettings = () => {
   const [settings, setSettings] = useState<Settings|undefined>();
@@ -39,7 +41,11 @@ export const AdminSettings = () => {
     [selectedSettings],
   );
 
-  const updateSettings = (value: string, keyName: keyof Layout) => {
+  const updateSettings = (
+    // eslint-disable-next-line @typescript-eslint/no-duplicate-type-constituents
+    value: FieldMeta["id"]|ProjectElement["id"]|Issuetype["id"],
+    keyName: keyof Layout,
+  ) => {
     setSelectedSettings((prevState) => {
       if (["project", "issuetype"].includes(keyName)) {
         return {
@@ -49,11 +55,11 @@ export const AdminSettings = () => {
       }
 
       const newArray = [...(prevState[keyName] || [])];
-      const index = newArray.indexOf(value);
+      const index = newArray.indexOf(`${value}`);
 
       if (index === -1) {
         // Value not found, add it to the array
-        newArray.push(value);
+        newArray.push(`${value}`);
       } else {
         // Value found, remove it from the array
         newArray.splice(index, 1);

@@ -7,7 +7,7 @@ import type { FieldMeta } from "../../../../api/types/types";
 type Props = {
   fields: FieldMeta[];
   selectedSettings: Partial<Layout>;
-  onChange: (e: string, type: keyof Layout) => void;
+  onChange: (fieldId: FieldMeta["id"], type: keyof Layout) => void;
 };
 
 const FieldsMap: FC<Props> = ({ fields, onChange, selectedSettings }) => {
@@ -28,20 +28,20 @@ const FieldsMap: FC<Props> = ({ fields, onChange, selectedSettings }) => {
       </Table.Head>
       <Table.Body>
         {fields
-          .filter((e) => e.schema && e.schema.type !== "any")
-          .map((f) => (
-            <Table.Row key={f.id}>
-              <Table.Cell><P5>{f.name}</P5></Table.Cell>
+          .filter((field) => field.schema && field.schema.type !== "any")
+          .map((field: FieldMeta) => (
+            <Table.Row key={field.id}>
+              <Table.Cell><P5>{field.name}</P5></Table.Cell>
               <Table.Cell>
                 <Checkbox
-                  checked={selectedSettings.detailView?.includes(f.id as string)}
-                  onClick={() => onChange(f.id as string, "detailView")}
+                  checked={selectedSettings.detailView?.includes(`${field.id}`)}
+                  onClick={() => onChange(field.id, "detailView")}
                 />
               </Table.Cell>
               <Table.Cell>
                 <Checkbox
-                  checked={selectedSettings.listView?.includes(f.id as string)}
-                  onClick={() => onChange(f.id as string, "listView")}
+                  checked={selectedSettings.listView?.includes(`${field.id}`)}
+                  onClick={() => onChange(field.id, "listView")}
                 />
               </Table.Cell>
             </Table.Row>

@@ -11,7 +11,7 @@ type Props = {
   fields: FieldMeta[];
   projectOptions: Array<DropdownItemType<ProjectElement["id"]>>;
   issueTypeOptions: Array<DropdownItemType<Issuetype["id"]>>;
-  onChange: (e: string, type: keyof Layout) => void;
+  onChange: (fieldId: FieldMeta["id"], type: keyof Layout) => void;
   selectedSettings: Partial<Layout>;
 };
 

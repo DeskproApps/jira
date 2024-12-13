@@ -37,25 +37,25 @@ const useMetadata: UseMetadata = (settings, projectId) => {
       return [{ type: "header", label: "No project(s) found" }];
     }
 
-    return projects.map((p) => ({
-      key: p.name,
-      label: p.name,
-      value: p.id,
+    return projects.map((project) => ({
+      key: project.name,
+      label: project.name,
+      value: project.id,
       type: "value" as const,
     }));
   }, [createMeta.data?.projects]);
 
   const issueTypes = useMemo(() => {
-    const project = (createMeta.data?.projects ?? []).find((p) => {
-      return Boolean(projectId) && p.id === projectId;
+    const project = (createMeta.data?.projects ?? []).find((project) => {
+      return Boolean(projectId) && project.id === projectId;
     });
 
     return project?.issuetypes ?? [];
   }, [projectId, createMeta.data?.projects]);
 
   const issueTypeOptions: Array<DropdownItemType<Issuetype["id"]>> = useMemo(() => {
-    const project = (createMeta.data?.projects ?? []).find((p) => {
-      return Boolean(projectId) && p.id === projectId;
+    const project = (createMeta.data?.projects ?? []).find((project) => {
+      return Boolean(projectId) && project.id === projectId;
     });
 
     if (!project?.issuetypes.length) {
