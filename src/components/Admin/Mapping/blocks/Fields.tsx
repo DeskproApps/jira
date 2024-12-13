@@ -8,7 +8,7 @@ import type { FieldMeta } from "../../../../api/types/types";
 type Props = {
   fields: FieldMeta[];
   selectedSettings: Partial<Layout>;
-  onChange: (e: string, type: keyof Layout) => void;
+  onChange: (fieldId: FieldMeta["id"], type: keyof Layout) => void;
 };
 
 const Fields: FC<Props> = (props) => {
