@@ -403,9 +403,7 @@ export const getCreateMeta = async (
     ? `https://${settings?.domain}.atlassian.net/rest/api/3/issue/createmeta`
     : `${API_BASE_URL}/issue/createmeta`;
 
-  const res = await request<CreateMeta>(client, "GET", baseUrl, undefined, settings);
-
-  return res;
+  return request<CreateMeta>(client, "GET", baseUrl, undefined, settings);
 };
 
 export const getProjectCreateMeta = async (
