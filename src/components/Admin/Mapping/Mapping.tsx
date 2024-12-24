@@ -11,24 +11,30 @@ type Props = {
   fields: FieldMeta[];
   projectOptions: Array<DropdownItemType<ProjectElement["id"]>>;
   issueTypeOptions: Array<DropdownItemType<Issuetype["id"]>>;
-  onChange: (fieldId: FieldMeta["id"], type: keyof Layout) => void;
   selectedSettings: Partial<Layout>;
+  onUpdateMapping: (value: Array<FieldMeta["id"]>, keyName: keyof Layout) => void;
+  onUpdateProject: (project: ProjectElement["id"]) => void;
+  onUpdateIssueType: (issuetype: Issuetype["id"]) => void;
+  onUpdateEnableMapping: () => void;
 };
 
 const Mapping: FC<Props> = ({
   fields,
-  onChange,
   projectOptions,
   issueTypeOptions,
   selectedSettings,
+  onUpdateMapping,
+  onUpdateProject,
+  onUpdateIssueType,
+  onUpdateEnableMapping,
 }) => {
   const onChangeProject = useCallback((projectId: ProjectElement["id"]|undefined) => {
-    onChange(projectId || "", "project");
-  }, [onChange]);
+    onUpdateProject(projectId || "");
+  }, [onUpdateProject]);
 
   const OnChangeIssueType = useCallback((issueTypeId: Issuetype["id"]|undefined) => {
-    onChange(issueTypeId || "", "issuetype");
-  }, [onChange]);
+    onUpdateIssueType(issueTypeId || "");
+  }, [onUpdateIssueType]);
 
   return (
     <>
@@ -54,8 +60,9 @@ const Mapping: FC<Props> = ({
       />
       <Fields
         fields={fields}
-        onChange={onChange}
         selectedSettings={selectedSettings}
+        onUpdateMapping={onUpdateMapping}
+        onUpdateEnableMapping={onUpdateEnableMapping}
       />
     </>
   );

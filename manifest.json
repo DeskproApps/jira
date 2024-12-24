@@ -91,7 +91,7 @@
     "mapping": {
       "title": "",
       "type": "app_embedded",
-      "options": { "entrypoint": "http://localhost:3000/#/admin_mapping" },
+      "options": { "entrypoint": "#/admin_mapping" },
       "isRequired": false,
       "isBackendOnly": false,
       "order": 80

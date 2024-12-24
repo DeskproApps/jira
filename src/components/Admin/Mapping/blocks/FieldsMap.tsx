@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { H1, P5, Checkbox, PP3Medium } from "@deskpro/deskpro-ui";
 import { Table } from "../../../common";
 import type { FC } from "react";
@@ -7,10 +8,29 @@ import type { FieldMeta } from "../../../../api/types/types";
 type Props = {
   fields: FieldMeta[];
   selectedSettings: Partial<Layout>;
-  onChange: (fieldId: FieldMeta["id"], type: keyof Layout) => void;
+  onUpdateMapping: (value: Array<FieldMeta["id"]>, keyName: keyof Layout) => void;
 };
 
-const FieldsMap: FC<Props> = ({ fields, onChange, selectedSettings }) => {
+const FieldsMap: FC<Props> = ({ fields, onUpdateMapping, selectedSettings }) => {
+  const onChange = useCallback((field: FieldMeta["id"], keyName: "detailView"|"listView") => {
+    if (!field) {
+      return;
+    }
+
+    const newValue = selectedSettings[keyName] || [];
+    const index = newValue.indexOf(field);
+
+    if (index === -1) {
+      // Value not found, add it to the array
+      newValue.push(field);
+    } else {
+      // Value found, remove it from the array
+      newValue.splice(index, 1);
+    }
+
+    onUpdateMapping(newValue, keyName);
+  }, [onUpdateMapping, selectedSettings]);
+
   if (!fields.length) {
     return (
       <PP3Medium>No fields found</PP3Medium>

@@ -26,7 +26,7 @@ export type Settings = {
   default_comment_on_ticket_reply?: boolean;
   default_comment_on_ticket_note?: boolean;
   ticket_subject_as_issue_summary?: boolean;
-  mapping?: string; // "{ "detailView": [], "listView": [] }"
+  mapping?: string; // stringified Layout type
 };
 
 export type Layout = {
@@ -34,6 +34,7 @@ export type Layout = {
   listView: string[];
   project?: ProjectElement["id"];
   issuetype?: Issuetype["id"];
+  enableMapping?: boolean;
 };
 
 /** Jira */

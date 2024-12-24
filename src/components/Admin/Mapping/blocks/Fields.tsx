@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { TSpan, Stack, Toggle, PP3Medium } from "@deskpro/deskpro-ui";
 import { FieldsMap } from "./FieldsMap";
 import type { FC } from "react";
@@ -8,18 +7,24 @@ import type { FieldMeta } from "../../../../api/types/types";
 type Props = {
   fields: FieldMeta[];
   selectedSettings: Partial<Layout>;
-  onChange: (fieldId: FieldMeta["id"], type: keyof Layout) => void;
+  onUpdateEnableMapping: () => void;
+  onUpdateMapping: (value: Array<FieldMeta["id"]>, keyName: keyof Layout) => void;
 };
 
-const Fields: FC<Props> = (props) => {
-  const [isShow, setIsShow] = useState<boolean>(false);
+const Fields: FC<Props> = ({
+  fields,
+  selectedSettings,
+  onUpdateMapping,
+  onUpdateEnableMapping,
+}) => {
+  const isShow = Boolean(selectedSettings.enableMapping);
 
   return (
     <>
       <Stack align="center" gap={8} style={{ marginBottom: "10px" }}>
           <Toggle
-            checked={isShow}
-            onChange={() => setIsShow(!isShow)}
+            checked={Boolean(selectedSettings.enableMapping)}
+            onChange={onUpdateEnableMapping}
           />
         <div>
           <PP3Medium>Custom field mapping</PP3Medium>
@@ -29,7 +34,13 @@ const Fields: FC<Props> = (props) => {
         </div>
       </Stack>
 
-      {isShow && <FieldsMap {...props} />}
+      {isShow && (
+        <FieldsMap
+          fields={fields}
+          onUpdateMapping={onUpdateMapping}
+          selectedSettings={selectedSettings}
+        />
+      )}
     </>
   );
 };

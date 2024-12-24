@@ -1,10 +1,11 @@
+import { useCallback, useEffect, useState } from "react";
 import {
   LoadingSpinner,
   useDeskproAppEvents,
   useInitialisedDeskproAppClient,
 } from "@deskpro/app-sdk";
-import { useEffect, useState } from "react";
 import { useMetadata } from "./hooks";
+import defaultMapping from "../../mapping/issue.json";
 import { Mapping } from "../../components/Admin";
 import type { Settings, Layout } from "../../types";
 import type { FieldMeta } from "../../api/types/types";
@@ -33,43 +34,31 @@ export const AdminSettings = () => {
     setSelectedSettings(JSON.parse(settings.mapping || "{}") as Partial<Layout>);
   }, [settings, hasSetSelectedSettings]);
 
-  useInitialisedDeskproAppClient(
-    (client) => {
-      if (Object.keys(selectedSettings).length === 0) return;
-      client.setAdminSetting(JSON.stringify(selectedSettings));
-    },
-    [selectedSettings],
-  );
+  useInitialisedDeskproAppClient((client) => {
+    if (Object.keys(selectedSettings).length === 0) {
+      return;
+    }
 
-  const updateSettings = (
-    // eslint-disable-next-line @typescript-eslint/no-duplicate-type-constituents
-    value: FieldMeta["id"]|ProjectElement["id"]|Issuetype["id"],
-    keyName: keyof Layout,
-  ) => {
-    setSelectedSettings((prevState) => {
-      if (["project", "issuetype"].includes(keyName)) {
-        return {
-          ...prevState,
-          [keyName]: value,
-        };
-      }
+    client.setAdminSetting(JSON.stringify(selectedSettings));
+  }, [selectedSettings]);
 
-      const newArray = [...(prevState[keyName] || [])];
-      const index = newArray.indexOf(`${value}`);
+  const onUpdateProject = useCallback((project: ProjectElement["id"]) => {
+    setSelectedSettings((prevState) => ({ ...prevState, project }));
+  }, []);
 
-      if (index === -1) {
-        // Value not found, add it to the array
-        newArray.push(`${value}`);
-      } else {
-        // Value found, remove it from the array
-        newArray.splice(index, 1);
-      }
+  const onUpdateIssueType = useCallback((issuetype: Issuetype["id"]) => {
+    setSelectedSettings((prevState) => ({ ...prevState, issuetype }));
+  }, []);
 
-      return {
-        ...prevState,
-        [keyName]: newArray,
-      };
-    });
+  const onUpdateEnableMapping = useCallback(() => {
+    setSelectedSettings((prevState) => ({
+      ...prevState,
+      enableMapping: !selectedSettings.enableMapping,
+    }));
+  }, [selectedSettings]);
+
+  const onUpdateMapping = (value: Array<FieldMeta["id"]>, keyName: keyof Layout) => {
+    setSelectedSettings((prevState) => ({ ...prevState, [keyName]: value }));
   };
 
 
@@ -85,11 +74,18 @@ export const AdminSettings = () => {
 
   return (
     <Mapping
-      onChange={updateSettings}
+      onUpdateMapping={onUpdateMapping}
+      onUpdateProject={onUpdateProject}
+      onUpdateIssueType={onUpdateIssueType}
+      onUpdateEnableMapping={onUpdateEnableMapping}
       fields={fields}
       projectOptions={projectOptions}
       issueTypeOptions={issueTypeOptions}
-      selectedSettings={selectedSettings}
+      selectedSettings={{
+        ...selectedSettings,
+        detailView: selectedSettings.detailView || defaultMapping.view,
+        listView: selectedSettings.listView || defaultMapping.main,
+      }}
     />
   );
 };
