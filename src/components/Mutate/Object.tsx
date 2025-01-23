@@ -61,7 +61,7 @@ export const MutateObject = ({ objectId }: Props) => {
     watch,
     reset,
   } = useForm<JiraIssueSchema>({
-    resolver: zodResolver(schema!),
+    resolver: schema ? zodResolver(schema) : undefined
   });
 
   const values = watch();
