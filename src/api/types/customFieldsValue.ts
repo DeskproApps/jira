@@ -18,7 +18,6 @@ export type CustomFieldValue =
   | boolean
   | SprintValue
   | ADFEntity
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   | unknown
 ;
 
