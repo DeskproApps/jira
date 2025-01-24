@@ -59,7 +59,7 @@ importers:
       javascript-time-ago:
         specifier: ^2.5.11
         version: 2.5.11
-      lodash:
+      lodash-es:
         specifier: ^4.17.21
         version: 4.17.21
       polished:
