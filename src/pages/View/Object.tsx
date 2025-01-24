@@ -125,7 +125,7 @@ export const ViewObject = () => {
           externalChildUrl={IssueJson.externalChildUrl}
           childTitleAccessor={(e) => e[IssueJson.titleKeyName] as string}
           />
-        <CommentsList issueKey={objectId!} />
+        <CommentsList issueKey={objectId ?? ""} />
       </Stack>
     </Container>
   );

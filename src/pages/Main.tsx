@@ -59,7 +59,7 @@ export const Home: FC = () => {
           data.map(
             async (item) => {
               linkedItems[item.id] = (
-                await client!.getState(`jira/items/${item.id}`)
+                await client?.getState(`jira/items/${item.id}`)
               )?.[0]?.data as number;
             },
             {} as Record<string, number>,
