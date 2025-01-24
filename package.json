@@ -43,7 +43,6 @@
     "react-resize-observer": "^1.1.1",
     "react-router-dom": "^6.28.1",
     "react-time-ago": "^7.3.3",
-    "semver": "7.5.2",
     "styled-components": "^6.1.14",
     "ts-pattern": "^4.2.2",
     "use-debounce": "^9.0.3",
