@@ -4,7 +4,7 @@ import {
   useMutationWithClient,
 } from "@deskpro/app-sdk";
 import { Button, P8, Stack, TextArea } from "@deskpro/deskpro-ui";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { addIssueComment } from "../../api/api";
 import { Container } from "../../components/Layout";
@@ -53,7 +53,7 @@ export const CreateComment = () => {
     <Container>
       <Stack vertical style={{ width: "100%", marginBottom: "10px" }} gap={5}>
         <P8>New Comment</P8>
-        <TextArea onChange={(e) => setComment(e.target.value)} />
+        <TextArea onChange={(event: ChangeEvent<HTMLTextAreaElement>) => setComment(event.target.value)} />
       </Stack>
       <Stack style={{ width: "100%", justifyContent: "space-between" }}>
         <Button

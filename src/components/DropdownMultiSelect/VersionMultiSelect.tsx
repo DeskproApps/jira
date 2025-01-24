@@ -44,8 +44,8 @@ const Item: FC<{
 }) => {
   return (
     <ItemContainer
-      onClick={(e) => {
-        e.preventDefault();
+      onClick={(event: MouseEvent) => {
+        event.preventDefault();
         onRemove(version.id);
       }}
     >
