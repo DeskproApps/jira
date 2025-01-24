@@ -14,9 +14,13 @@ export const CreateComment = () => {
   const navigate = useNavigate();
   const { issueKey } = useParams();
 
-  const submitMutation = useMutationWithClient((client) =>
-    addIssueComment(client, issueKey!, comment),
-  );
+  const submitMutation = useMutationWithClient((client) => {
+    if (issueKey) {
+      return addIssueComment(client, issueKey, comment);
+    } else {
+      throw new Error('no issue key found from URL parameters');
+    };
+  });
 
   useEffect(() => {
     if (submitMutation.isSuccess) {
