@@ -133,8 +133,8 @@ export const DropdownMultiSelect = ({
                       borderRadius: "5px",
                     }}
                     key={idx}
-                    onClick={(e) => {
-                      e.preventDefault();
+                    onClick={(event: MouseEvent) => {
+                      event.preventDefault();
                       onChange(vals.filter((v) => valueAccessor(v) !== val));
                     }}
                   >

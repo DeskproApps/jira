@@ -14,7 +14,7 @@ import {
   Stack,
 } from "@deskpro/deskpro-ui";
 import { faMagnifyingGlass, faTimes } from "@fortawesome/free-solid-svg-icons";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useDebounce from "../../hooks/debounce";
 import { useLinkIssues } from "../../hooks/hooks";
@@ -114,7 +114,7 @@ export const LinkContact = () => {
       <Stack vertical gap={6} style={{ width: "100%" }}>
         <Input
           ref={searchInputRef}
-          onChange={(e) => setPrompt(e.target.value)}
+          onChange={(event: ChangeEvent<HTMLInputElement>) => setPrompt(event.target.value)}
           value={prompt}
           placeholder="Enter Issue Title"
           type="text"
