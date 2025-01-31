@@ -276,8 +276,11 @@ export const Home: FC = () => {
 
   const loading = linkedIssuesQuery.isLoading;
 
-  if (loading || hasMappedFields === undefined || !context)
-    return <LoadingSpinner />;
+  if (loading || hasMappedFields === undefined || !context) {
+    return (
+      <LoadingSpinner />
+    );
+  }
 
   if (linkedIssues.length === 0 && !searchQuery) navigate("/findOrCreate");
 

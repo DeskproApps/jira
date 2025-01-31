@@ -126,10 +126,8 @@ export const MutateObject = ({ objectId }: Props) => {
 
     if (isEditMode) return;
 
-    if (!data.project || !data.issuetype) return;
-
-    setValue("project", { id: data.project });
-    setValue("issuetype", { id: data.issuetype });
+    data.project && setValue("project", { id: data.project });
+    data.issuetype && setValue("issuetype", { id: data.issuetype });
   }, [context, setValue, isEditMode]);
 
   useEffect(() => {
