@@ -31,6 +31,13 @@
     }
   },
   "settings": {
+    "use_deskpro_saas": {
+      "title": "Use Deskpro SaaS",
+      "type": "boolean",
+      "isRequired": false,
+      "isBackendOnly": false,
+      "order": 5
+    },
     "domain": {
       "title": "Domain Prefix",
       "description": "E.g. \"mycompany\" if your domain is \"https://mycompany.atlassian.net\"",
