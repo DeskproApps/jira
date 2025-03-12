@@ -1,6 +1,10 @@
 import { IDeskproClient, proxyFetch } from '@deskpro/app-sdk';
 import { OAUTH2_ACCESS_TOKEN_PATH } from '../constants';
 
+type Resources = {
+    id: string;
+}[];
+
 interface CheckIsAuth {
     client: IDeskproClient;
 };
@@ -19,7 +23,7 @@ export async function checkIsAuth({ client }: CheckIsAuth) {
             throw new Error('error checking authentication status');
         };
 
-        const data = await response.json();
+        const data = await response.json() as Resources;
 
         return data;
     } catch (error) {

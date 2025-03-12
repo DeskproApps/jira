@@ -22,7 +22,7 @@ export const FindOrCreate = ({ pageParam }: { pageParam?: 0 | 1 }) => {
   });
 
   useDeskproAppEvents({
-    // @ts-ignore
+    // @ts-expect-error parameters
     onElementEvent(_: string, __: string, payload: Payload) {
       switch (payload.type) {
         case 'logOut':

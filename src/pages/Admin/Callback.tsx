@@ -4,10 +4,11 @@ import styled from 'styled-components';
 import { CopyToClipboardInput, LoadingSpinner, useInitialisedDeskproAppClient } from '@deskpro/app-sdk';
 import { P1 } from '@deskpro/deskpro-ui';
 import { SCOPE } from '../../constants';
+import { Theme } from '../../types';
 
 const Description = styled(P1)`
     margin-top: 8px;
-    color: ${({ theme }) => theme.colors.grey80};
+    color: ${({ theme }: Theme) => theme.colors.grey80};
 `;
 
 export function AdminCallback() {

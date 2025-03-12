@@ -392,8 +392,6 @@ export const getCreateMeta = async (
   client: IDeskproClient,
   settings?: Settings,
 ): Promise<CreateMeta> => {
-  const isAdmin = Boolean(settings?.domain);
-
   const res = await request<CreateMeta>(client, "GET", '/issue/createmeta', undefined, settings);
 
   return res;

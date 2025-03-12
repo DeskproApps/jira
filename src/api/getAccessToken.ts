@@ -1,4 +1,4 @@
-import { IDeskproClient, proxyFetch } from '@deskpro/app-sdk';
+import { IDeskproClient, OAuth2Result, proxyFetch } from '@deskpro/app-sdk';
 
 interface GetAccessToken {
     client: IDeskproClient;
@@ -28,7 +28,7 @@ export async function getAccessToken({ client, code, redirectURI }: GetAccessTok
             throw new Error('error getting access token');
         };
 
-        const data = await response.json();
+        const data = await response.json() as OAuth2Result['data'];
 
         return {access_token: data.access_token};
     } catch (error) {

@@ -42,7 +42,7 @@ export const Home: FC = () => {
   const { logOut } = useLogOut();
 
   useDeskproAppEvents({
-    // @ts-ignore
+    // @ts-expect-error parameters
     onElementEvent(_: string, __: string, payload: Payload) {
       switch (payload.type) {
         case 'logOut':

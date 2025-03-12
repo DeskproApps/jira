@@ -1,4 +1,5 @@
 import type { Context } from "@deskpro/app-sdk";
+import { DeskproTheme } from '@deskpro/deskpro-ui';
 
 /** common */
 export type RequiredProps<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
@@ -178,3 +179,5 @@ export type JiraIssueSchema = {
 
 export type Payload = 
     | {type: 'logOut'};
+
+export type Theme = {theme: DeskproTheme};

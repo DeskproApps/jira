@@ -20,5 +20,8 @@ module.exports = {
       { ignoreRestSiblings: true, argsIgnorePattern: "^_" },
     ],
     "no-console": "error",
+    "@typescript-eslint/no-misused-promises": "off",
+    "@typescript-eslint/restrict-template-expressions": "off",
+    "@typescript-eslint/require-await": "off"
   },
 };

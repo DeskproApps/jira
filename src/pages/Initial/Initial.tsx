@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LoadingSpinner, useDeskproLatestAppContext, useInitialisedDeskproAppClient } from '@deskpro/app-sdk';
-import { CLOUD_ID_PATH, IS_USING_OAUTH2, OAUTH2_ACCESS_TOKEN_PATH } from '../../constants';
+import { CLOUD_ID_PATH, IS_USING_OAUTH2 } from '../../constants';
 import { Settings } from '../../types';
 import { checkIsAuth } from '../../api/checkIsAuth';
 
@@ -38,7 +38,7 @@ export function Initial() {
         if (isLoggedIn) {
             navigate('/home');
         };
-    }, [isLoggedIn]);
+    }, [isLoggedIn, navigate]);
 
     return <LoadingSpinner />
 };

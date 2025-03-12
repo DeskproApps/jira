@@ -3,6 +3,7 @@ import { createSearchParams, useNavigate } from 'react-router-dom';
 import { Title, useDeskproElements, useDeskproLatestAppContext, useInitialisedDeskproAppClient } from '@deskpro/app-sdk';
 import { AnchorButton } from '@deskpro/deskpro-ui';
 import { Container } from '../../components/Layout';
+import { ErrorBlock } from '../../components/Error/ErrorBlock';
 import { getAccessToken } from '../../api/getAccessToken';
 import setAccessToken from '../../api/setAccessToken';
 import { GLOBAL_CLIENT_ID, SCOPE } from '../../constants';
@@ -14,6 +15,7 @@ export function LogIn() {
     const callbackURLRef = useRef('');
     const [authorisationURL, setAuthorisationURL] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
 
     useDeskproElements(({ deRegisterElement }) => {
         deRegisterElement('addIssue');
@@ -71,6 +73,7 @@ export function LogIn() {
 
             navigate('/');
         } catch (error) {
+            setError(error instanceof Error ? error.message : 'error polling');
         } finally {
             setIsLoading(false);
         };
@@ -92,6 +95,7 @@ export function LogIn() {
                 disabled={!authorisationURL || isLoading}
                 onClick={onLogIn}
             />
+            {error && <ErrorBlock text={error} />}
         </Container>
     );
 };
