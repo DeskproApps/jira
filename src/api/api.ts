@@ -24,8 +24,7 @@ import {
   GroupsPicker,
 } from "./types/types";
 import { SprintValue, CustomFieldValue, CustomFieldsValues } from "./types/customFieldsValue";
-// JIRA REST API Base URL
-const API_BASE_URL = "https://__domain__.atlassian.net/rest/api/3";
+import { CLOUD_ID_PATH, IS_USING_OAUTH2, OAUTH2_ACCESS_TOKEN_PATH } from '../constants';
 
 // Key for search dependency caching (milliseconds)
 
@@ -33,7 +32,7 @@ const API_BASE_URL = "https://__domain__.atlassian.net/rest/api/3";
  * Fetch a single JIRA issue by key, e.g. "DP-1"
  */
 export const getIssueByKey = async (client: IDeskproClient, key: string) =>
-  request<IssueBean>(client, "GET", `${API_BASE_URL}/issue/${key}?expand=editmeta`);
+  request<IssueBean>(client, "GET", `/issue/${key}?expand=editmeta`);
 
 /**
  * Add remote link
@@ -45,7 +44,7 @@ export const addRemoteLink = async (
   subject: string,
   url: string,
 ) =>
-  request<Schemas["RemoteIssueLinkIdentifies"]>(client, "POST", `${API_BASE_URL}/issue/${key}/remotelink`, {
+  request<Schemas["RemoteIssueLinkIdentifies"]>(client, "POST", `/issue/${key}/remotelink`, {
     globalId: remoteLinkGlobalId(ticketId),
     object: {
       url,
@@ -64,7 +63,7 @@ export const getIssueComments = async (
   const data = await request<{ comments: Array<IssueComment> }>(
     client,
     "GET",
-    `${API_BASE_URL}/issue/${key}/comment?expand=renderedBody`,
+    `/issue/${key}/comment?expand=renderedBody`,
   );
 
   if (data.comments?.length === 0) {
@@ -96,7 +95,7 @@ export const addIssueComment = async (
   key: string,
   comment: string,
 ) =>
-  request<IssueComment>(client, "POST", `${API_BASE_URL}/issue/${key}/comment`, {
+  request<IssueComment>(client, "POST", `/issue/${key}/comment`, {
     body: paragraphDoc(comment),
   });
 
@@ -109,7 +108,7 @@ export const addUnlinkCommentToIssue = async (
   ticketId: string,
   url: string,
 ) =>
-  request<IssueComment>(client, "POST", `${API_BASE_URL}/issue/${key}/comment`, {
+  request<IssueComment>(client, "POST", `/issue/${key}/comment`, {
     body: removeBacklinkCommentDoc(ticketId, url),
   });
 
@@ -121,10 +120,10 @@ export const searchIssues = async (
   q: string,
   params: SearchParams = {},
 ): Promise<SearchIssueItem[]> => {
-  const url = `${API_BASE_URL}/issue/picker?query=${q}&currentJQL=&showSubTasks=${
+  const endpoint = `/issue/picker?query=${q}&currentJQL=&showSubTasks=${
     params.withSubtask ? "true" : "false"
   }${params.projectId ? `&currentProjectId=${params.projectId}` : ""}`;
-  const { sections } = await request<IssuesPicker>(client, "GET", url);
+  const { sections } = await request<IssuesPicker>(client, "GET", endpoint);
   const { issues: searchIssues } = (sections ?? []).find((s) => s.id === "cs") || {};
   const keys = (searchIssues ?? []).map((i) => i.key);
 
@@ -136,7 +135,7 @@ export const searchIssues = async (
   const { issues: fullIssues } = await request<SearchIssues>(
     client,
     "GET",
-    `${API_BASE_URL}/search?jql=${issueJql}&expand=editmeta`,
+    `/search?jql=${issueJql}&expand=editmeta`,
   );
 
   const issues: Record<IssueBean["key"], IssueBean> = (fullIssues ?? []).reduce((list, issue) => ({
@@ -168,7 +167,7 @@ export const searchIssues = async (
     const { issues: fullEpics } = await request<SearchIssues>(
       client,
       "GET",
-      `${API_BASE_URL}/search?jql=${epicJql}`,
+      `/search?jql=${epicJql}`,
     );
 
     epics = (fullEpics ?? []).reduce((list, issue) => ({
@@ -215,7 +214,7 @@ export const listLinkedIssues = async (
   const { issues: fullIssues } = await request<SearchIssues>(
     client,
     "GET",
-    `${API_BASE_URL}/search?jql=${issueJql}&expand=editmeta`,
+    `/search?jql=${issueJql}&expand=editmeta`,
   );
 
   const epicKeys: Record<IssueBean["key"], FieldMeta["key"]> = (fullIssues ?? []).reduce((list, issue) => {
@@ -253,7 +252,7 @@ export const listLinkedIssues = async (
     const { issues: fullEpics } = await request<SearchIssues>(
       client,
       "GET",
-      `${API_BASE_URL}/search?jql=${epicJql}`,
+      `/search?jql=${epicJql}`,
     );
 
     epics = (fullEpics ?? []).reduce((list, issue) => ({
@@ -290,12 +289,7 @@ export const getFields = async (
   client: IDeskproClient,
   settings?: Settings,
 ): Promise<FieldMeta[]> => {
-  const isAdmin = Boolean(settings?.domain);
-  const baseUrl = isAdmin
-    ? `https://${settings?.domain}.atlassian.net/rest/api/3/field`
-    : `${API_BASE_URL}/field`;
-
-  return request<FieldMeta[]>(client, "GET", baseUrl, undefined, settings)
+  return request<FieldMeta[]>(client, "GET", '/field', undefined, settings)
 };
 
 export const createIssue = async (
@@ -313,7 +307,7 @@ export const createIssue = async (
     },
   };
 
-  const res = await request<IssueBean>(client, "POST", `${API_BASE_URL}/issue`, body);
+  const res = await request<IssueBean>(client, "POST", '/issue', body);
 
   if ((res as unknown as ErrorResponse)?.errors || (res as unknown as ErrorResponse)?.errorMessages) {
     throw new InvalidRequestResponseError("Failed to create JIRA issue", res as unknown as ErrorResponse);
@@ -328,7 +322,7 @@ export const createIssue = async (
         return request(
           client,
           "POST",
-          `${API_BASE_URL}/issue/${res.key}/attachments`,
+          `/issue/${res.key}/attachments`,
           form,
         );
       }
@@ -355,7 +349,7 @@ export const updateIssue = async (
   const res = await request<IssueBean>(
     client,
     "PUT",
-    `${API_BASE_URL}/issue/${issueKey}`,
+    `/issue/${issueKey}`,
     body,
   );
 
@@ -373,7 +367,7 @@ export const updateIssue = async (
           return request(
             client,
             "POST",
-            `${API_BASE_URL}/issue/${issueKey}/attachments`,
+            `/issue/${issueKey}/attachments`,
             form,
           );
         }
@@ -382,7 +376,7 @@ export const updateIssue = async (
           return request(
             client,
             "DELETE",
-            `${API_BASE_URL}/attachment/${attachment.id}`,
+            `/attachment/${attachment.id}`,
           );
         }
       },
@@ -399,11 +393,8 @@ export const getCreateMeta = async (
   settings?: Settings,
 ): Promise<CreateMeta> => {
   const isAdmin = Boolean(settings?.domain);
-  const baseUrl = isAdmin
-    ? `https://${settings?.domain}.atlassian.net/rest/api/3/issue/createmeta`
-    : `${API_BASE_URL}/issue/createmeta`;
 
-  const res = await request<CreateMeta>(client, "GET", baseUrl, undefined, settings);
+  const res = await request<CreateMeta>(client, "GET", '/issue/createmeta', undefined, settings);
 
   return res;
 };
@@ -416,7 +407,7 @@ export const getProjectCreateMeta = async (
   return request(
     client,
     "GET",
-    `${API_BASE_URL}/issue/createmeta/${projectId}/issuetypes/${issueTypeId}`,
+    `/issue/createmeta/${projectId}/issuetypes/${issueTypeId}`,
   );
 };
 
@@ -427,7 +418,7 @@ export const getVersionsByProjectId = async (
   const res = await request<Version[]>(
     client,
     "GET",
-    `${API_BASE_URL}/project/${projectId}/versions`,
+    `/project/${projectId}/versions`,
   );
 
     return res;
@@ -437,7 +428,7 @@ export const getUsers = async (client: IDeskproClient) => {
   const res = await request(
     client,
     "GET",
-    `${API_BASE_URL}/users/search?maxResults=999`,
+    `/users/search?maxResults=999`,
   );
 
   return res;
@@ -486,28 +477,38 @@ export const getLabels = async (client: IDeskproClient) => {
   const res = await requestWithFetchAll(
     client,
     "GET",
-    `${API_BASE_URL}/label`,
+    `/label`,
   );
 
   return res;
 };
 
 export const getGroups = (client: IDeskproClient) => {
-  return request<GroupsPicker>(client, "GET", `${API_BASE_URL}/groups/picker`);
+  return request<GroupsPicker>(client, "GET", `/groups/picker`);
 };
 
 const request = async <T>(
   client: IDeskproClient,
   method: ApiRequestMethod,
-  url: string,
+  endpoint: string,
   content?: object,
   settings?: Settings,
 ): Promise<T> => {
   const isAdmin = Boolean(settings?.username && settings?.api_key);
   const dpFetch = await (isAdmin ? adminGenericProxyFetch : proxyFetch)(client);
-  const auth = isAdmin
-    ? `Basic ${btoa(`${settings?.username}:${settings?.api_key}`)}`
-    : "Basic __username+':'+api_key.base64__";
+  const isUsingOAuth2 = (await client.getUserState(IS_USING_OAUTH2))[0]?.data;
+  const cloudID = (await client.getUserState(CLOUD_ID_PATH))[0]?.data;
+
+  const baseURL = isUsingOAuth2 ? `https://api.atlassian.com/ex/jira/${cloudID}/rest/api/2`
+    : isAdmin
+      ? `https://${settings?.domain}.atlassian.net/rest/api/3`
+      : `https://__domain__.atlassian.net/rest/api/3`;
+  const url = baseURL + endpoint;
+
+  const auth = isUsingOAuth2 ? `Bearer [user[${OAUTH2_ACCESS_TOKEN_PATH}]]`
+    : isAdmin
+      ? `Basic ${btoa(`${settings?.username}:${settings?.api_key}`)}`
+      : "Basic __username+':'+api_key.base64__";
 
   let body = undefined;
 

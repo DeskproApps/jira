@@ -3,6 +3,7 @@ import { createSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { CopyToClipboardInput, LoadingSpinner, useInitialisedDeskproAppClient } from '@deskpro/app-sdk';
 import { P1 } from '@deskpro/deskpro-ui';
+import { SCOPE } from '../../constants';
 
 const Description = styled(P1)`
     margin-top: 8px;
@@ -21,7 +22,7 @@ export function AdminCallback() {
                     ['client_id', 'clientID'],
                     ['state', state],
                     ['audience', 'api.atlassian.com'],
-                    ['scope', 'WRITE'],
+                    ['scope', SCOPE],
                     ['prompt', 'consent'],
                     ['response_type', 'code'],
                     ['redirect_uri', callbackUrl]

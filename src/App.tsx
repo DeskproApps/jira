@@ -21,6 +21,8 @@ import { AdminSettings } from "./pages/Admin/Settings";
 import { VerifySettings } from "./pages/VerifySettings/VerifySettings";
 import { CreateComment } from "./pages/Create/Comment";
 import { AdminCallback } from './pages/Admin/Callback';
+import { LogIn } from './pages/LogIn/LogIn';
+import { Initial } from './pages/Initial/Initial';
 
 export const App = () => {
   useInitialisedDeskproAppClient((client) => {
@@ -39,7 +41,7 @@ export const App = () => {
                 <Routes>
                   <Route path="/">
                     <Route path="redirect" element={<Redirect />} />
-                    <Route index element={<Main />} />
+                    <Route path='/home' element={<Main />} />
                     <Route path="create">
                       <Route path="" element={<CreateObject />} />
                       <Route path="comment/:issueKey" element={<CreateComment />} />
@@ -50,10 +52,12 @@ export const App = () => {
                     <Route path="/findOrCreate" element={<FindOrCreate />} />
                     <Route path="admin_mapping" element={<AdminSettings />} />
                     <Route path='admin/callback' element={<AdminCallback />} />
+                    <Route path='log_in' element={<LogIn />} />
                     <Route path="verifySettings" element={<VerifySettings />} />
                     <Route path="view">
                       <Route path=":objectView/:objectId" element={<ViewObject />} />
                     </Route>
+                    <Route index element={<Initial />} />
                   </Route>
                 </Routes>
               </ErrorBoundary>

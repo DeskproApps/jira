@@ -157,6 +157,22 @@
           "DELETE"
         ],
         "timeout": 50
+      },
+      {
+        "url": "https://auth.atlassian.com/.*",
+        "methods": [
+          "GET",
+          "POST"
+        ],
+        "timeout": 50
+      },
+      {
+        "url": "https://api.atlassian.com/.*",
+        "methods": [
+          "GET",
+          "POST"
+        ],
+        "timeout": 50
       }
     ]
   }
