@@ -20,6 +20,7 @@ import { EditObject } from "./pages/Edit/Edit";
 import { AdminSettings } from "./pages/Admin/Settings";
 import { VerifySettings } from "./pages/VerifySettings/VerifySettings";
 import { CreateComment } from "./pages/Create/Comment";
+import { AdminCallback } from './pages/Admin/Callback';
 
 export const App = () => {
   useInitialisedDeskproAppClient((client) => {
@@ -48,6 +49,7 @@ export const App = () => {
                     </Route>
                     <Route path="/findOrCreate" element={<FindOrCreate />} />
                     <Route path="admin_mapping" element={<AdminSettings />} />
+                    <Route path='admin/callback' element={<AdminCallback />} />
                     <Route path="verifySettings" element={<VerifySettings />} />
                     <Route path="view">
                       <Route path=":objectView/:objectId" element={<ViewObject />} />
