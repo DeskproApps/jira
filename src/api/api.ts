@@ -496,8 +496,8 @@ const request = async <T>(
 ): Promise<T> => {
   const isAdmin = Boolean(settings?.username && settings?.api_key);
   const dpFetch = await (isAdmin ? adminGenericProxyFetch : proxyFetch)(client);
-  const isUsingOAuth2 = (await client.getUserState(IS_USING_OAUTH2))[0]?.data;
-  const cloudID = (await client.getUserState(CLOUD_ID_PATH))[0]?.data;
+  const isUsingOAuth2 = (await client.getUserState<boolean>(IS_USING_OAUTH2))[0]?.data;
+  const cloudID = (await client.getUserState<string>(CLOUD_ID_PATH))[0]?.data;
 
   const baseURL = isUsingOAuth2 ? `https://api.atlassian.com/ex/jira/${cloudID}/rest/api/2`
     : isAdmin
