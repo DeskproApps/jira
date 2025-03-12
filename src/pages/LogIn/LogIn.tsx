@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 import { createSearchParams, useNavigate } from 'react-router-dom';
-import { Title, useDeskproLatestAppContext, useInitialisedDeskproAppClient } from '@deskpro/app-sdk';
+import { Title, useDeskproElements, useDeskproLatestAppContext, useInitialisedDeskproAppClient } from '@deskpro/app-sdk';
 import { AnchorButton } from '@deskpro/deskpro-ui';
 import { Container } from '../../components/Layout';
 import { getAccessToken } from '../../api/getAccessToken';
@@ -14,6 +14,11 @@ export function LogIn() {
     const callbackURLRef = useRef('');
     const [authorisationURL, setAuthorisationURL] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+
+    useDeskproElements(({ deRegisterElement }) => {
+        deRegisterElement('addIssue');
+        deRegisterElement('homeButton');
+    });
 
     useInitialisedDeskproAppClient(async client => {
         if (context?.settings.use_deskpro_saas === undefined) {

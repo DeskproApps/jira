@@ -175,3 +175,6 @@ export type JiraIssueSchema = {
   issuetype: { id: string };
   [key: string]: unknown;
 };
+
+export type Payload = 
+    | {type: 'logOut'};

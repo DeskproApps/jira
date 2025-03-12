@@ -9,7 +9,8 @@ import { ErrorFallback } from "./components/ErrorFallback/ErrorFallback";
 import { Home as Main } from "./pages/Main";
 import {
   LoadingSpinner,
-  useInitialisedDeskproAppClient,
+  useDeskproElements,
+  useDeskproLatestAppContext
 } from "@deskpro/app-sdk";
 import { Redirect } from "./components/Redirect/Redirect";
 import { queryClient } from "./query";
@@ -23,11 +24,24 @@ import { CreateComment } from "./pages/Create/Comment";
 import { AdminCallback } from './pages/Admin/Callback';
 import { LogIn } from './pages/LogIn/LogIn';
 import { Initial } from './pages/Initial/Initial';
+import { Settings } from './types';
 
 export const App = () => {
-  useInitialisedDeskproAppClient((client) => {
-    client.registerElement("refresh", {
-      type: "refresh_button",
+  const { context } = useDeskproLatestAppContext<unknown, Settings>();
+
+  useDeskproElements(({ clearElements, registerElement }) => {
+    const isUsingOAuth2 = context?.settings.use_api_key !== true;
+
+    clearElements();
+    registerElement('refresh', { type: 'refresh_button' });
+    isUsingOAuth2 && registerElement('menu', {
+      type: 'menu',
+      items: [{
+        title: 'Log Out',
+        payload: {
+          type: 'logOut'
+        }
+      }]
     });
   });
 
