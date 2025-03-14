@@ -37,13 +37,14 @@
       "type": "boolean",
       "isRequired": false,
       "isBackendOnly": false,
+      "default": true,
       "order": 1
     },
     "use_api_key": {
       "title": "Use API Key",
       "type": "boolean",
       "isRequired": false,
-      "isBackendOnly": true,
+      "isBackendOnly": false,
       "order": 2
     },
     "domain": {
@@ -88,8 +89,7 @@
       "isRequired": false,
       "isBackendOnly": false,
       "condition": "settings.use_deskpro_saas != true && settings.use_api_key != true",
-      "order": 7,
-      "default": "NT9DrEdgvfVwthjzOx4VC5NGJnyuJk8W"
+      "order": 7
     },
     "client_secret": {
       "title": "Client Secret",
@@ -97,8 +97,7 @@
       "isRequired": false,
       "isBackendOnly": true,
       "condition": "settings.use_deskpro_saas != true && settings.use_api_key != true",
-      "order": 8,
-      "default": "ATOAQFjaiTHBAvfQUX28XKc70BV3EbO0HdydvSOJ5djyaTU_VmUkPtj7m6CcNsRpmbTd0E75757A"
+      "order": 8
     },
     "callback_url": {
       "title": "Callback URL",
