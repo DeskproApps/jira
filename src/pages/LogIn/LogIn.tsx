@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 import { createSearchParams, useNavigate } from 'react-router-dom';
-import { Title, useDeskproElements, useDeskproLatestAppContext, useInitialisedDeskproAppClient } from '@deskpro/app-sdk';
+import { IOAuth2, Title, useDeskproElements, useDeskproLatestAppContext, useInitialisedDeskproAppClient } from '@deskpro/app-sdk';
 import { AnchorButton } from '@deskpro/deskpro-ui';
 import { Container } from '../../components/Layout';
 import { ErrorBlock } from '../../components/Error/ErrorBlock';
@@ -13,7 +13,9 @@ export function LogIn() {
     const { context } = useDeskproLatestAppContext<unknown, Settings>();
     const navigate = useNavigate();
     const callbackURLRef = useRef('');
+    const [oAuth2Context, setOAuth2Context] = useState<IOAuth2 | null>(null);
     const [authorisationURL, setAuthorisationURL] = useState('');
+    const [isPolling, setIsPolling] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -38,7 +40,7 @@ export function LogIn() {
             return;
         };
 
-        const oauth2 = mode === 'global' ? await client.startOauth2Global(GLOBAL_CLIENT_ID) : await client.startOauth2Local(
+        const oauth2Response = mode === 'global' ? await client.startOauth2Global(GLOBAL_CLIENT_ID) : await client.startOauth2Local(
             ({ callbackUrl, state }) => {
                 callbackURLRef.current = callbackUrl;
 
@@ -64,23 +66,38 @@ export function LogIn() {
             }
         );
 
-        setAuthorisationURL(oauth2.authorizationUrl);
+        setAuthorisationURL(oauth2Response.authorizationUrl);
+        setOAuth2Context(oauth2Response);
+    }, [context]);
 
-        try {
-            const pollResult = await oauth2.poll();
-
-            await setAccessToken({ client, token: pollResult.data.access_token });
-
-            navigate('/');
-        } catch (error) {
-            setError(error instanceof Error ? error.message : 'error polling');
-        } finally {
-            setIsLoading(false);
+    useInitialisedDeskproAppClient(client => {
+        if (!oAuth2Context) {
+            return;
         };
-    }, [context, navigate]);
+
+        const startPolling = async () => {
+            try {
+                const pollResult = await oAuth2Context.poll();
+    
+                await setAccessToken({ client, token: pollResult.data.access_token });
+    
+                navigate('/');
+            } catch (error) {
+                setError(error instanceof Error ? error.message : 'error polling');
+            } finally {
+                setIsPolling(false);
+                setIsLoading(false);
+            };
+        };
+
+        if (isPolling) {
+            startPolling();
+        };
+    }, [oAuth2Context, navigate, isPolling]);
 
     const onLogIn = useCallback(() => {
         setIsLoading(true);
+        setIsPolling(true);
         window.open(authorisationURL, '_blank');
       }, [setIsLoading, authorisationURL]);
 
