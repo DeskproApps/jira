@@ -9,4 +9,4 @@ export const OAUTH2_ACCESS_TOKEN_PATH = 'oauth2/access_token';
 
 export const CLOUD_ID_PATH = 'jiraCloudID';
 
-export const GLOBAL_CLIENT_ID = 'NT9DrEdgvfVwthjzOx4VC5NGJnyuJk8W';
+export const GLOBAL_CLIENT_ID = 'DlpPMLQbqzDkuKitL4hVJa4ZtW5SC0QE';
