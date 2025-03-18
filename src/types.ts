@@ -1,4 +1,5 @@
 import type { Context } from "@deskpro/app-sdk";
+import { DeskproTheme } from '@deskpro/deskpro-ui';
 
 /** common */
 export type RequiredProps<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
@@ -18,10 +19,13 @@ export interface TicketContext extends Context {
 };
 
 export type Settings = {
+  use_deskpro_saas?: boolean;
+  use_api_key?: boolean;
   domain?: string;
   username?: string;
   api_key?: string;
   verify_settings?: string;
+  client_id?: string;
   default_comment_on_ticket_reply?: boolean;
   default_comment_on_ticket_note?: boolean;
   ticket_subject_as_issue_summary?: boolean;
@@ -172,3 +176,8 @@ export type JiraIssueSchema = {
   issuetype: { id: string };
   [key: string]: unknown;
 };
+
+export type Payload = 
+    | {type: 'logOut'};
+
+export type Theme = {theme: DeskproTheme};
