@@ -25,7 +25,7 @@ export function LogIn() {
     });
 
     useInitialisedDeskproAppClient(async client => {
-        if (context?.settings.use_deskpro_saas === undefined) {
+        if (!context?.settings) {
             return;
         };
 
@@ -34,7 +34,7 @@ export function LogIn() {
         };
 
         const clientID = context.settings.client_id;
-        const mode = context?.settings.use_deskpro_saas ? 'global' : 'local';
+        const mode = context?.settings.use_advanced_connect ? 'local' : 'global';
 
         if (mode === 'local' && typeof clientID !== 'string') {
             return;

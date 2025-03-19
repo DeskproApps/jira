@@ -19,7 +19,7 @@ export interface TicketContext extends Context {
 };
 
 export type Settings = {
-  use_deskpro_saas?: boolean;
+  use_advanced_connect?: boolean;
   use_api_key?: boolean;
   domain?: string;
   username?: string;
