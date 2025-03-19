@@ -99,7 +99,7 @@ export function LogIn() {
         setIsLoading(true);
         setIsPolling(true);
         window.open(authorisationURL, '_blank');
-      }, [setIsLoading, authorisationURL]);
+    }, [setIsLoading, authorisationURL]);
 
     return (
         <Container>
