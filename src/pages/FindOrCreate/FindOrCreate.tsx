@@ -1,7 +1,8 @@
 import {
   TwoButtonGroup,
   useDeskproAppEvents,
-  useDeskproElements
+  useDeskproElements,
+  useDeskproLatestAppContext
 } from "@deskpro/app-sdk";
 import { useState } from "react";
 import { faMagnifyingGlass, faPlus } from "@fortawesome/free-solid-svg-icons";
@@ -9,17 +10,34 @@ import { LinkContact } from "../../components/Link/Object";
 import { MutateObject } from "../../components/Mutate/Object";
 import { Container } from "../../components/Layout";
 import { useLogOut } from '../../hooks';
-import { Payload } from '../../types';
+import { Payload, Settings } from '../../types';
 
 export const FindOrCreate = ({ pageParam }: { pageParam?: 0 | 1 }) => {
   const [page, setPage] = useState<0 | 1>(pageParam || 0);
   const { logOut } = useLogOut();
 
-  useDeskproElements(({ deRegisterElement, registerElement }) => {
+  const { context } = useDeskproLatestAppContext<unknown, Settings>();
+
+  useDeskproElements(({ deRegisterElement, registerElement, clearElements }) => {
+    const isUsingOAuth2 = context?.settings.use_api_key !== true;
+
+    clearElements();
     deRegisterElement('menuButton');
-    registerElement('addIssue', {type: 'plus_button'});
-    registerElement('homeButton', {type: 'home_button'});
-  });
+    registerElement('addIssue', { type: 'plus_button' });
+    registerElement('homeButton', { type: 'home_button' });
+
+    if (isUsingOAuth2) {
+      registerElement('menu', {
+        type: 'menu',
+        items: [{
+          title: 'Log Out',
+          payload: {
+            type: 'logOut'
+          }
+        }]
+      });
+    }
+  }, [context?.settings.use_api_key]);
 
   useDeskproAppEvents({
     // @ts-expect-error parameters

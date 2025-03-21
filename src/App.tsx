@@ -34,16 +34,19 @@ export const App = () => {
 
     clearElements();
     registerElement('refresh', { type: 'refresh_button' });
-    isUsingOAuth2 && registerElement('menu', {
-      type: 'menu',
-      items: [{
-        title: 'Log Out',
-        payload: {
-          type: 'logOut'
-        }
-      }]
-    });
-  });
+
+    if (isUsingOAuth2) {
+      registerElement('menu', {
+        type: 'menu',
+        items: [{
+          title: 'Log Out',
+          payload: {
+            type: 'logOut'
+          }
+        }]
+      });
+    }
+  }, [context?.settings.use_api_key]);
 
   return (
     <HashRouter>
