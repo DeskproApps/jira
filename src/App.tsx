@@ -30,7 +30,7 @@ export const App = () => {
   const { context } = useDeskproLatestAppContext<unknown, Settings>();
 
   useDeskproElements(({ clearElements, registerElement }) => {
-    const isUsingOAuth2 = context?.settings.use_api_key !== true;
+    const isUsingOAuth2 = context?.settings.use_advanced_connect === false || context?.settings.use_api_key !== true;
 
     clearElements();
     registerElement('refresh', { type: 'refresh_button' });
@@ -46,7 +46,7 @@ export const App = () => {
         }]
       });
     }
-  }, [context?.settings.use_api_key]);
+  }, [context?.settings.use_advanced_connect, context?.settings.use_api_key]);
 
   return (
     <HashRouter>

@@ -24,7 +24,7 @@ export function Initial() {
             return;
         };
 
-        const isUsingOAuth2 = context?.settings.use_api_key !== true;
+        const isUsingOAuth2 = context?.settings.use_advanced_connect === false || context?.settings.use_api_key !== true;
         
         await client.setUserState(IS_USING_OAUTH2, isUsingOAuth2);
 
