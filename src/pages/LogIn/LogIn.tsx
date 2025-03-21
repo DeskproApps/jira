@@ -22,6 +22,7 @@ export function LogIn() {
     useDeskproElements(({ deRegisterElement }) => {
         deRegisterElement('addIssue');
         deRegisterElement('homeButton');
+        deRegisterElement('menu');
     });
 
     useInitialisedDeskproAppClient(async client => {
