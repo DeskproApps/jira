@@ -19,7 +19,7 @@ export const FindOrCreate = ({ pageParam }: { pageParam?: 0 | 1 }) => {
   const { context } = useDeskproLatestAppContext<unknown, Settings>();
 
   useDeskproElements(({ deRegisterElement, registerElement, clearElements }) => {
-    const isUsingOAuth2 = context?.settings.use_advanced_connect === false || context?.settings.use_api_key !== true;
+    const isUsingOAuth2 = context?.settings.use_advanced_connect === false || context?.settings.use_api_key === false;
 
     clearElements();
     deRegisterElement('menuButton');
