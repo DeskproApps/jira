@@ -497,7 +497,7 @@ const request = async <T>(
   const isUsingOAuth2 = (await client.getUserState<boolean>(IS_USING_OAUTH2))[0]?.data;
   const cloudID = (await client.getUserState<string>(CLOUD_ID_PATH))[0]?.data;
 
-  const baseURL = isUsingOAuth2 ? `https://api.atlassian.com/ex/jira/${cloudID}/rest/api/2`
+  const baseURL = isUsingOAuth2 ? `https://api.atlassian.com/ex/jira/${cloudID}/rest/api/3`
     : isAdmin
       ? `https://${settings?.domain}.atlassian.net/rest/api/3`
       : `https://__domain__.atlassian.net/rest/api/3`;
