@@ -30,7 +30,7 @@ export function LogIn() {
             return;
         };
 
-        const isUsingOAuth2 = context?.settings.use_advanced_connect === false || context?.settings.use_api_key !== true;
+        const isUsingOAuth2 = context?.settings.use_advanced_connect === false || context?.settings.use_api_key === false;
         if (isUsingOAuth2 === false) {
             return;
         };
