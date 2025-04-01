@@ -12,7 +12,7 @@ import type { FieldMeta } from "../../api/types/types";
 import type { ProjectElement, Issuetype } from "../../api/types/createMeta";
 
 export const AdminSettings = () => {
-  const [settings, setSettings] = useState<Settings|undefined>();
+  const [settings, setSettings] = useState<Settings | undefined>();
   const [hasSetSelectedSettings, setHasSetSelectedSettings] = useState(false);
   const [selectedSettings, setSelectedSettings] = useState<Partial<Layout>>({});
 
@@ -60,6 +60,22 @@ export const AdminSettings = () => {
   const onUpdateMapping = (value: Array<FieldMeta["id"]>, keyName: keyof Layout) => {
     setSelectedSettings((prevState) => ({ ...prevState, [keyName]: value }));
   };
+
+  // Reset the mapping when the dependencies change to prevent scenarios where the 
+  // use forgets the update their mapping switching api keys/other creds and it causes the app to crash.
+  useEffect(() => {
+
+    setSelectedSettings((prevState) => ({
+      ...prevState,
+      project: undefined,
+      issuetype: undefined,
+      enableMapping: false,
+      detailView: undefined,
+      listView: undefined
+    }));
+
+
+  }, [settings?.api_key, settings?.use_advanced_connect, settings?.use_api_key, settings?.domain, settings?.username])
 
 
   if (!settings?.domain || !settings?.username || !settings?.api_key) {
