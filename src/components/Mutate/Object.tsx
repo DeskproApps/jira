@@ -38,7 +38,7 @@ import { ErrorBlock } from "../Error/ErrorBlock";
 import { FormMapping } from "../FormMapping/FormMapping";
 import { LoadingSpinnerCenter } from "../LoadingSpinnerCenter/LoadingSpinnerCenter";
 import { JiraProject, JiraUser } from "./types";
-import { TicketData, Settings,  } from "../../types";
+import { TicketData, Settings } from "../../types";
 
 type Props = {
   objectId?: string;
@@ -118,16 +118,28 @@ export const MutateObject = ({ objectId }: Props) => {
     const data = getLayout(context?.settings?.mapping);
     setMappedFields(data.detailView ?? []);
 
-    context?.settings.ticket_subject_as_issue_summary &&
+    const isUsingTicketIdAsIssueSummary = context?.settings.ticket_subject_as_issue_summary
+
+    if (isUsingTicketIdAsIssueSummary) {
       setValue(
         "summary",
         `[Ticket #${context?.data?.ticket.id}] ${context?.data?.ticket.subject}`,
-      );
+      )
+    }
 
-    if (isEditMode) return;
+    if (isEditMode) {
+      return
+    };
 
-    data.project && setValue("project", { id: data.project });
-    data.issuetype && setValue("issuetype", { id: data.issuetype });
+    // Attempt setting a default project if one was provided in the app setup
+    if (data.project) {
+      setValue("project", { id: data.project })
+    }
+
+    // Attempt setting a default issue type if one was provided in the app setup
+    if (data.issuetype) {
+      setValue("issuetype", { id: data.issuetype })
+    }
   }, [context, setValue, isEditMode]);
 
   useEffect(() => {
@@ -338,7 +350,7 @@ export const MutateObject = ({ objectId }: Props) => {
             }, [] as string[])}
           />
         )}
-        {(submitMutation.error && submitMutation.error instanceof InvalidRequestResponseError)  ? (
+        {(submitMutation.error && submitMutation.error instanceof InvalidRequestResponseError) ? (
           <ErrorBlock
             text={`
               ${submitMutation.error?._response?.errorMessages as unknown as string}
