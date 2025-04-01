@@ -61,6 +61,7 @@
   "view": [
     "project",
     "status",
+    "summary",
     "reporter",
     "epic",
     "description",
