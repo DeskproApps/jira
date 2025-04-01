@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   LoadingSpinner,
   useDeskproAppEvents,
@@ -62,20 +62,37 @@ export const AdminSettings = () => {
   };
 
   // Reset the mapping when the dependencies change to prevent scenarios where the 
-  // use forgets the update their mapping switching api keys/other creds and it causes the app to crash.
+  // user forgets to update their mapping switching api keys/other creds and it
+  //  causes the app to crash.
+
+  const isFirstResetRun = useRef(true);
   useEffect(() => {
 
-    setSelectedSettings((prevState) => ({
-      ...prevState,
-      project: undefined,
-      issuetype: undefined,
-      enableMapping: false,
-      detailView: undefined,
-      listView: undefined
-    }));
+    // All users should have these settings so they shouldn't be undefined 
+    // once the app has finished loading.
+    const allPrevDefined =
+      settings?.api_key !== undefined &&
+      settings?.domain !== undefined &&
+      settings?.username !== undefined;
 
+    if (!isLoading && allPrevDefined) {
+      // The first call will be when the app/component mounts, we don't need to reset the
+      //  mapping at this point so we return early.
+      if (isFirstResetRun.current) {
+        isFirstResetRun.current = false;
+        return;
+      }
 
-  }, [settings?.api_key, settings?.use_advanced_connect, settings?.use_api_key, settings?.domain, settings?.username])
+      setSelectedSettings((prevState) => ({
+        ...prevState,
+        project: undefined,
+        issuetype: undefined,
+        enableMapping: false,
+        detailView: undefined,
+        listView: undefined
+      }));
+    }
+  }, [isLoading, settings?.api_key, settings?.username, settings?.domain,])
 
 
   if (!settings?.domain || !settings?.username || !settings?.api_key) {
