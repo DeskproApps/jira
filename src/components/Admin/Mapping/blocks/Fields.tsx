@@ -21,11 +21,11 @@ const Fields: FC<Props> = ({
 
   return (
     <>
-      <Stack align="center" gap={8} style={{ marginBottom: "10px" }}>
-          <Toggle
-            checked={Boolean(selectedSettings.enableMapping)}
-            onChange={onUpdateEnableMapping}
-          />
+      <Stack align="left" gap={8} style={{ marginBottom: "10px" }}>
+        <Toggle
+          checked={Boolean(selectedSettings.enableMapping)}
+          onChange={onUpdateEnableMapping}
+        />
         <div>
           <PP3Medium>Custom field mapping</PP3Medium>
           <TSpan type="p_p4_paragraph" themeColor="grey40">
