@@ -1,6 +1,6 @@
 import { DropdownValueType } from "@deskpro/deskpro-ui";
 import { Input, Label, Stack, TextArea } from "@deskpro/deskpro-ui";
-import { useMemo } from "react";
+import { ChangeEvent, useMemo } from "react";
 import { Option, Priority, Project, Issuetype, CreateMeta } from "../../api/types/createMeta";
 import { FieldMeta, AttachmentFile, Version, GroupPicker } from "../../api/types/types";
 import { FieldType, DateTime } from "../../types";
@@ -125,7 +125,7 @@ export const FormMapping = ({
           content = (
             <Input
               type="number"
-              onChange={(e) => setValue(field.key, Number(e.target.value))}
+              onChange={(event: ChangeEvent<HTMLInputElement>) => setValue(field.key, Number(event.target.value))}
               value={values[field.key] as number}
               error={Boolean(errors[field.key])}
               id={field.key}
@@ -309,7 +309,7 @@ export const FormMapping = ({
           ) {
             content = (
               <TextArea
-                onChange={(e) => setValue(field.key, e.target.value)}
+                onChange={(event: ChangeEvent<HTMLTextAreaElement>) => setValue(field.key, event.target.value)}
                 value={values[field.key] as string}
                 error={Boolean(errors[field.key])}
                 id={field.key}
@@ -323,7 +323,7 @@ export const FormMapping = ({
           }
           content = (
             <Input
-              onChange={(e) => setValue(field.key, e.target.value)}
+              onChange={(event: ChangeEvent<HTMLInputElement>) => setValue(field.key, event.target.value)}
               value={values[field.key] as string}
               error={Boolean(errors[field.key])}
               id={field.key}

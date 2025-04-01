@@ -8,7 +8,7 @@ module.exports = {
   plugins: ["@typescript-eslint"],
   extends: [
     "eslint:recommended",
-    "plugin:@typescript-eslint/recommended-type-checked",
+    'plugin:@typescript-eslint/recommended-type-checked',
     "plugin:react-hooks/recommended",
     "prettier",
   ],
@@ -20,5 +20,8 @@ module.exports = {
       { ignoreRestSiblings: true, argsIgnorePattern: "^_" },
     ],
     "no-console": "error",
+    "@typescript-eslint/no-misused-promises": "off",
+    "@typescript-eslint/restrict-template-expressions": "off",
+    "@typescript-eslint/require-await": "off"
   },
 };

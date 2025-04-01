@@ -3,11 +3,12 @@
   "title": "JIRA",
   "description": "View Jira issues linked with Deskpro tickets to streamline communication with users",
   "appStoreUrl": "https://www.deskpro.com/product-embed/apps/jira",
-  "version": "1.0.47",
+  "version": "1.0.56",
   "scope": "agent",
   "isSingleInstall": true,
   "hasDevMode": true,
   "serveUrl": "https://apps-cdn.deskpro-service.com/__name__/__version__",
+  "secrets": "Rd9koLEOXiG206O104+d/dmgyCfLXZK/nTxl+i1Zz6P/lBnRb8Oe30l26zl+sY6zE25GlM09QV0rAEuSeEEAdklUlUvExCk22VfMxuZKXvKxIKb25ZkU+CD2qAng9d+Xc6m1MHeTDEB3p/9BmNMOtAMIxqLO4VHRLLYGSlz5ag9uxGyuS2qHzUHBUinmq1Ku6H573GF3rYQ2E6YGL8ZPejYeNgXP1r6kHHjY9my86bDSRTDvkfLWg74hzM01ydukcnMc/nFfu3iZGKILfH5oaDZj/UVwgnMgml6jl5fk1Z4pW0dAGlNKorcw1jPaKvov61+sSSxinU9foObAag6Nc41cLf3zx2g6XSmC/d2xvL/1zeh7lIy+bbFa6aLiz1mAYRv7pJN4KbqtYJEjar7yzR9o+CW/c9YBT2PQsgAOBuSXf8V81PxIuSUhCcUo68ygiyUmqmyvU8OjC+4agYwG1uuuQz4zzYI/78FEMi720mniWnqtQJX8Aq7dtRKbdhDIglgi5RG20ShsFYoP4y6+dRzqTEVZ5KamIwVE2/FnEFKDsIevYfgfV/KOzIaRwatPJni5jptvYHKdoqwxVJuRGo3WaW8egihQ/YMWPlKSlwCO8T2XsoUnyj/Axb/wRNjMHgBBQ14CUnZibV9UWk105hoeUpQh1rA57ayV1WVVI/oVmuJuTxuxuLV6JWJ1tOM9pWEvy35Q2Iy/Ch7ZzCBgFAI94psseVfKDTVs/QVhUO26cTdX3ZYG9HpBL4kQ15ZnlGFwOcvJmchMG0wfGPqh7w7yx8THSX9oZT8RpQRt7mqWHFvzZWtVeHu+iZ95xN+XGFHijMmRN1XSD/Goy2VYiIKqAdf5orxtkJb+XLz002XyurdPsFfHgbxG/c7vUCEgS8kvghrglSRHQyveqsdicGtEVrl+CIc+qSYsheR6DnbtxupvXHiqBuDnIV6yY9kWKm0aqD9t81FjS9sjosewXm5/8tv5PVDWUywNmnlp2nSCUZrA6ZU4bJ4cJc57R63SwmcqYfBLw8Qb8huYK+lprDuvV+OlqrpZt3cOuboc7Yw4BRNATBVbvwHY8YErLmoPOPQMN8A7jvJLcO3M9fyrlB2+NRMRjZxIRc7qSbJn3jjCFk3rixtL29dHoWo+qEl9ZwFqOk7RI9dgIZ+pWKTEITSPiJt7ptkmTCplZHSZim5o/zfta/jYAQ96RE0oYeMcXRYlGhvQsUCn+mKUzJUXaDZF9gZ/mId7fbT434IOEuEli4VmLXiMbLpWeJy9EAjO",
   "targets": [
     {
       "target": "ticket_sidebar",
@@ -31,6 +32,24 @@
     }
   },
   "settings": {
+    "use_advanced_connect": {
+      "title": "Advanced Connect",
+      "description": "Follow the setup guide and use your credentials to connect the app to Deskpro",
+      "type": "boolean",
+      "isRequired": false,
+      "isBackendOnly": false,
+      "default": false,
+      "order": 1
+    },
+    "use_api_key": {
+      "title": "Use API Key",
+      "type": "boolean",
+      "isRequired": false,
+      "isBackendOnly": false,
+      "condition": "settings.use_advanced_connect != false",
+      "default": false,
+      "order": 2
+    },
     "domain": {
       "title": "Domain Prefix",
       "description": "E.g. \"mycompany\" if your domain is \"https://mycompany.atlassian.net\"",
@@ -38,7 +57,7 @@
       "type": "string",
       "isRequired": true,
       "isBackendOnly": false,
-      "order": 10
+      "order": 3
     },
     "username": {
       "title": "Email/Username",
@@ -46,15 +65,16 @@
       "type": "string",
       "isRequired": true,
       "isBackendOnly": true,
-      "order": 20
+      "order": 4
     },
     "api_key": {
       "title": "API Key",
       "description": "JIRA user's API key, please follow the app setup guide to get this",
       "type": "string",
-      "isRequired": true,
+      "isRequired": false,
       "isBackendOnly": true,
-      "order": 30
+      "condition": "settings.use_advanced_connect != false && settings.use_api_key != false",
+      "order": 5
     },
     "verify_settings": {
       "title": "",
@@ -62,7 +82,33 @@
       "options": { "entrypoint": "#/verifySettings", "height": "30px" },
       "isRequired": false,
       "isBackendOnly": false,
-      "order": 40
+      "condition": "settings.use_advanced_connect != false && settings.use_api_key != false",
+      "order": 6
+    },
+    "client_id": {
+      "title": "Client ID",
+      "type": "string",
+      "isRequired": false,
+      "isBackendOnly": false,
+      "condition": "settings.use_advanced_connect != false && settings.use_api_key != true",
+      "order": 7
+    },
+    "client_secret": {
+      "title": "Client Secret",
+      "type": "string",
+      "isRequired": false,
+      "isBackendOnly": true,
+      "condition": "settings.use_advanced_connect != false && settings.use_api_key != true",
+      "order": 8
+    },
+    "callback_url": {
+      "title": "Callback URL",
+      "type": "app_embedded",
+      "options": { "entrypoint": "#/admin/callback", "height": "100px" },
+      "isRequired": false,
+      "isBackendOnly": true,
+      "condition": "settings.use_advanced_connect != false && settings.use_api_key != true",
+      "order": 9
     },
     "default_comment_on_ticket_reply": {
       "title": "Ticket reply as Jira comment?",
@@ -70,7 +116,7 @@
       "type": "boolean",
       "isRequired": false,
       "isBackendOnly": false,
-      "order": 50
+      "order": 10
     },
     "default_comment_on_ticket_note": {
       "title": "Ticket note as Jira comment?",
@@ -78,7 +124,7 @@
       "type": "boolean",
       "isRequired": false,
       "isBackendOnly": false,
-      "order": 60
+      "order": 11
     },
     "ticket_subject_as_issue_summary": {
       "title": "Use ticket ID and subject as summary",
@@ -86,7 +132,7 @@
       "type": "boolean",
       "isRequired": false,
       "isBackendOnly": false,
-      "order": 70
+      "order": 12
     },
     "mapping": {
       "title": "",
@@ -94,14 +140,24 @@
       "options": { "entrypoint": "#/admin_mapping" },
       "isRequired": false,
       "isBackendOnly": false,
-      "order": 80
+      "order": 13
     }
   },
   "proxy": {
     "whitelist": [
       {
-        "url": "https://(.*).atlassian.net/rest/api/.*",
+        "url": "https://(.*).atlassian.net/.*",
         "methods": ["GET", "POST", "PUT", "DELETE"],
+        "timeout": 50
+      },
+      {
+        "url": "https://auth.atlassian.com/.*",
+        "methods": ["GET", "POST"],
+        "timeout": 50
+      },
+      {
+        "url": "https://api.atlassian.com/.*",
+        "methods": ["GET", "POST"],
         "timeout": 50
       }
     ]

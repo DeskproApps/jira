@@ -4,6 +4,7 @@ import {
   TargetAction,
   useDeskproAppClient,
   useDeskproAppEvents,
+  useDeskproElements,
   useDeskproLatestAppContext,
   useInitialisedDeskproAppClient,
   useQueryWithClient,
@@ -16,9 +17,9 @@ import { useNavigate } from "react-router-dom";
 import { useDebouncedCallback } from "use-debounce";
 import { addIssueComment, getFields } from "../api/api";
 import { FieldMapping } from "../components/FieldMapping/FieldMapping";
-import { useLoadLinkedIssues } from "../hooks/hooks";
+import { useLoadLinkedIssues, useLogOut } from '../hooks/hooks';
 import IssueJson from "../mapping/issue.json";
-import { ReplyBoxSelection, TicketData, Settings, ReplyBoxOnReplyNote, ReplyBoxOnReplyEmail } from "../types";
+import { Payload, ReplyBoxSelection, TicketData, Settings, ReplyBoxOnReplyNote, ReplyBoxOnReplyEmail } from '../types';
 import {
   registerReplyBoxEmailsAdditionsTargetAction,
   registerReplyBoxNotesAdditionsTargetAction,
@@ -37,8 +38,18 @@ export const Home: FC = () => {
   const [mappedFields, setMappedFields] = useState<string[]>([]);
   const { context } = useDeskproLatestAppContext<TicketData, Settings>();
   const [linkedCount, setLinkedCount] = useState<Record<string, number>>({});
-
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const { logOut } = useLogOut();
+
+  useDeskproAppEvents({
+    // @ts-expect-error parameters
+    onElementEvent(_: string, __: string, payload: Payload) {
+      switch (payload.type) {
+        case 'logOut':
+          logOut();
+      };
+    }
+  }, [logOut]);
 
   const loadLinkedIssues = useLoadLinkedIssues();
 
@@ -59,7 +70,7 @@ export const Home: FC = () => {
           data.map(
             async (item) => {
               linkedItems[item.id] = (
-                await client!.getState(`jira/items/${item.id}`)
+                await client?.getState(`jira/items/${item.id}`)
               )?.[0]?.data as number;
             },
             {} as Record<string, number>,
@@ -201,11 +212,15 @@ export const Home: FC = () => {
 
   useInitialisedDeskproAppClient((client) => {
     client.setTitle("JIRA Issues");
-    client?.registerElement("addIssue", { type: "plus_button" });
-    client?.deregisterElement("menuButton");
-    client?.deregisterElement("editButton");
-    client?.deregisterElement("viewContextMenu");
   }, [context]);
+
+  useDeskproElements(({ deRegisterElement, registerElement }) => {
+    registerElement('addIssue', {type: 'plus_button'});
+    deRegisterElement('menuButton');
+    deRegisterElement('editButton');
+    deRegisterElement('viewContextMenu');
+    deRegisterElement('homeButton');
+  });
 
   useDeskproAppEvents({
     onElementEvent(id) {

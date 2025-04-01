@@ -1,5 +1,5 @@
 import { FC, useMemo, useState, useCallback } from "react";
-import styled from "styled-components";
+import styled, { DefaultTheme } from "styled-components";
 import {
   faCaretDown,
   faExternalLinkAlt,
@@ -28,7 +28,7 @@ type Props = {
 const ItemContainer = styled(Stack)`
   margin-bottom: 4px;
   padding: 3px;
-  border: 1px solid ${({ theme }) => theme.colors.grey20};
+  border: 1px solid ${({ theme }) => (theme as DefaultTheme).colors.grey20};
   border-radius: 5px;
   flex-wrap: wrap;
 `;
@@ -42,8 +42,8 @@ const Item: FC<{
 }) => {
   return (
     <ItemContainer
-      onClick={(e) => {
-        e.preventDefault();
+      onClick={(event: MouseEvent) => {
+        event.preventDefault();
         onRemove(group.name);
       }}
     >

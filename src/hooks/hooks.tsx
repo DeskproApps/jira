@@ -17,6 +17,7 @@ import {
   ticketReplyEmailsSelectionStateKey,
   ticketReplyNotesSelectionStateKey,
 } from "../utils/utils";
+import { OAUTH2_ACCESS_TOKEN_PATH } from '../constants';
 import { Settings, TicketData } from "../types";
 
 export const useLinkIssues = () => {
@@ -328,4 +329,23 @@ export const useFindIssueComments = (
   }, [issueKey]);
 
   return comments;
+};
+
+export function useLogOut() {
+  const { client } = useDeskproAppClient();
+  const navigate = useNavigate();
+
+  const logOut = useCallback(() => {
+    if (!client) {
+      return;
+    };
+
+    client.setBadgeCount(0);
+    client.deleteUserState(OAUTH2_ACCESS_TOKEN_PATH)
+      .finally(() => {
+        navigate('/log_in');
+      });
+  }, [client, navigate]);
+
+  return { logOut };
 };
