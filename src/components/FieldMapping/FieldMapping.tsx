@@ -86,45 +86,48 @@ export const FieldMapping = ({
           )}
         </Stack>
       )}
-      {items.map((item, i) => (
-        <Stack vertical gap={4} style={{ width: "100%" }} key={i}>
-          {(internalChildUrl || childTitleAccessor || externalChildUrl) && (
-            <Stack
-              style={{
-                justifyContent: "space-between",
-                alignItems: "center",
-                width: "100%",
-              }}
-            >
-              {internalChildUrl && childTitleAccessor && (
-                <Link
-                  as={RouterLink}
-                  to={substitutePlaceholders(internalChildUrl, { ...item })}
-                  replace={true}
-                >
-                  {childTitleAccessor(item)}
-                </Link>
-              )}
-              {!internalChildUrl && childTitleAccessor && (
-                <H3 style={{ fontSize: "12px" }}>{childTitleAccessor(item)}</H3>
-              )}
-              {externalChildUrl && (
-                <ExternalIconLink
-                  href={substitutePlaceholders(externalChildUrl, {
-                    ...context?.settings,
-                    ...item,
-                  })}
-                  icon={<AppLogo />}
-                ></ExternalIconLink>
-              )}
+      
+      {items.map((item, i) => {
+        return (
+          <Stack vertical gap={4} style={{ width: "100%" }} key={i}>
+            {(internalChildUrl || childTitleAccessor || externalChildUrl) && (
+              <Stack
+                style={{
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  width: "100%",
+                }}
+              >
+                {internalChildUrl && childTitleAccessor && (
+                  <Link
+                    as={RouterLink}
+                    to={substitutePlaceholders(internalChildUrl, { ...item })}
+                    replace={true}
+                  >
+                    {childTitleAccessor(item)}
+                  </Link>
+                )}
+                {!internalChildUrl && childTitleAccessor && (
+                  <H3 style={{ fontSize: "12px" }}>{childTitleAccessor(item)}</H3>
+                )}
+                {externalChildUrl && (
+                  <ExternalIconLink
+                    href={substitutePlaceholders(externalChildUrl, {
+                      ...context?.settings,
+                      ...item,
+                    })}
+                    icon={<AppLogo />}
+                  ></ExternalIconLink>
+                )}
+              </Stack>
+            )}
+            <Stack vertical style={{ width: "100%" }} gap={8}>
+              <MapFieldValues issue={item} usableFields={metadata} />
             </Stack>
-          )}
-          <Stack vertical style={{ width: "100%" }} gap={8}>
-            <MapFieldValues issue={item} usableFields={metadata} />
+            {<HorizontalDivider />}
           </Stack>
-          {<HorizontalDivider />}
-        </Stack>
-      ))}
+        )
+      })}
     </Stack>
   );
 };

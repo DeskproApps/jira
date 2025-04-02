@@ -116,7 +116,7 @@ export const MutateObject = ({ objectId }: Props) => {
 
   useEffect(() => {
     const data = getLayout(context?.settings?.mapping);
-    setMappedFields(data.detailView ?? []);
+    setMappedFields(data.detailView ? ["parent", ...data.detailView] : []);
 
     const isUsingTicketIdAsIssueSummary = context?.settings.ticket_subject_as_issue_summary
 

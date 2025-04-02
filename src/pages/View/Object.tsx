@@ -43,7 +43,7 @@ export const ViewObject = () => {
       setMappedFields([]);
       setHasMappedFields(false);
     }
-    setMappedFields(data.detailView ?? []);
+    setMappedFields(data.detailView ? ["parent", ...data.detailView] : []);
     setHasMappedFields(!!data.detailView?.length);
   }, [context]);
 
@@ -124,7 +124,7 @@ export const ViewObject = () => {
           metadata={usableFields}
           externalChildUrl={IssueJson.externalChildUrl}
           childTitleAccessor={(e) => e[IssueJson.titleKeyName] as string}
-          />
+        />
         <CommentsList issueKey={objectId ?? ''} />
       </Stack>
     </Container>

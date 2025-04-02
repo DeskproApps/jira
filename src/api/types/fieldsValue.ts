@@ -29,6 +29,18 @@ export type Project = {
   };
 };
 
+export type ParentFieldValue = {
+  id: string;
+  key: string;
+  self: string;
+  fields?:{
+    summary?: string
+    status?: {
+      self?: string
+    }
+  }
+};
+
 export type Watches = Required<components["schemas"]["Watchers"]>;
 
 export type Priority = Required<Pick<
