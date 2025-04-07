@@ -63,7 +63,7 @@ export const FormMapping = ({
   }, [usableFields]);
 
   const fields = usableFields
-    .filter((e) => e.key !== "issuetype" && e.key !== "project")
+    .filter((e) => e.key !== "issuetype" && e.key !== "project" && e.key !== "parent")
     ?.map((field) => {
       let content;
 
@@ -184,7 +184,7 @@ export const FormMapping = ({
               if (field.schema.system === "labels" || field.schema.custom === FieldType.LABELS) {
                 content = (
                   <DropdownMultiSelect
-                    options={dropdownFields.labels as DropdownValueType<Option["id"]|Option>[]}
+                    options={dropdownFields.labels as DropdownValueType<Option["id"] | Option>[]}
                     values={values[field.key] as Option[]}
                     error={Boolean(errors[field.key])}
                     onChange={(value) => setValue(field.key, value)}
@@ -227,7 +227,7 @@ export const FormMapping = ({
             case "user":
               content = (
                 <DropdownMultiSelect
-                  options={dropdownFields.user as DropdownValueType<Option["id"]|Option>[]}
+                  options={dropdownFields.user as DropdownValueType<Option["id"] | Option>[]}
                   values={values[field.key] as Option[]}
                   error={Boolean(errors[field.key])}
                   onChange={(value) => setValue(field.key, value)}
@@ -334,7 +334,7 @@ export const FormMapping = ({
           );
           break;
 
-          default:
+        default:
           break;
       }
 
@@ -346,6 +346,9 @@ export const FormMapping = ({
         )
       );
     });
+
+  const selectedIssueTypeId = values.issuetype?.id
+  const selectedIssueType = issuetypes?.find(issue => issue.id === selectedIssueTypeId)
 
   return (
     <Stack vertical style={{ width: "100%" }} gap={10}>
@@ -384,6 +387,27 @@ export const FormMapping = ({
           />
         </Label>
       )}
+
+      {/* Show The subtask dropdown if the issue is a subtask*/}
+      {selectedIssueType && selectedIssueType.name === "Subtask" && (
+        <>
+          <Label
+            htmlFor={"parent"}
+            label="Parent Task"
+          >
+            <SubtaskDropdownWithSearch
+              projectId={values.project?.id}
+              setValue={(value) => setValue(`parent.id`, value)}
+              id={selectedIssueType.id}
+              placeholder="Select value"
+              value={(values["parent"] as IssueLink)?.id}
+            />
+          </Label>
+        </>
+      )}
+
+
+
       {values.project?.id && values.issuetype?.id && <>{fields}</>}
     </Stack>
   );
