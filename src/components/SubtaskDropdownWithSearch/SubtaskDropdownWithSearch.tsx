@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
-import { isEmpty, values, get, noop } from "lodash-es";
+import { isEmpty, values, noop } from "lodash-es";
 import { useDeskproAppClient, useDeskproAppTheme } from "@deskpro/app-sdk";
 import {
   AnyIcon,
@@ -18,7 +18,7 @@ import {
   faExternalLinkAlt,
   faHandPointer,
 } from "@fortawesome/free-solid-svg-icons";
-import { searchIssues } from "../../api/api";
+import { getIssueByKey, searchIssues } from "../../api/api";
 import { normalize } from "../../utils/utils";
 import { Project, IssueLink } from "../../api/types/fieldsValue";
 import { SearchIssueItem } from "../../api/types/types";
@@ -62,16 +62,28 @@ export const SubtaskDropdownWithSearch: FC<DropdownWithSearchProps> = ({
   const [parentOptions, setParentOptions] = useState<
     DropdownValueType<SearchIssueItem["id"]>[] | DropdownHeaderType[]
   >([]);
+  const [issueTitle, setIssueTitle] = useState<string>("");
+
 
   const getIssueTitle = (): string => {
-    const issue = get(parents, [value as string], null);
+    const issue = parents?.value ?? null
 
-    if (isEmpty(issue)) {
-      return value ? value : "";
-    } else {
-      return `[${issue.key}] ${issue.summary}`;
+    if (issue) {
+      return `[${issue.key}] ${issue.summary}`
     }
+
+    return issueTitle ?? ""
   };
+
+  useEffect(() => {
+    if (value && client) {
+      getIssueByKey(client, value).then((data) => {
+        setIssueTitle(data ? `[${data.key}] ${data.fields.summary}` : "")
+      }).catch(() => {
+        setIssueTitle("")
+      })
+    }
+  }, [value, client])
 
   const debouncedSearch = useDebouncedCallback<(v: string) => void>((q) => {
     if (!q || !client) {
