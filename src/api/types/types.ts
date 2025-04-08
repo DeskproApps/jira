@@ -386,6 +386,11 @@ export type FieldMeta<V = unknown> = {
   id?: string;
 };
 
+
+export type IssueFieldsMetaResponse = {
+  fields: Record<string, FieldMeta>;
+};
+
 export type TransfornedFieldMeta = FieldMeta & {
   type: FieldType;
 };
