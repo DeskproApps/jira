@@ -87,7 +87,8 @@ export const FieldMapping = ({
             // Mark this key as processed
             processedKeys.current.add(key);
           } catch (error) {
-            // Just here to prevent the app from crashing
+           // eslint-disable-next-line no-console
+           console.warn(error instanceof Error? error.message : error)
           }
         }
       })
