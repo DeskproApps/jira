@@ -48,7 +48,9 @@ export const ViewObject = () => {
     if (!data) {
       setMappedFields([]);
       setHasMappedFields(false);
+      return
     }
+    
     setMappedFields(data.detailView ? ["parent", ...data.detailView] : []);
     setHasMappedFields(!!data.detailView?.length);
   }, [context]);
