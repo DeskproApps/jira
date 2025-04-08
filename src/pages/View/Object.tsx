@@ -6,7 +6,7 @@ import {
 } from "@deskpro/app-sdk";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getFields, listLinkedIssues } from "../../api/api";
+import { getIssueFields, listLinkedIssues } from "../../api/api";
 import { FieldMapping } from "../../components/FieldMapping/FieldMapping";
 import { LoadingSpinnerCenter } from "../../components/LoadingSpinnerCenter/LoadingSpinnerCenter";
 import IssueJson from "../../mapping/issue.json";
@@ -34,7 +34,13 @@ export const ViewObject = () => {
     { enabled: !!objectId },
   );
 
-  const metadataFieldsQuery = useQueryWithClient(["metadataFields"], getFields);
+  const metadataFieldsQuery = useQueryWithClient(["issueMetadataFields"], (client) => {
+    if (!objectId) {
+      return Promise.resolve(null)
+    }
+
+    return getIssueFields(client, objectId)
+  });
 
   useEffect(() => {
     const data = getLayout(context?.settings.mapping);
@@ -100,9 +106,12 @@ export const ViewObject = () => {
   });
 
   const usableFields = useMemo(() => {
-    if (!metadataFieldsQuery.data || hasMappedFields === undefined) return [];
+    const fields = metadataFieldsQuery.data?.fields;
+    if (!fields || hasMappedFields === undefined) {
+      return []
+    }
 
-    return metadataFieldsQuery.data.filter((field) =>
+    return Object.values(fields).filter((field) =>
       (hasMappedFields ? mappedFields : IssueJson.view).includes(field.key),
     );
   }, [metadataFieldsQuery.data, hasMappedFields, mappedFields]);
