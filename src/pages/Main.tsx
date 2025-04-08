@@ -322,6 +322,7 @@ export const Home: FC = () => {
       <Container>
         <Stack vertical gap={10}>
           <FieldMapping
+          shouldFetchIssueFields
             items={linkedIssues}
             metadata={usableFields}
             internalChildUrl={IssueJson.internalChildUrl}

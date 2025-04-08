@@ -1,18 +1,24 @@
 import {
   ExternalIconLink,
   Link,
+  LoadingSpinner,
+  useDeskproAppClient,
   useDeskproAppTheme,
   useDeskproLatestAppContext,
 } from "@deskpro/app-sdk";
 import { H1, H3, Icon, Stack } from "@deskpro/deskpro-ui";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
-import { FieldMeta, IssueItem } from "../../api/types/types";
-import { substitutePlaceholders } from "../../utils/utils";
+import { FieldMeta, IssueFieldsMetaResponse, IssueItem } from "../../api/types/types";
+import { getLayout, substitutePlaceholders } from "../../utils/utils";
 import { AppLogo } from "../AppLogo/AppLogo";
 import { HorizontalDivider } from "../HorizontalDivider/HorizontalDivider";
 import { MapFieldValues } from "../MapFieldValues/MapFieldValues";
 import { TicketData, Settings } from "../../types";
+import { useEffect, useRef, useState } from "react";
+import { getIssueFields } from "../../api/api";
+import IssueJson from "../../mapping/issue.json";
+
 
 type Props = {
   items: IssueItem[];
@@ -25,6 +31,7 @@ type Props = {
   title?: string;
   hasCheckbox?: boolean;
   createPage?: string;
+  shouldFetchIssueFields?: boolean;
 };
 
 export const FieldMapping = ({
@@ -37,10 +44,89 @@ export const FieldMapping = ({
   childTitleAccessor,
   title,
   createPage,
+  shouldFetchIssueFields
 }: Props) => {
   const { theme } = useDeskproAppTheme();
   const navigate = useNavigate();
   const { context } = useDeskproLatestAppContext<TicketData, Settings>();
+  const { client } = useDeskproAppClient();
+  const [hasMappedFields, setHasMappedFields] = useState<boolean | undefined>(
+    undefined,
+  )
+  const [mappedFields, setMappedFields] = useState<string[]>([]);
+  const [hasMappingEnabled, setHasMappingEnabled] = useState<boolean>(false);
+
+  const [issueMetadata, setIssueMetadata] = useState<Record<string, IssueFieldsMetaResponse>>({});
+
+  // Track which issues [metadata] have already been processed/fetched
+  const processedKeys = useRef<Set<string>>(new Set());
+
+  const [isMetadataLoading, setIsMetadataLoading] = useState<boolean>(false);
+
+  // Fetch issue metadata effect
+  useEffect(() => {
+    if (!client || !shouldFetchIssueFields || items.length < 1 || !hasMappingEnabled) {
+      return
+    }
+    const fetchMetadata = async () => {
+      setIsMetadataLoading(true)
+
+      // Extract unique issue keys (Prevent fetching an issue twice)
+      const uniqueIssueKeys = Array.from(new Set(items.map((item) => item.key)));
+
+      const metadataByKey: Record<string, IssueFieldsMetaResponse> = {};
+
+      // Fetch metadata in parallel (performance reasons)
+      const promises = uniqueIssueKeys.map(async (key) => {
+        if (!processedKeys.current.has(key)) {
+          try {
+            const metadata = await getIssueFields(client, key);
+
+            metadataByKey[key] = metadata;
+
+            // Mark this key as processed
+            processedKeys.current.add(key);
+          } catch (error) {
+            // Just here to prevent the app from crashing
+          }
+        }
+      })
+
+      // Wait for all metadata fetching to complete
+      await Promise.all(promises);
+
+      // Update the state with the new metadata
+      setIssueMetadata((prev) => ({ ...prev, ...metadataByKey }))
+      setIsMetadataLoading(false)
+    };
+
+    if (items.length > 0) {
+      fetchMetadata();
+    }
+  }, [client, hasMappingEnabled, items, shouldFetchIssueFields])
+
+
+  // Mapped fields effect
+  useEffect(() => {
+    if (shouldFetchIssueFields) {
+      const data = getLayout(context?.settings.mapping);
+
+      if (!data) {
+        setMappedFields([]);
+        setHasMappedFields(false)
+        return
+      }
+
+      setHasMappingEnabled(data.enableMapping ?? false)
+      setMappedFields(data.listView ? ["parent", ...data.listView] : []);
+      setHasMappedFields(!!data.listView?.length)
+    }
+
+  }, [context, shouldFetchIssueFields]);
+
+  if (shouldFetchIssueFields && hasMappingEnabled && isMetadataLoading) {
+    return <div style={{ width: "100%" }}><LoadingSpinner /></div>
+  }
 
   return (
     <Stack vertical gap={4} style={{ width: "100%" }}>
@@ -86,8 +172,17 @@ export const FieldMapping = ({
           )}
         </Stack>
       )}
-      
+
       {items.map((item, i) => {
+        const issueFields = issueMetadata[item.key]?.fields
+        const usableFields = shouldFetchIssueFields && hasMappingEnabled
+          ? issueFields
+            ? Object.values(issueFields).filter((field) =>
+              (hasMappedFields ? mappedFields : IssueJson.view).includes(field.key)
+            )
+            : metadata
+          : metadata
+
         return (
           <Stack vertical gap={4} style={{ width: "100%" }} key={i}>
             {(internalChildUrl || childTitleAccessor || externalChildUrl) && (
@@ -122,7 +217,7 @@ export const FieldMapping = ({
               </Stack>
             )}
             <Stack vertical style={{ width: "100%" }} gap={8}>
-              <MapFieldValues issue={item} usableFields={metadata} />
+              <MapFieldValues issue={item} usableFields={usableFields} />
             </Stack>
             {<HorizontalDivider />}
           </Stack>

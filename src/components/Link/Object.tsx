@@ -174,6 +174,7 @@ export const LinkContact = () => {
                         metadata={usableFields}
                         externalChildUrl={IssueJson.externalChildUrl}
                         childTitleAccessor={(e) => e[IssueJson.titleKeyName] as string}
+                        shouldFetchIssueFields
                       />
                     </Stack>
                   </Stack>
