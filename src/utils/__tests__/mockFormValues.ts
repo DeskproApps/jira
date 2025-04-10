@@ -4,10 +4,10 @@ export default {
   "summary": "Full Task from Deskpro",
   "customfield_10037": { "id": "10002" }, // DP Version Picker (single version)
   "customfield_10038": [ // DP Version Picker (multiple versions)
-    "10003",
-    "10002",
-    "10001",
-    "10000"
+    { "id": "10003" },
+    { "id": "10002" },
+    { "id": "10001" },
+    { "id": "10000" }
   ],
   "customfield_10044": [ // DP Checkboxes
     { "id": "10020" },

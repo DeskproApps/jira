@@ -17,6 +17,7 @@ const esModules = [
   "data-uri-to-buffer",
   "fetch-blob",
   "formdata-polyfill",
+  "lodash-es"
 ].join("|");
 
 module.exports = {
