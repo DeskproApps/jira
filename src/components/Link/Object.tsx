@@ -33,9 +33,7 @@ export const LinkContact = () => {
   const [selectedIssues, setSelectedIssues] = useState<string[]>([]);
   const [linkedIssues, setLinkedIssues] = useState<string[]>([]);
   const [prompt, setPrompt] = useState<string>("");
-  const [hasMappedFields, setHasMappedFields] = useState<boolean | undefined>(
-    undefined,
-  );
+  const [hasMappedFields, setHasMappedFields] = useState<boolean | undefined>(undefined);
   const [mappedFields, setMappedFields] = useState<string[]>([]);
   const { context } = useDeskproLatestAppContext<TicketData, Settings>();
   const { linkIssues, getLinkedIssues } = useLinkIssues();
@@ -176,6 +174,7 @@ export const LinkContact = () => {
                         metadata={usableFields}
                         externalChildUrl={IssueJson.externalChildUrl}
                         childTitleAccessor={(e) => e[IssueJson.titleKeyName] as string}
+                        shouldFetchIssueFields
                       />
                     </Stack>
                   </Stack>

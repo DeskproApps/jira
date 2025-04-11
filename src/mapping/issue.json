@@ -60,7 +60,9 @@
   ],
   "view": [
     "project",
+    "parent",
     "status",
+    "summary",
     "reporter",
     "epic",
     "description",

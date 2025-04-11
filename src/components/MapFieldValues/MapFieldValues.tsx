@@ -23,6 +23,7 @@ import {
   Issuetype,
   IssueLink,
   Components,
+  ParentFieldValue,
 } from "../../api/types/fieldsValue";
 import { TicketData, Settings, FieldType, DateTime } from "../../types";
 
@@ -30,11 +31,13 @@ export const MapFieldValues = ({
   issue,
   usableFields,
 }: {
-  issue: SearchIssueItem|IssueItem;
+  issue: SearchIssueItem | IssueItem;
   usableFields: FieldMeta[];
 }) => {
   const { context } = useDeskproLatestAppContext<TicketData, Settings>();
   const domain = context?.settings?.domain;
+  const parentFieldValue = (issue.parent as ParentFieldValue)?.key
+  const projectFieldValue = (issue.project as Project)
 
   return (
     <Stack vertical style={{ width: "100%" }}>
@@ -42,16 +45,53 @@ export const MapFieldValues = ({
         <Property label="Issue Key" text={issue.key} />
         <Property label="Deskpro Tickets" text={<DeskproTickets issue={issue} />} />
       </PropertyRow>
-      {usableFields.map((field) => {
-        if (field.key === "key") return;
 
-        if (field.key === "linkedCount") return;
+      {projectFieldValue && (
+        <Property key={projectFieldValue?.key} label={"Project"} text={
+          <Stack style={{ alignItems: "center" }} gap={5}>
+            <H2>{projectFieldValue?.name}</H2>
+            <ExternalIconLink
+              href={`https://${domain}.atlassian.net/browse/${projectFieldValue?.key}`}
+            />
+          </Stack>
+        } />
+      )}
+
+      {parentFieldValue && (
+        <Property key={parentFieldValue} label={"Parent Task"} text={
+          <Stack style={{ alignItems: "center" }} gap={5}>
+            <H2>{parentFieldValue}</H2>
+            <ExternalIconLink
+              href={`https://${domain}.atlassian.net/browse/${parentFieldValue}`}
+            />
+          </Stack>} />
+      )}
+
+      {usableFields.map((field) => {
+        const excludedKeys = ["key", "linkedCount", "parent", "project"]
+
+        if (excludedKeys.includes(field.key)) {
+          return
+        }
 
         const fieldValue = issue[field.key];
         let content;
 
         if (isNil(fieldValue)) {
           return <Property label={field.name} text={"-"} />;
+        }
+
+        if (field.name === "Parent") {
+          content = (
+            <Stack style={{ alignItems: "center" }} gap={5}>
+              <H2>{(fieldValue as ParentFieldValue)?.key}</H2>
+              <ExternalIconLink
+                href={`https://${domain}.atlassian.net/browse/${(fieldValue as ParentFieldValue).key}`}
+              />
+            </Stack>
+          );
+
+          return <Property key={field.key} label={field.name} text={<>{content}</>} />;
         }
 
         switch (field.schema?.type) {
@@ -69,23 +109,12 @@ export const MapFieldValues = ({
             break;
 
           case "issuetype":
-            content = <H2>{(fieldValue as Issuetype)?.description}</H2>;
+            content = <H2>{(fieldValue as Issuetype)?.name}</H2>;
 
             break;
 
           case "number":
             content = <H2>{fieldValue as number}</H2>;
-
-            break;
-          case "project":
-            content = (
-              <Stack style={{ alignItems: "center" }} gap={5}>
-                <H2>{(fieldValue as Project)?.name}</H2>
-                <ExternalIconLink
-                  href={`https://${domain}.atlassian.net/browse/${(fieldValue as Project).key}`}
-                />
-              </Stack>
-            );
 
             break;
 
@@ -148,14 +177,14 @@ export const MapFieldValues = ({
                   {(fieldValue as UserBean[] ?? []).map((u) => (
                     <Stack style={{ alignItems: "center" }} gap={5}>
                       <img
-                      src={u.avatarUrls["16x16"]}
-                      className="comment-list-item-avatar"
-                      width="16"
-                      alt={u?.displayName}
-                    />
-                    <H2>{u?.displayName}</H2>
-                    <ExternalIconLink href={`https://${domain}.atlassian.net/jira/people/${u.accountId}`} />
-                  </Stack>
+                        src={u.avatarUrls["16x16"]}
+                        className="comment-list-item-avatar"
+                        width="16"
+                        alt={u?.displayName}
+                      />
+                      <H2>{u?.displayName}</H2>
+                      <ExternalIconLink href={`https://${domain}.atlassian.net/jira/people/${u.accountId}`} />
+                    </Stack>
                   ))}
                 </>
               );

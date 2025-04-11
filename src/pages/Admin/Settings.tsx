@@ -1,40 +1,27 @@
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   LoadingSpinner,
-  Property,
   useDeskproAppEvents,
   useInitialisedDeskproAppClient,
-  useQueryWithClient,
 } from "@deskpro/app-sdk";
-import { Checkbox, H1, H2, Stack } from "@deskpro/deskpro-ui";
-import { useEffect, useMemo, useState } from "react";
-import { getCreateMeta, getFields } from "../../api/api";
-import { DropdownSelect } from "../../components/DropdownSelect/DropdownSelect";
-import { Settings, Layout } from "../../types";
+import { useMetadata } from "./hooks";
+import defaultMapping from "../../mapping/issue.json";
+import { Mapping } from "../../components/Admin";
+import type { Settings, Layout } from "../../types";
+import type { FieldMeta } from "../../api/types/types";
+import type { ProjectElement, Issuetype } from "../../api/types/createMeta";
 
 export const AdminSettings = () => {
-  const [settings, setSettings] = useState<Settings>({});
+  const [settings, setSettings] = useState<Settings | undefined>();
   const [hasSetSelectedSettings, setHasSetSelectedSettings] = useState(false);
   const [selectedSettings, setSelectedSettings] = useState<Partial<Layout>>({});
 
-  const fieldsQuery = useQueryWithClient(
-    ["fields"],
-    (client) => getFields(client, settings),
-    {
-      enabled: Boolean(
-        settings && settings.domain && settings.username && settings.api_key,
-      ),
-    },
-  );
-
-  const createMetaQuery = useQueryWithClient(
-    ["createMetaQuery"],
-    (client) => getCreateMeta(client, settings),
-    {
-      enabled: Boolean(
-        settings && settings.domain && settings.username && settings.api_key,
-      ),
-    },
-  );
+  const {
+    fields,
+    isLoading,
+    projectOptions,
+    issueTypeOptions,
+  } = useMetadata(settings, selectedSettings.project);
 
   useDeskproAppEvents({
     onAdminSettingsChange: setSettings,
@@ -47,155 +34,91 @@ export const AdminSettings = () => {
     setSelectedSettings(JSON.parse(settings.mapping || "{}") as Partial<Layout>);
   }, [settings, hasSetSelectedSettings]);
 
-  useInitialisedDeskproAppClient(
-    (client) => {
-      if (Object.keys(selectedSettings).length === 0) return;
-      client.setAdminSetting(JSON.stringify(selectedSettings));
-    },
-    [selectedSettings],
-  );
+  useInitialisedDeskproAppClient((client) => {
+    if (Object.keys(selectedSettings).length === 0) {
+      return;
+    }
 
-  const updateSettings = (value: string, keyName: keyof Layout) => {
-    setSelectedSettings((prevState) => {
-      if (["project", "issuetype"].includes(keyName)) {
-        return {
-          ...prevState,
-          [keyName]: value,
-        };
-      }
+    client.setAdminSetting(JSON.stringify(selectedSettings));
+  }, [selectedSettings]);
 
-      const newArray = [...(prevState[keyName] || [])];
-      const index = newArray.indexOf(value);
+  const onUpdateProject = useCallback((project: ProjectElement["id"]) => {
+    setSelectedSettings((prevState) => ({ ...prevState, project }));
+  }, []);
 
-      if (index === -1) {
-        // Value not found, add it to the array
-        newArray.push(value);
-      } else {
-        // Value found, remove it from the array
-        newArray.splice(index, 1);
-      }
+  const onUpdateIssueType = useCallback((issuetype: Issuetype["id"]) => {
+    setSelectedSettings((prevState) => ({ ...prevState, issuetype }));
+  }, []);
 
-      return {
-        ...prevState,
-        [keyName]: newArray,
-      };
-    });
+  const onUpdateEnableMapping = useCallback(() => {
+    setSelectedSettings((prevState) => ({
+      ...prevState,
+      enableMapping: !selectedSettings.enableMapping,
+    }));
+  }, [selectedSettings]);
+
+  const onUpdateMapping = (value: Array<FieldMeta["id"]>, keyName: keyof Layout) => {
+    setSelectedSettings((prevState) => ({ ...prevState, [keyName]: value }));
   };
 
-  const projects = useMemo(() => {
-    if (!createMetaQuery.isSuccess) return [];
+  // Reset the mapping when the dependencies change to prevent scenarios where the 
+  // user forgets to update their mapping switching api keys/other creds and it
+  //  causes the app to crash.
 
-    return createMetaQuery.data.projects.map((p) => {
-      return {
-        key: p.name,
-        label: p.name,
-        value: p.id,
-        type: "value" as const,
-      };
-    });
-  }, [createMetaQuery]);
+  const isFirstResetRun = useRef(true);
+  useEffect(() => {
 
-  const issueTypes = useMemo(() => {
-    if (!createMetaQuery.isSuccess || !selectedSettings.project) return [];
+    // All users should have these settings so they shouldn't be undefined 
+    // once the app has finished loading.
+    const allPrevDefined =
+      settings?.api_key !== undefined &&
+      settings?.domain !== undefined &&
+      settings?.username !== undefined;
 
-    return (
-      createMetaQuery.data.projects
-        .find((e) => e.id === (selectedSettings.project as unknown as string))
-        ?.issuetypes.map((p) => {
-          return {
-            key: p.name,
-            label: p.name,
-            type: "value" as const,
-            value: p.id,
-          };
-        }) ?? []
-    );
-  }, [
-    createMetaQuery.data?.projects,
-    createMetaQuery.isSuccess,
-    selectedSettings.project,
-  ]);
+    if (!isLoading && allPrevDefined) {
+      // The first call will be when the app/component mounts, we don't need to reset the
+      //  mapping at this point so we return early.
+      if (isFirstResetRun.current) {
+        isFirstResetRun.current = false;
+        return;
+      }
 
-  if (!settings || !settings.domain || !settings.username || !settings.api_key)
+      setSelectedSettings((prevState) => ({
+        ...prevState,
+        project: undefined,
+        issuetype: undefined,
+        enableMapping: false,
+        detailView: undefined,
+        listView: undefined
+      }));
+    }
+  }, [isLoading, settings?.api_key, settings?.username, settings?.domain,])
+
+
+  if (!settings?.domain || !settings?.username || !settings?.api_key) {
     return null;
-
-  if (fieldsQuery.isLoading) return <LoadingSpinner />;
-
-  if (fieldsQuery.error) {
-    return (
-      <H2>
-        Wrong Settings. Please ensure you inserted the correct settings before
-        using field mapping
-      </H2>
-    );
   }
 
-  const fields = fieldsQuery.data;
-
-  if (!fields || !fields.length) {
-    return <div>No fields found</div>;
+  if (isLoading) {
+    return (
+      <LoadingSpinner />
+    );
   }
 
   return (
-    <Stack vertical gap={10}>
-      <Stack justify="space-between" style={{ width: "100%" }}>
-        <Property
-          label="Default Project"
-          text={
-            <DropdownSelect
-              error={false}
-              options={projects}
-              onChange={(e: string) => updateSettings(e, "project")}
-              value={selectedSettings.project}
-            />
-          }
-        />
-
-        {selectedSettings.project && (
-          <Property
-            label="Default Issue Type"
-            text={
-              <DropdownSelect
-                error={false}
-                options={issueTypes}
-                onChange={(e: string) => updateSettings(e, "issuetype")}
-                value={selectedSettings.issuetype}
-              />
-            }
-          />
-        )}
-      </Stack>
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
-          width: "100%",
-          rowGap: "10px",
-        }}
-      >
-        <H1>Fields</H1>
-        <H1>Create &amp; Detail View</H1>
-        <H1>List View</H1>
-        {fields
-          .filter((e) => e.schema && e.schema.type !== "any")
-          .map((f) => (
-            <>
-              <td>{f.name}</td>
-              <td className="text-center">
-                <Checkbox
-                  checked={selectedSettings.detailView?.includes(f.id as string)}
-                  onClick={() => updateSettings(f.id as string, "detailView")}
-                />
-              </td>
-              <td className="text-center">
-                <Checkbox
-                  checked={selectedSettings.listView?.includes(f.id as string)}
-                  onClick={() => updateSettings(f.id as string, "listView")}
-                />
-              </td>
-            </>
-          ))}
-      </div>
-    </Stack>
+    <Mapping
+      onUpdateMapping={onUpdateMapping}
+      onUpdateProject={onUpdateProject}
+      onUpdateIssueType={onUpdateIssueType}
+      onUpdateEnableMapping={onUpdateEnableMapping}
+      fields={fields}
+      projectOptions={projectOptions}
+      issueTypeOptions={issueTypeOptions}
+      selectedSettings={{
+        ...selectedSettings,
+        detailView: selectedSettings.detailView || defaultMapping.view,
+        listView: selectedSettings.listView || defaultMapping.main,
+      }}
+    />
   );
 };

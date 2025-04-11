@@ -1,4 +1,5 @@
 import type { Context } from "@deskpro/app-sdk";
+import type { ProjectElement, Issuetype } from "./api/types/createMeta";
 import { DeskproTheme } from '@deskpro/deskpro-ui';
 
 /** common */
@@ -29,14 +30,15 @@ export type Settings = {
   default_comment_on_ticket_reply?: boolean;
   default_comment_on_ticket_note?: boolean;
   ticket_subject_as_issue_summary?: boolean;
-  mapping?: string; // "{ "detailView": [], "listView": [] }"
+  mapping?: string; // stringified Layout type
 };
 
 export type Layout = {
   detailView: string[];
   listView: string[];
-  project?: string;
-  issuetype?: string;
+  project?: ProjectElement["id"];
+  issuetype?: Issuetype["id"];
+  enableMapping?: boolean;
 };
 
 /** Jira */

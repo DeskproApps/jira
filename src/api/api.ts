@@ -22,6 +22,7 @@ import {
   Version,
   ErrorResponse,
   GroupsPicker,
+  IssueFieldsMetaResponse,
 } from "./types/types";
 import { SprintValue, CustomFieldValue, CustomFieldsValues } from "./types/customFieldsValue";
 import { CLOUD_ID_PATH, IS_USING_OAUTH2, OAUTH2_ACCESS_TOKEN_PATH } from '../constants';
@@ -290,6 +291,14 @@ export const getFields = async (
   settings?: Settings,
 ): Promise<FieldMeta[]> => {
   return request<FieldMeta[]>(client, "GET", '/field', undefined, settings)
+};
+
+export const getIssueFields = async (
+  client: IDeskproClient,
+  issueKey: string,
+  settings?: Settings,
+): Promise<IssueFieldsMetaResponse> => {
+  return request<IssueFieldsMetaResponse>(client, "GET", `/issue/${issueKey}/editmeta`, undefined, settings)
 };
 
 export const createIssue = async (
