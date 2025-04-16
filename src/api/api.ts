@@ -72,17 +72,17 @@ export const getIssueComments = async (
   }
 
   const comments = data.comments.map((comment) => ({
-      id: comment.id,
-      created: new Date(comment.created),
-      updated: new Date(comment.updated),
-      body: comment.body,
-      renderedBody: comment.renderedBody,
-      author: {
-        accountId: comment.author.accountId,
-        displayName: comment.author.displayName,
-        avatarUrl: comment.author.avatarUrls["24x24"],
-      },
-    }),
+    id: comment.id,
+    created: new Date(comment.created),
+    updated: new Date(comment.updated),
+    body: comment.body,
+    renderedBody: comment.renderedBody,
+    author: {
+      accountId: comment.author.accountId,
+      displayName: comment.author.displayName,
+      avatarUrl: comment.author.avatarUrls["24x24"],
+    },
+  }),
   );
 
   return comments.sort((a, b) => b.created.getTime() - a.created.getTime());
@@ -121,9 +121,8 @@ export const searchIssues = async (
   q: string,
   params: SearchParams = {},
 ): Promise<SearchIssueItem[]> => {
-  const endpoint = `/issue/picker?query=${q}&currentJQL=&showSubTasks=${
-    params.withSubtask ? "true" : "false"
-  }${params.projectId ? `&currentProjectId=${params.projectId}` : ""}`;
+  const endpoint = `/issue/picker?query=${q}&currentJQL=&showSubTasks=${params.withSubtask ? "true" : "false"
+    }${params.projectId ? `&currentProjectId=${params.projectId}` : ""}`;
   const { sections } = await request<IssuesPicker>(client, "GET", endpoint);
   const { issues: searchIssues } = (sections ?? []).find((s) => s.id === "cs") || {};
   const keys = (searchIssues ?? []).map((i) => i.key);
@@ -179,7 +178,7 @@ export const searchIssues = async (
 
   return (searchIssues ?? []).map((searchIssue) => {
     const issueFields: IssueBean["fields"] = issues[searchIssue.key]?.fields;
-    const epic: IssueBean|undefined = epics[epicKeys[searchIssue.key]];
+    const epic: IssueBean | undefined = epics[epicKeys[searchIssue.key]];
 
     return {
       ...(issueFields ?? {}),
@@ -428,7 +427,7 @@ export const getVersionsByProjectId = async (
     `/project/${projectId}/versions`,
   );
 
-    return res;
+  return res;
 };
 
 export const getUsers = async (client: IDeskproClient) => {
@@ -578,7 +577,7 @@ export class JiraError extends Error {
 
 export const buildCustomFieldMeta = (
   fields: IssueBean["editmeta"]["fields"]
-): Record<FieldMeta["key"], TransfornedFieldMeta|FieldMeta> => {
+): Record<FieldMeta["key"], TransfornedFieldMeta | FieldMeta> => {
   const customFields = extractCustomFieldMeta(fields);
 
   return Object.keys(customFields).reduce((fields, key) => {
@@ -589,13 +588,13 @@ export const buildCustomFieldMeta = (
   }, {});
 };
 
-const findEpicLinkMeta = (issue: IssueBean): FieldMeta|null => {
+const findEpicLinkMeta = (issue: IssueBean): FieldMeta | null => {
   return Object.values(issue?.editmeta?.fields ?? {}).filter((field) => {
     return field.schema.custom === FieldType.EPIC;
   })[0] ?? null;
 };
 
-const findSprintLinkMeta = (issue: IssueBean): FieldMeta|null => {
+const findSprintLinkMeta = (issue: IssueBean): FieldMeta | null => {
   return Object.values(issue?.editmeta?.fields ?? {}).filter((field) => {
     return field.schema.custom === FieldType.SPRINT;
   })[0] ?? null;
@@ -634,7 +633,7 @@ export const transformFieldMeta = (field: FieldMeta): TransfornedFieldMeta => {
 
 const combineCustomFieldValueAndMeta = (
   values: CustomFieldsValues,
-  meta: Record<FieldMeta["key"], TransfornedFieldMeta|FieldMeta>,
+  meta: Record<FieldMeta["key"], TransfornedFieldMeta | FieldMeta>,
 ): Record<FieldMeta["key"], { value: CustomFieldValue, meta: FieldMeta }> => {
   return Object.keys(meta).reduce((fields, key) => ({
     ...fields,
