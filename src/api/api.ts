@@ -557,6 +557,25 @@ const request = async <T>(
   }
 };
 
+export type JiraErrorInitData = {
+  status: number;
+  data?: unknown; //TODO: Add types to handle errors better
+};
+
+export class JiraError extends Error {
+  status: number;
+  data: JiraErrorInitData["data"];
+
+
+  constructor(message: string | null, { status, data }: JiraErrorInitData) {
+    super(message ?? "Jira Api Error")
+
+    this.name = "JiraError"
+    this.data = data
+    this.status = status
+  }
+}
+
 export const buildCustomFieldMeta = (
   fields: IssueBean["editmeta"]["fields"]
 ): Record<FieldMeta["key"], TransfornedFieldMeta|FieldMeta> => {
