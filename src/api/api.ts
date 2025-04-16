@@ -547,13 +547,13 @@ const request = async <T>(
   }
 
   if (res.status < 200 || res.status >= 400) {
-    throw new Error(`${method} ${url}: Response Status [${res.status}]`);
+    throw new JiraError(`${method} ${url}: Response Status [${res.status}]`, { status: res.status })
   }
 
   try {
     return await res.json() as Promise<T>;
   } catch (e) {
-    return {} as Promise<T>;
+    throw new Error("An unexpected error occurred while fetching data")
   }
 };
 
