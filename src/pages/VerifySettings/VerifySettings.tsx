@@ -1,11 +1,11 @@
-import { FC, useState, useCallback, useMemo } from "react";
+import { FC, useState, useCallback } from "react";
 import { P1, Stack, Button } from "@deskpro/deskpro-ui";
 import {
   IDeskproClient,
   useDeskproAppTheme,
   useDeskproAppClient,
-  useDeskproAppEvents,
   adminGenericProxyFetch,
+  useDeskproLatestAppContext,
 } from "@deskpro/app-sdk";
 import { User } from "../../api/types/types";
 import { Settings } from "../../types";
@@ -47,21 +47,14 @@ const VerifySettings: FC = () => {
   const { theme } = useDeskproAppTheme();
 
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [settings, setSettings] = useState<Settings>({});
+    const { context } = useDeskproLatestAppContext<unknown, Settings>()
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
-  const errorMessage = useMemo(
-    () => "Failed to connect to Jira, settings seem to be invalid",
-    [],
-  );
+  const settings = context?.settings
 
-  useDeskproAppEvents(
-    {
-      onAdminSettingsChange: setSettings,
-    },
-    [client],
-  );
+  const errorMessage = "Failed to connect to Jira, settings seem to be invalid"
 
   const onVerifySettings = useCallback(() => {
     if (

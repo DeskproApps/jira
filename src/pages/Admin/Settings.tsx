@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   LoadingSpinner,
-  useDeskproAppEvents,
+  useDeskproLatestAppContext,
   useInitialisedDeskproAppClient,
 } from "@deskpro/app-sdk";
 import { useMetadata } from "./hooks";
@@ -12,9 +12,11 @@ import type { FieldMeta } from "../../api/types/types";
 import type { ProjectElement, Issuetype } from "../../api/types/createMeta";
 
 export const AdminSettings = () => {
-  const [settings, setSettings] = useState<Settings | undefined>();
+  const { context } = useDeskproLatestAppContext<unknown, Settings>()
   const [hasSetSelectedSettings, setHasSetSelectedSettings] = useState(false);
   const [selectedSettings, setSelectedSettings] = useState<Partial<Layout>>({});
+
+  const settings = context?.settings
 
   const {
     fields,
@@ -23,12 +25,10 @@ export const AdminSettings = () => {
     issueTypeOptions,
   } = useMetadata(settings, selectedSettings.project);
 
-  useDeskproAppEvents({
-    onAdminSettingsChange: setSettings,
-  }, []);
-
   useEffect(() => {
-    if (hasSetSelectedSettings || !settings?.mapping) return;
+  if (hasSetSelectedSettings || !settings?.mapping) {
+    return
+  };
 
     setHasSetSelectedSettings(true);
     setSelectedSettings(JSON.parse(settings.mapping || "{}") as Partial<Layout>);
@@ -63,7 +63,7 @@ export const AdminSettings = () => {
 
   // Reset the mapping when the dependencies change to prevent scenarios where the 
   // user forgets to update their mapping switching api keys/other creds and it
-  //  causes the app to crash.
+  // causes the app to crash.
 
   const isFirstResetRun = useRef(true);
   useEffect(() => {
