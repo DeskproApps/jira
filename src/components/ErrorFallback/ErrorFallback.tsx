@@ -22,7 +22,7 @@ export const ErrorFallback = ({
       <H1>Something went wrong:</H1>
       <H2 style={{ maxWidth: "100%" }}>
         {isAdmin
-          // TODO: Improve this. Currently it labels all unhandled exceptions as field mapping errors which can be incorrect.
+          // @todo: Improve this. Currently it labels all unhandled exceptions as field mapping errors which can be incorrect.
           ? "Wrong Settings. Please ensure you inserted the correct settings before using field mapping"
           : parseJsonErrorMessage(error.message) || (error as unknown as string)
         }

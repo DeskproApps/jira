@@ -558,7 +558,7 @@ const request = async <T>(
 
 export type JiraErrorInitData = {
   status: number;
-  data?: unknown; //TODO: Add types to handle errors better
+  data?: unknown; // @todo: Add types to handle errors better
 };
 
 export class JiraError extends Error {
