@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useQueryWithClient } from "@deskpro/app-sdk";
-import { getCreateMeta, getFields } from "../../api/api";
+import { getCreateMeta, getFields, JiraError } from "../../api/api";
 import type { DropdownItemType } from "@deskpro/deskpro-ui";
 import type { ProjectElement, Issuetype } from "../../api/types/createMeta";
 import type { FieldMeta } from "../../api/types/types";
@@ -19,14 +19,38 @@ const useMetadata: UseMetadata = (settings, projectId) => {
   const isValidSettings = Boolean(settings?.domain) && Boolean(settings?.username) && Boolean(settings?.api_key);
 
   const fields = useQueryWithClient(
-    ["fields"],
-    (client) => getFields(client, settings),
+    ["fields", settings?.api_key ?? "", settings?.username ?? "", settings?.domain ?? ""],
+    (client) => getFields(client, settings).catch((e) => {
+      if (e instanceof JiraError) {
+        // Prevent the field mapping section from crashing if the user inputs invalid credentials
+        if (e.status === 404) {
+          return []
+        }
+        // Carry on (Throw API Error)
+        throw e
+      }
+        // Carry on (Throw any other exception)
+      throw e
+    }),
     { enabled: isValidSettings },
   );
 
   const createMeta = useQueryWithClient(
-    ["createMetaQuery"],
-    (client) => getCreateMeta(client, settings),
+    ["createMetaQuery", settings?.api_key ?? "", settings?.username ?? "", settings?.domain ?? ""],
+    (client) => getCreateMeta(client, settings).catch((e) => {
+      if (e instanceof JiraError) {
+        // Prevent the field mapping section from crashing if the user inputs invalid credentials
+        if (e.status === 404) {
+          return {
+            projects: []
+          }
+        } 
+        // Carry on (Throw API Error)
+        throw e
+      }
+        // Carry on (Throw any other exception)
+      throw e
+    }),
     { enabled: isValidSettings },
   );
 
