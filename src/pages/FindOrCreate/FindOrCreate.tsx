@@ -61,7 +61,7 @@ export const FindOrCreate = ({ pageParam }: { pageParam?: 0 | 1 }) => {
         oneIcon={faMagnifyingGlass}
         twoIcon={faPlus}
         oneLabel="Find Issues"
-        twoLabel='Create Issue'
+        twoLabel="Create Issue"
         oneOnClick={() => setPage(0)}
         twoOnClick={() => setPage(1)}
       />
