@@ -3,13 +3,11 @@ import { faRefresh } from "@fortawesome/free-solid-svg-icons";
 
 import { parseJsonErrorMessage } from "../../utils/utils";
 import { Button, H1, H2, Stack } from "@deskpro/deskpro-ui";
+import { FallbackRender } from "@sentry/react";
 
-export const ErrorFallback = ({
+export const ErrorFallback: FallbackRender = ({
   error,
-  resetErrorBoundary,
-}: {
-  error: Error;
-  resetErrorBoundary: () => void;
+  resetError,
 }) => {
   const { pathname } = useLocation();
   const isAdmin = pathname.includes("/admin");
@@ -24,12 +22,12 @@ export const ErrorFallback = ({
         {isAdmin
           // @todo: Improve this. Currently it labels all unhandled exceptions as field mapping errors which can be incorrect.
           ? "Wrong Settings. Please ensure you inserted the correct settings before using field mapping"
-          : parseJsonErrorMessage(error.message) || (error as unknown as string)
+          : parseJsonErrorMessage((error as Error).message) || (error as unknown as string)
         }
       </H2>
       <Button
         text="Reload"
-        onClick={resetErrorBoundary}
+        onClick={resetError}
         icon={faRefresh}
         intent="secondary"
       />

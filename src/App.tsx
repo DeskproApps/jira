@@ -3,7 +3,6 @@ import {
   QueryClientProvider,
   QueryErrorResetBoundary,
 } from "@tanstack/react-query";
-import { ErrorBoundary } from "react-error-boundary";
 import { HashRouter, Route, Routes } from "react-router-dom";
 import { ErrorFallback } from "./components/ErrorFallback/ErrorFallback";
 import { Home as Main } from "./pages/Main";
@@ -25,6 +24,7 @@ import { AdminCallback } from './pages/Admin/Callback';
 import { LogIn } from './pages/LogIn/LogIn';
 import { Initial } from './pages/Initial/Initial';
 import { Settings } from './types';
+import { ErrorBoundary } from "@sentry/react";
 
 export const App = () => {
   const { context } = useDeskproLatestAppContext<unknown, Settings>();
@@ -54,7 +54,7 @@ export const App = () => {
         <Suspense fallback={<LoadingSpinner />}>
           <QueryErrorResetBoundary>
             {({ reset }) => (
-              <ErrorBoundary onReset={reset} FallbackComponent={ErrorFallback}>
+              <ErrorBoundary onReset={reset} fallback={ErrorFallback}>
                 <Routes>
                   <Route path="/">
                     <Route path="redirect" element={<Redirect />} />
