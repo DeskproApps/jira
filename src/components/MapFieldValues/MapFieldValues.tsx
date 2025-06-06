@@ -239,7 +239,10 @@ export const MapFieldValues = ({
               break;
             }
 
-            content = <H2>{fieldValue?.toString() || "-"}</H2>;
+            // Fallback rendering for unhandled [basic] field types
+            content = <H2>{typeof fieldValue === "string" || typeof fieldValue === "number"
+              ? fieldValue
+              : "-"}</H2>;
         }
 
         return <Property key={field.key} label={field.name} text={<>{content}</>} />;
