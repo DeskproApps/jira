@@ -9,7 +9,7 @@ import {
 import { P1 } from "@deskpro/deskpro-ui";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getIssueComments, listLinkedIssues } from "../api/api";
+import { deleteIssueRemoteLink, getIssueComments, getIssueRemoteLinks, listLinkedIssues } from "../api/api";
 import { IssueAttachment, IssueItem, JiraComment } from "../api/types/types";
 import { queryClient } from "../query";
 import {
@@ -87,24 +87,52 @@ export const useLinkIssues = () => {
   }, [client, deskproTicket]);
 
   const unlinkIssues = useCallback(async (issues: string[]) => {
-      if (!context || !client || !deskproTicket?.id) return;
+    if (!context || !client || !deskproTicket?.id) return;
 
-      return Promise.all(
-        issues.map(async (issue) => {
-          client
-            ?.getEntityAssociation("linkedJiraIssues", deskproTicket.id)
-            .delete(issue);
+    // Get all the remote (web) links associated with the issue.
+    const remoteLinksForIssue = await Promise.all(
+      issues.map(async (issueKey) => {
+        const remoteLinks = await getIssueRemoteLinks(client, issueKey)
+        return {
+          issueKey,
+          remoteLinks
+        }
+      })
+    )
 
-          await client.setState(
-            `jira/items/${issue}`,
-            (
-              ((await client.getState(`jira/items/${issue}`))[0]?.data as number) ?? 1
-            ) - 1,
-          );
-        }),
-      )
+    // Retrieve the links for the current ticket.
+    // There should only be one but we're using filter here in case something weird happens.
+    const remoteLinksForTicket = remoteLinksForIssue.flatMap(({ issueKey, remoteLinks }) => {
+      return remoteLinks
+        .filter((link) => link.object?.title === `Deskpro #${context.data?.ticket.id}`)
+        .map((link) => ({ issueKey, id: link.id }))
+    }
+    )
+
+    // Remove links to the current ticket.
+    await Promise.allSettled(
+      remoteLinksForTicket.map((remoteLinkForTicket) => {
+        return deleteIssueRemoteLink(client, remoteLinkForTicket.issueKey, remoteLinkForTicket.id)
+      })
+    )
+
+
+    return Promise.all(
+      issues.map(async (issue) => {
+        client
+          ?.getEntityAssociation("linkedJiraIssues", deskproTicket.id)
+          .delete(issue);
+
+        await client.setState(
+          `jira/items/${issue}`,
+          (
+            ((await client.getState(`jira/items/${issue}`))[0]?.data as number) ?? 1
+          ) - 1,
+        );
+      }),
+    )
       .then(() => navigate("/redirect"));
-    },
+  },
     [client, context, deskproTicket, navigate],
   );
 

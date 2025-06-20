@@ -54,6 +54,27 @@ export const addRemoteLink = async (
     },
   });
 
+interface RemoteLink {
+  application: Record<string, unknown>
+  globalId: string
+  id: number
+  self: string
+  object?: {
+    url: string,
+    summary: string
+    title?: string
+  }
+}
+
+export async function getIssueRemoteLinks(client: IDeskproClient, issueKey: string) {
+  return await request<RemoteLink[]>(client, "GET", `/issue/${issueKey}/remotelink`)
+}
+
+export async function deleteIssueRemoteLink(client: IDeskproClient, issueKey: string, remoteLinkId: number) {
+  return await request(client, "DELETE", `/issue/${issueKey}/remotelink/${remoteLinkId}`)
+}
+
+
 /**
  * Get list of comments for a given issue key
  */
