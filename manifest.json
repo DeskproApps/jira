@@ -5,7 +5,7 @@
   "appStoreUrl": "https://www.deskpro.com/product-embed/apps/jira",
   "version": "1.0.62",
   "scope": "agent",
-  "isSingleInstall": true,
+  "isSingleInstall": false,
   "hasDevMode": true,
   "serveUrl": "https://apps-cdn.deskpro-service.com/__name__/__version__",
   "secrets": "Rd9koLEOXiG206O104+d/dmgyCfLXZK/nTxl+i1Zz6P/lBnRb8Oe30l26zl+sY6zE25GlM09QV0rAEuSeEEAdklUlUvExCk22VfMxuZKXvKxIKb25ZkU+CD2qAng9d+Xc6m1MHeTDEB3p/9BmNMOtAMIxqLO4VHRLLYGSlz5ag9uxGyuS2qHzUHBUinmq1Ku6H573GF3rYQ2E6YGL8ZPejYeNgXP1r6kHHjY9my86bDSRTDvkfLWg74hzM01ydukcnMc/nFfu3iZGKILfH5oaDZj/UVwgnMgml6jl5fk1Z4pW0dAGlNKorcw1jPaKvov61+sSSxinU9foObAag6Nc41cLf3zx2g6XSmC/d2xvL/1zeh7lIy+bbFa6aLiz1mAYRv7pJN4KbqtYJEjar7yzR9o+CW/c9YBT2PQsgAOBuSXf8V81PxIuSUhCcUo68ygiyUmqmyvU8OjC+4agYwG1uuuQz4zzYI/78FEMi720mniWnqtQJX8Aq7dtRKbdhDIglgi5RG20ShsFYoP4y6+dRzqTEVZ5KamIwVE2/FnEFKDsIevYfgfV/KOzIaRwatPJni5jptvYHKdoqwxVJuRGo3WaW8egihQ/YMWPlKSlwCO8T2XsoUnyj/Axb/wRNjMHgBBQ14CUnZibV9UWk105hoeUpQh1rA57ayV1WVVI/oVmuJuTxuxuLV6JWJ1tOM9pWEvy35Q2Iy/Ch7ZzCBgFAI94psseVfKDTVs/QVhUO26cTdX3ZYG9HpBL4kQ15ZnlGFwOcvJmchMG0wfGPqh7w7yx8THSX9oZT8RpQRt7mqWHFvzZWtVeHu+iZ95xN+XGFHijMmRN1XSD/Goy2VYiIKqAdf5orxtkJb+XLz002XyurdPsFfHgbxG/c7vUCEgS8kvghrglSRHQyveqsdicGtEVrl+CIc+qSYsheR6DnbtxupvXHiqBuDnIV6yY9kWKm0aqD9t81FjS9sjosewXm5/8tv5PVDWUywNmnlp2nSCUZrA6ZU4bJ4cJc57R63SwmcqYfBLw8Qb8huYK+lprDuvV+OlqrpZt3cOuboc7Yw4BRNATBVbvwHY8YErLmoPOPQMN8A7jvJLcO3M9fyrlB2+NRMRjZxIRc7qSbJn3jjCFk3rixtL29dHoWo+qEl9ZwFqOk7RI9dgIZ+pWKTEITSPiJt7ptkmTCplZHSZim5o/zfta/jYAQ96RE0oYeMcXRYlGhvQsUCn+mKUzJUXaDZF9gZ/mId7fbT434IOEuEli4VmLXiMbLpWeJy9EAjO",
