@@ -157,7 +157,7 @@
       },
       {
         "url": "https://api.atlassian.com/.*",
-        "methods": ["GET", "POST"],
+        "methods": ["GET", "POST", "DELETE"],
         "timeout": 50
       }
     ]
