@@ -14,7 +14,7 @@ export default async function createIssue(client: IDeskproClient, issueData: Iss
     },
   };
 
-  const res = await jiraRequest<IssueBean>(client, { method: "POST", endpoint: '/fissue', payload: body });
+  const res = await jiraRequest<IssueBean>(client, { method: "POST", endpoint: '/issue', payload: body });
 
   // @todo Revisit this
   // if ((res as unknown as ErrorResponse)?.errors || (res as unknown as ErrorResponse)?.errorMessages) {
