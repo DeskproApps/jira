@@ -16,9 +16,9 @@ import {
   DivAsInputWithDisplay,
 } from "@deskpro/deskpro-ui";
 import { useQueryWithClient } from "@deskpro/app-sdk";
-import { getVersionsByProjectId } from "../../api/api";
 import { Version } from "../../api/types/types";
 import { Project } from "../../api/types/fieldsValue";
+import { getProjectVersions } from "@/api/projects";
 
 type Props = {
   projectId?: Project["id"];
@@ -63,7 +63,7 @@ const VersionMultiSelect: FC<Props> = ({ projectId, value, onChange, error }) =>
 
   const versions = useQueryWithClient(
     ["versions", projectId as Project["id"]],
-    (client) => getVersionsByProjectId(client, projectId as Project["id"]),
+    (client) => getProjectVersions(client, projectId as Project["id"]),
     { enabled: Boolean(projectId) },
   );
 

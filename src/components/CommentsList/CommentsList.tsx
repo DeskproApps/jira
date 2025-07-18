@@ -11,11 +11,11 @@ import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "./CommentsList.css";
 import ReactTimeAgo from "react-time-ago";
-import { getIssueComments } from "../../api/api";
 import { JiraComment } from "../../api/types/types";
 import { addBlankTargetToLinks } from "../../utils/utils";
 import { useNavigate } from "react-router-dom";
-import { TicketData, Settings } from "../../types";
+import { ContextData, ContextSettings } from "@/types/deskpro";
+import { getIssueComments } from "@/api/issues/comments";
 
 interface CommentsListProps {
   issueKey: string;
@@ -25,7 +25,7 @@ export const CommentsList: FC<CommentsListProps> = ({
   issueKey,
 }: CommentsListProps) => {
   const { theme } = useDeskproAppTheme();
-  const { context } = useDeskproLatestAppContext<TicketData, Settings>();
+  const { context } = useDeskproLatestAppContext<ContextData, ContextSettings>();
   const navigate = useNavigate();
 
   const commentsQuery = useQueryWithClient(

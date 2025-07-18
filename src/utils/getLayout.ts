@@ -1,7 +1,8 @@
-import { Layout, Settings } from "../types";
+import { Layout } from "../types";
 import defaultMapping from "../mapping/issue.json";
+import { ContextSettings } from "@/types/deskpro";
 
-const getLayout = (mapping: Settings["mapping"]): Layout => {
+const getLayout = (mapping: ContextSettings["mapping"]): Layout => {
 
   const baseObj = { detailView: defaultMapping.view, listView: defaultMapping.main }
   if (!mapping) {

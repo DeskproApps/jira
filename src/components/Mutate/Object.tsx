@@ -12,17 +12,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { ZodTypeAny } from "zod";
-import {
-  addRemoteLink,
-  createIssue,
-  getCreateMeta,
-  getIssueByKey,
-  getLabels,
-  getUsers,
-  updateIssue,
-  getProjectCreateMeta,
-  transformFieldMeta,
-} from "../../api/api";
 import { FieldMeta, IssueFormData, InvalidRequestResponseError } from "../../api/types/types";
 import IssueJson from "../../mapping/issue.json";
 import { useLinkIssues } from "../../hooks/hooks";
@@ -38,7 +27,14 @@ import { ErrorBlock } from "../Error/ErrorBlock";
 import { FormMapping } from "../FormMapping/FormMapping";
 import { LoadingSpinnerCenter } from "../LoadingSpinnerCenter/LoadingSpinnerCenter";
 import { JiraProject, JiraUser } from "./types";
-import { TicketData, Settings } from "../../types";
+import { createIssue, getIssueByKey, updateIssue } from "@/api/issues";
+import { ContextData, ContextSettings } from "@/types/deskpro";
+import { createIssueRemoteLink } from "@/api/issues/remoteLinks";
+import { getUsers } from "@/api/users";
+import { transformFieldMeta } from "@/api/utils";
+import { getLabels } from "@/api/labels";
+import { getIssueCreateMeta } from "@/api/issues/createMeta";
+import { getProjectCreateMeta } from "@/api/projects";
 
 type Props = {
   objectId?: string;
@@ -49,10 +45,12 @@ export const MutateObject = ({ objectId }: Props) => {
   const { client } = useDeskproAppClient();
   const [schema, setSchema] = useState<ZodTypeAny | null>(null);
   const [mappedFields, setMappedFields] = useState<string[]>([]);
-  const { context } = useDeskproLatestAppContext<TicketData, Settings>();
+  const { context } = useDeskproLatestAppContext<ContextData, ContextSettings>();
   const { linkIssues } = useLinkIssues();
 
   const isEditMode = !!objectId;
+
+  const deskproTicket = context?.data?.ticket
 
   const {
     formState: { errors },
@@ -74,19 +72,21 @@ export const MutateObject = ({ objectId }: Props) => {
 
   const usersQuery = useQueryWithClient(["users"], getUsers);
 
-  const createMetaQuery = useQueryWithClient(["createMeta"], getCreateMeta);
+  const createMetaQuery = useQueryWithClient(["createMeta"], getIssueCreateMeta);
 
   const labelsQuery = useQueryWithClient(["labels"], getLabels);
 
   const submitMutation = useMutationWithClient((client, values: IssueFormData) => {
     const metaMap = usableFields.map(transformFieldMeta).reduce((acc, meta) => ({ ...acc, [meta.key]: meta }), {});
     return isEditMode
-      ? updateIssue(client, objectId, getFormValuesToData(values, metaMap))
+      ? updateIssue(client, { issueKey: objectId, issueData: getFormValuesToData(values, metaMap) })
       : createIssue(client, getFormValuesToData(values, metaMap));
   });
 
   useEffect(() => {
-    if (!submitMutation.isSuccess || !client || !context) return;
+    if (!submitMutation.isSuccess || !client || !deskproTicket) {
+      return
+    }
 
     if (isEditMode) {
       navigate("/view/single/" + objectId);
@@ -94,12 +94,9 @@ export const MutateObject = ({ objectId }: Props) => {
       return;
     }
 
-    addRemoteLink(
+    createIssueRemoteLink(
       client,
-      submitMutation.data.key,
-      context?.data?.ticket.id as string,
-      context?.data?.ticket.subject as string,
-      context?.data?.ticket.permalinkUrl as string,
+      { issueKey: submitMutation.data.key, deskproTicket }
     ).then(() => {
       linkIssues([submitMutation?.data?.id]);
     });
@@ -111,7 +108,7 @@ export const MutateObject = ({ objectId }: Props) => {
     navigate,
     submitMutation.isSuccess,
     client,
-    context,
+    deskproTicket,
   ]);
 
   useEffect(() => {
@@ -228,7 +225,7 @@ export const MutateObject = ({ objectId }: Props) => {
 
   const fieldsProjectCreateMeta = useQueryWithClient(
     ["fields", values.project?.id, values.issuetype?.id],
-    (client) => getProjectCreateMeta(client, values.project?.id, values.issuetype?.id),
+    (client) => getProjectCreateMeta(client, { projectId: values.project?.id, issueTypeId: values.issuetype?.id }),
     { enabled: Boolean(values.project?.id) && Boolean(values.issuetype?.id) && !isEditMode },
   );
   const createFieldsMeta = useMemo(() => {

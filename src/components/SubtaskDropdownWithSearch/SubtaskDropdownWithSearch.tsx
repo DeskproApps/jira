@@ -18,10 +18,10 @@ import {
   faExternalLinkAlt,
   faHandPointer,
 } from "@fortawesome/free-solid-svg-icons";
-import { getIssueByKey, searchIssues } from "../../api/api";
 import { normalize } from "../../utils/utils";
 import { Project, IssueLink } from "../../api/types/fieldsValue";
 import { SearchIssueItem } from "../../api/types/types";
+import { getIssueByKey, searchIssues } from "@/api/issues";
 
 export interface DropdownWithSearchProps {
   setValue: (issueLink: IssueLink["id"]) => void;

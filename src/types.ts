@@ -11,27 +11,7 @@ export type DateTime = string;
 /** request */
 export type ApiRequestMethod = "GET" | "POST" | "PUT" | "DELETE";
 
-/** Deskpro */
-export type TicketData = {
-  ticket: { id: string; permalinkUrl: string; subject: string }
-};
-export interface TicketContext extends Context {
-  data: TicketData;
-};
 
-export type Settings = {
-  use_advanced_connect?: boolean;
-  use_api_key?: boolean;
-  domain?: string;
-  username?: string;
-  api_key?: string;
-  verify_settings?: string;
-  client_id?: string;
-  default_comment_on_ticket_reply?: boolean;
-  default_comment_on_ticket_note?: boolean;
-  ticket_subject_as_issue_summary?: boolean;
-  mapping?: string; // stringified Layout type
-};
 
 export type Layout = {
   detailView: string[];

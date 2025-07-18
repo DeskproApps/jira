@@ -16,8 +16,8 @@ import {
   DivAsInputWithDisplay,
 } from "@deskpro/deskpro-ui";
 import { useQueryWithClient } from "@deskpro/app-sdk";
-import { getGroups } from "../../api/api";
 import { GroupPicker } from "../../api/types/types";
+import { getGroups } from "@/api/groups";
 
 type Props = {
   value?: GroupPicker[];

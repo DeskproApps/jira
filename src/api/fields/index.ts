@@ -1,0 +1,1 @@
+export { default as getFields } from "./getFields"

@@ -7,12 +7,13 @@ import {
 import { useMetadata } from "./hooks";
 import defaultMapping from "../../mapping/issue.json";
 import { Mapping } from "../../components/Admin";
-import type { Settings, Layout } from "../../types";
+import type { Layout } from "../../types";
 import type { FieldMeta } from "../../api/types/types";
 import type { ProjectElement, Issuetype } from "../../api/types/createMeta";
+import { ContextData, ContextSettings } from "@/types/deskpro";
 
 export const AdminSettings = () => {
-  const { context } = useDeskproLatestAppContext<unknown, Settings>()
+  const { context } = useDeskproLatestAppContext<ContextData, ContextSettings>()
   const [hasSetSelectedSettings, setHasSetSelectedSettings] = useState(false);
   const [selectedSettings, setSelectedSettings] = useState<Partial<Layout>>({});
 

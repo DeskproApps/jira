@@ -11,23 +11,24 @@ import {
   useDeskproElements,
   useDeskproLatestAppContext
 } from "@deskpro/app-sdk";
-import { Redirect } from "./components/Redirect/Redirect";
-import { queryClient } from "./query";
-import { FindOrCreate } from "./pages/FindOrCreate/FindOrCreate";
-import { ViewObject } from "./pages/View/Object";
+import { AdminCallback } from './pages/Admin/Callback';
+import { AdminSettings } from "./pages/Admin/Settings";
+import { ContextData, ContextSettings } from '@/types/deskpro';
+import { CreateComment } from "./pages/Create/Comment";
 import { CreateObject } from "./pages/Create/Object";
 import { EditObject } from "./pages/Edit/Edit";
-import { AdminSettings } from "./pages/Admin/Settings";
-import { VerifySettings } from "./pages/VerifySettings/VerifySettings";
-import { CreateComment } from "./pages/Create/Comment";
-import { AdminCallback } from './pages/Admin/Callback';
-import { LogIn } from './pages/LogIn/LogIn';
-import { Initial } from './pages/Initial/Initial';
-import { Settings } from './types';
 import { ErrorBoundary } from "@sentry/react";
+import { FindOrCreate } from "./pages/FindOrCreate/FindOrCreate";
+import { Initial } from './pages/Initial/Initial';
+import { LogIn } from './pages/LogIn/LogIn';
+import { queryClient } from "./query";
+import { Redirect } from "./components/Redirect/Redirect";
+import { VerifySettings } from "./pages/VerifySettings/VerifySettings";
+import { ViewObject } from "./pages/View/Object";
+
 
 export const App = () => {
-  const { context } = useDeskproLatestAppContext<unknown, Settings>();
+  const { context } = useDeskproLatestAppContext<ContextData, ContextSettings>();
 
   useDeskproElements(({ clearElements, registerElement }) => {
     const isUsingOAuth2 = context?.settings.use_advanced_connect === false || context?.settings.use_api_key === false;
