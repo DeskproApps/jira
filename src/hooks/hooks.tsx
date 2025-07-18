@@ -9,7 +9,6 @@ import {
 import { P1 } from "@deskpro/deskpro-ui";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { deleteIssueRemoteLink, getIssueComments, getIssueRemoteLinks, listLinkedIssues } from "../api/api";
 import { IssueAttachment, IssueItem, JiraComment } from "../api/types/types";
 import { queryClient } from "../query";
 import {
@@ -18,10 +17,13 @@ import {
   ticketReplyNotesSelectionStateKey,
 } from "../utils/utils";
 import { OAUTH2_ACCESS_TOKEN_PATH } from '../constants';
-import { Settings, TicketData } from "../types";
+import { ContextData, ContextSettings } from "@/types/deskpro";
+import { deleteIssueRemoteLink, getIssueRemoteLinks } from "@/api/issues/remoteLinks";
+import { getIssueComments } from "@/api/issues/comments";
+import { listLinkedIssues } from "@/api/issues";
 
 export const useLinkIssues = () => {
-  const { context } = useDeskproLatestAppContext<TicketData, Settings>();
+  const { context } = useDeskproLatestAppContext<ContextData, ContextSettings>();
   const { client } = useDeskproAppClient();
   const [isLinking, setIsLinking] = useState(false);
   const navigate = useNavigate();
@@ -112,7 +114,7 @@ export const useLinkIssues = () => {
     // Remove links to the current ticket.
     await Promise.allSettled(
       remoteLinksForTicket.map((remoteLinkForTicket) => {
-        return deleteIssueRemoteLink(client, remoteLinkForTicket.issueKey, remoteLinkForTicket.id)
+        return deleteIssueRemoteLink(client, { issueKey: remoteLinkForTicket.issueKey, remoteLinkId: remoteLinkForTicket.id })
       })
     )
 
@@ -165,7 +167,7 @@ export const useSetAppTitle = (title: string): void => {
 
 export const useWhenNoLinkedItems = (onNoLinkedItems: () => void) => {
   const { client } = useDeskproAppClient();
-  const { context } = useDeskproLatestAppContext<TicketData, Settings>();
+  const { context } = useDeskproLatestAppContext<ContextData, ContextSettings>();
 
   useEffect(() => {
     if (!client || !context?.data?.ticket.id) {
@@ -180,7 +182,7 @@ export const useWhenNoLinkedItems = (onNoLinkedItems: () => void) => {
 
 export const useLoadLinkedIssues = () => {
   const { client } = useDeskproAppClient();
-  const { context } = useDeskproLatestAppContext<TicketData, Settings>();
+  const { context } = useDeskproLatestAppContext<ContextData, ContextSettings>();
 
   return async () => {
     if (!client || !context?.data?.ticket) {

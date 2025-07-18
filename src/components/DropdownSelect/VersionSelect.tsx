@@ -12,9 +12,9 @@ import {
   DropdownValueType,
 } from "@deskpro/deskpro-ui";
 import { useQueryWithClient } from "@deskpro/app-sdk";
-import { getVersionsByProjectId } from "../../api/api";
 import { Version } from "../../api/types/types";
 import { Project } from "../../api/types/fieldsValue";
+import { getProjectVersions } from "@/api/projects";
 
 export type Props = {
   projectId?: Project["id"];
@@ -33,7 +33,7 @@ const VersionSelect: FC<Props> = ({
 
   const versions = useQueryWithClient(
     ["versions", projectId as Project["id"]],
-    (client) => getVersionsByProjectId(client, projectId as Project["id"]),
+    (client) => getProjectVersions(client, projectId as Project["id"]),
     { enabled: Boolean(projectId) },
   );
 

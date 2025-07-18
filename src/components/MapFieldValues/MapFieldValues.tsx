@@ -25,7 +25,8 @@ import {
   Components,
   ParentFieldValue,
 } from "../../api/types/fieldsValue";
-import { TicketData, Settings, FieldType, DateTime } from "../../types";
+import { FieldType, DateTime } from "../../types";
+import {ContextData, ContextSettings } from "@/types/deskpro";
 
 export const MapFieldValues = ({
   issue,
@@ -34,7 +35,7 @@ export const MapFieldValues = ({
   issue: SearchIssueItem | IssueItem;
   usableFields: FieldMeta[];
 }) => {
-  const { context } = useDeskproLatestAppContext<TicketData, Settings>();
+  const { context } = useDeskproLatestAppContext<ContextData, ContextSettings>();
   const domain = context?.settings?.domain;
   const parentFieldValue = (issue.parent as ParentFieldValue)?.key
   const projectFieldValue = (issue.project as Project)

@@ -8,11 +8,11 @@ import {
   useDeskproLatestAppContext,
 } from "@deskpro/app-sdk";
 import { User } from "../../api/types/types";
-import { Settings } from "../../types";
+import { ContextData, ContextSettings } from "@/types/deskpro";
 
 export const preInstalledRequest = async (
   client: IDeskproClient,
-  settings: Required<Pick<Settings, "domain" | "username" | "api_key">>,
+  settings: Required<Pick<ContextSettings, "domain" | "username" | "api_key">>,
 ): Promise<User | null> => {
   const { domain, username, api_key } = settings;
   const auth = `${username}:${api_key}`;
@@ -47,7 +47,7 @@ const VerifySettings: FC = () => {
   const { theme } = useDeskproAppTheme();
 
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-    const { context } = useDeskproLatestAppContext<unknown, Settings>()
+    const { context } = useDeskproLatestAppContext<ContextData, ContextSettings>()
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");

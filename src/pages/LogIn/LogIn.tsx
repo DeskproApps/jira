@@ -7,10 +7,10 @@ import { ErrorBlock } from '../../components/Error/ErrorBlock';
 import { getAccessToken } from '../../api/getAccessToken';
 import setAccessToken from '../../api/setAccessToken';
 import { GLOBAL_CLIENT_ID, SCOPE } from '../../constants';
-import { Settings } from '../../types';
+import { ContextData, ContextSettings } from '@/types/deskpro';
 
 export function LogIn() {
-    const { context } = useDeskproLatestAppContext<unknown, Settings>();
+    const { context } = useDeskproLatestAppContext<ContextData, ContextSettings>();
     const navigate = useNavigate();
     const callbackURLRef = useRef('');
     const [oAuth2Context, setOAuth2Context] = useState<IOAuth2 | null>(null);

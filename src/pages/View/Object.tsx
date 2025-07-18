@@ -4,25 +4,26 @@ import {
   useInitialisedDeskproAppClient,
   useQueryWithClient,
 } from "@deskpro/app-sdk";
-import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { getIssueFields, listLinkedIssues } from "../../api/api";
-import { FieldMapping } from "../../components/FieldMapping/FieldMapping";
-import { LoadingSpinnerCenter } from "../../components/LoadingSpinnerCenter/LoadingSpinnerCenter";
-import IssueJson from "../../mapping/issue.json";
-import { H2, Stack } from "@deskpro/deskpro-ui";
 import { CommentsList } from "../../components/CommentsList/CommentsList";
-import { useLinkIssues } from "../../hooks/hooks";
-import { queryClient } from "../../query";
 import { Container } from "../../components/Layout";
+import { ContextData, ContextSettings } from "@/types/deskpro";
+import { FieldMapping } from "../../components/FieldMapping/FieldMapping";
+import { getIssueFields } from "@/api/issues/fields";
 import { getLayout } from "../../utils/utils";
-import { TicketData, Settings } from "../../types";
+import { H2, Stack } from "@deskpro/deskpro-ui";
+import { listLinkedIssues } from "@/api/issues";
+import { LoadingSpinnerCenter } from "../../components/LoadingSpinnerCenter/LoadingSpinnerCenter";
+import { queryClient } from "../../query";
+import { useEffect, useMemo, useState } from "react";
+import { useLinkIssues } from "../../hooks/hooks";
+import { useNavigate, useParams } from "react-router-dom";
+import IssueJson from "../../mapping/issue.json";
 
 export const ViewObject = () => {
   const [hasMappedFields, setHasMappedFields] = useState<boolean | undefined>(
     undefined,
   );
-  const { context } = useDeskproLatestAppContext<TicketData, Settings>();
+  const { context } = useDeskproLatestAppContext<ContextData, ContextSettings>();
   const [mappedFields, setMappedFields] = useState<string[]>([]);
   const navigate = useNavigate();
   const { objectId, objectView } = useParams();

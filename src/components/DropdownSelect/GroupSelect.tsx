@@ -12,8 +12,8 @@ import {
   DropdownValueType,
 } from "@deskpro/deskpro-ui";
 import { useQueryWithClient } from "@deskpro/app-sdk";
-import { getGroups } from "../../api/api";
 import { GroupPicker } from "../../api/types/types";
+import { getGroups } from "@/api/groups";
 
 export type Props = {
   value?: GroupPicker;

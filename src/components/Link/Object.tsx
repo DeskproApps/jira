@@ -23,9 +23,11 @@ import IssueJson from "../../mapping/issue.json";
 import { FieldMapping } from "../FieldMapping/FieldMapping";
 import { HorizontalDivider } from "../HorizontalDivider/HorizontalDivider";
 import { LoadingSpinnerCenter } from "../LoadingSpinnerCenter/LoadingSpinnerCenter";
-import { addRemoteLink, getFields, searchIssues } from "../../api/api";
 import { getLayout } from "../../utils/utils";
-import { TicketData, Settings } from "../../types";
+import { ContextData, ContextSettings } from "@/types/deskpro";
+import { createIssueRemoteLink } from "@/api/issues/remoteLinks";
+import { searchIssues } from "@/api/issues";
+import { getFields } from "@/api/fields";
 
 
 export const LinkContact = () => {
@@ -36,7 +38,7 @@ export const LinkContact = () => {
   const [prompt, setPrompt] = useState<string>("");
   const [hasMappedFields, setHasMappedFields] = useState<boolean | undefined>(undefined);
   const [mappedFields, setMappedFields] = useState<string[]>([]);
-  const { context } = useDeskproLatestAppContext<TicketData, Settings>();
+  const { context } = useDeskproLatestAppContext<ContextData, ContextSettings>();
   const { linkIssues, getLinkedIssues } = useLinkIssues();
   const { client } = useDeskproAppClient()
   const navigate = useNavigate();
@@ -45,7 +47,7 @@ export const LinkContact = () => {
 
   const { debouncedValue: debouncedText } = useDebounce(prompt, 300);
 
-  const onLinkIssues = useCallback(async() => {
+  const onLinkIssues = useCallback(async () => {
     if (!ticket || !client) {
       return
     }
@@ -54,12 +56,8 @@ export const LinkContact = () => {
 
       await Promise.all(
         selectedIssues.map((selectedIssueId) => {
-          addRemoteLink(
-            client,
-            selectedIssueId,
-            ticket.id,
-            ticket.subject,
-            ticket.permalinkUrl,
+          createIssueRemoteLink(client,
+            { issueKey: selectedIssueId, deskproTicket: ticket },
           )
         })
       )

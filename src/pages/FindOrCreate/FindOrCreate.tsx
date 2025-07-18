@@ -10,13 +10,14 @@ import { LinkContact } from "../../components/Link/Object";
 import { MutateObject } from "../../components/Mutate/Object";
 import { Container } from "../../components/Layout";
 import { useLogOut } from '../../hooks';
-import { Payload, Settings } from '../../types';
+import { Payload } from '../../types';
+import { ContextData, ContextSettings } from "@/types/deskpro";
 
 export const FindOrCreate = ({ pageParam }: { pageParam?: 0 | 1 }) => {
   const [page, setPage] = useState<0 | 1>(pageParam || 0);
   const { logOut } = useLogOut();
 
-  const { context } = useDeskproLatestAppContext<unknown, Settings>();
+  const { context } = useDeskproLatestAppContext<ContextData, ContextSettings>();
 
   useDeskproElements(({ deRegisterElement, registerElement, clearElements }) => {
     const isUsingOAuth2 = context?.settings.use_advanced_connect === false || context?.settings.use_api_key === false;

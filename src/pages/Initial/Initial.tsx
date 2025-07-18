@@ -1,57 +1,43 @@
-import { useEffect, useState } from 'react';
+import { ContextData, ContextSettings } from '@/types/deskpro';
+import { LoadingSpinner, useDeskproElements, useDeskproLatestAppContext } from '@deskpro/app-sdk';
+import { Stack } from '@deskpro/deskpro-ui';
 import { useNavigate } from 'react-router-dom';
-import { LoadingSpinner, useDeskproLatestAppContext, useInitialisedDeskproAppClient } from '@deskpro/app-sdk';
-import { checkIsAuth } from '../../api/checkIsAuth';
-import { CLOUD_ID_PATH, IS_USING_OAUTH2 } from '../../constants';
-import { Settings } from '../../types';
+import Callout from '@/components/Callout';
+import useAuthentication from '@/hooks/useAuthentication';
 
 export function Initial() {
-    const { context } = useDeskproLatestAppContext<unknown, Settings>();
-    const [hasContextLoaded, setHasContextLoaded] = useState(false);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    useDeskproElements(({ registerElement, clearElements }) => {
+        clearElements()
+        registerElement("refresh", { type: "refresh_button" })
+    }, [])
+
+    const { context } = useDeskproLatestAppContext<ContextData, ContextSettings>();
     const navigate = useNavigate();
+    const isUsingOAuth = context?.settings.use_advanced_connect === false || context?.settings.use_api_key === false;
+    const { isLoading, isAuthenticated } = useAuthentication({ isUsingOAuth })
 
-    useEffect(() => {
-        if (!context) {
-            return;
-        };
+    if (isLoading) {
+        return (<LoadingSpinner />)
+    }
 
-        setHasContextLoaded(true);
-    }, [context]);
+    if (!isAuthenticated) {
+        if (isUsingOAuth) {
+            navigate(`/log_in`);
+            return (<LoadingSpinner />)
+        }
 
-    useInitialisedDeskproAppClient(async client => {
-        if (!hasContextLoaded) {
-            return;
-        };
+        return (
+            <Stack padding={12} style={{ width: "100%" }}>
+                <Callout
+                    style={{ width: "100%" }}
+                    accent="red"
+                >
+                    The JIRA API credentials provided during the app setup process are invalid or expired. Please contact your admin to verify your credentials and try again.
+                </Callout>
+            </Stack>
+        )
+    }
 
-        const isUsingOAuth2 = context?.settings.use_advanced_connect === false || context?.settings.use_api_key === false;
-        
-        await client.setUserState(IS_USING_OAUTH2, isUsingOAuth2);
-
-        if (!isUsingOAuth2) {
-            setIsLoggedIn(true);
-        } else {
-            checkIsAuth({ client })
-                .then(resources => {
-                    if (!resources[0].id) {
-                        throw new Error('error getting Jira Cloud ID');
-                    };
-
-                    client.setUserState(CLOUD_ID_PATH, resources[0].id);
-
-                    setIsLoggedIn(true);
-                })
-                .catch(() => {
-                    navigate('/log_in');
-                });
-        };
-    }, [context, hasContextLoaded]);
-
-    useEffect(() => {
-        if (isLoggedIn) {
-            navigate('/home');
-        };
-    }, [isLoggedIn, navigate]);
-
+    navigate('/home')
     return <LoadingSpinner />
 };
