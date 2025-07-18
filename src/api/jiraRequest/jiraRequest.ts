@@ -74,6 +74,10 @@ export default async function jiraRequest<T>(client: IDeskproClient, params: Rea
 
   }
 
+  // This should only happen when updating data.
+  if (response.status === 204) {
+    return undefined as T;
+  }
   return await response.json() as T
 }
 

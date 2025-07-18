@@ -1,5 +1,5 @@
 import jiraRequest from "@/api/jiraRequest";
-import { AttachmentFile, IssueBean, IssueFormData } from "@/api/types/types";
+import { AttachmentFile, IssueFormData } from "@/api/types/types";
 import { IDeskproClient } from "@deskpro/app-sdk";
 
 interface UpdateIssueParams {
@@ -16,7 +16,7 @@ export default async function updateIssue(client: IDeskproClient, params: Readon
     },
   };
 
-  const res = await jiraRequest<IssueBean>(
+  const res = await jiraRequest<undefined>(
     client,
     {
       method: "PUT",
