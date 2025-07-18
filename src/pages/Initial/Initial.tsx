@@ -6,11 +6,8 @@ import Callout from '@/components/Callout';
 import useAuthentication from '@/hooks/useAuthentication';
 
 export function Initial() {
-    useDeskproElements(({ registerElement, clearElements, deRegisterElement }) => {
+    useDeskproElements(({ registerElement, clearElements }) => {
         clearElements()
-        deRegisterElement("home")
-        deRegisterElement("menu")
-        deRegisterElement("edit")
         registerElement("refresh", { type: "refresh_button" })
     }, [])
 
@@ -35,7 +32,7 @@ export function Initial() {
                     style={{ width: "100%" }}
                     accent="red"
                 >
-                    The Jira API credentials provided during the app setup process are invalid or expired. Please contact your admin to verify your credentials and try again.
+                    The JIRA API credentials provided during the app setup process are invalid or expired. Please contact your admin to verify your credentials and try again.
                 </Callout>
             </Stack>
         )

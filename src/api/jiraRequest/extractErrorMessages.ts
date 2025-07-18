@@ -1,7 +1,7 @@
-import isJiraErrorWithData from "./isJiraErrorWithData";
 import { JiraError } from "./jiraRequest";
+import isJiraErrorWithData from "./isJiraErrorWithData";
 
-export default function extractErrorMessages(e: unknown) {
+export default function extractErrorMessages(e: unknown): string | null {
   if (e instanceof JiraError && isJiraErrorWithData(e.data)) {
     const { errorMessages, error, message, errors } = e.data
 
@@ -24,7 +24,7 @@ export default function extractErrorMessages(e: unknown) {
     }
   }
 
-  if (e instanceof Error) {
+  if (e instanceof Error && e.message.trim() !== "") {
     return e.message
   }
 
