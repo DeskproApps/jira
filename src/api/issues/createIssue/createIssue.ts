@@ -16,11 +16,6 @@ export default async function createIssue(client: IDeskproClient, issueData: Iss
 
   const res = await jiraRequest<IssueBean>(client, { method: "POST", endpoint: '/issue', payload: body });
 
-  // @todo Revisit this
-  // if ((res as unknown as ErrorResponse)?.errors || (res as unknown as ErrorResponse)?.errorMessages) {
-  //   throw new InvalidRequestResponseError("Failed to create JIRA issue", res as unknown as ErrorResponse);
-  // }
-
   if ((attachments ?? []).length) {
     const attachmentUploads = attachments.map((attachment: AttachmentFile) => {
       if (attachment.file) {

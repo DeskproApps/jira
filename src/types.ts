@@ -1,4 +1,3 @@
-import type { Context } from "@deskpro/app-sdk";
 import type { ProjectElement, Issuetype } from "./api/types/createMeta";
 import { DeskproTheme } from '@deskpro/deskpro-ui';
 

@@ -24,12 +24,7 @@ export default async function updateIssue(client: IDeskproClient, params: Readon
       payload: body,
     }
   );
-
-  // @todo Revisit this
-  // if ((res as unknown as ErrorResponse)?.errors || (res as unknown as ErrorResponse)?.errorMessages) {
-  //   throw new InvalidRequestResponseError("Failed to update JIRA issue", res as unknown as ErrorResponse);
-  // }
-
+  
   if ((issueData.attachments ?? []).length) {
     const attachmentUploads = (issueData.attachments ?? []).map(
       (attachment: AttachmentFile) => {

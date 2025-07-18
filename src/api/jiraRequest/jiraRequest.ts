@@ -18,8 +18,7 @@ interface JiraRequestParams {
  * @throws {JiraError} If the HTTP status code indicates a failed request (not 2xx or 3xx).
  */
 export default async function jiraRequest<T>(client: IDeskproClient, params: Readonly<JiraRequestParams>): Promise<T> {
-  const { method = "GET", endpoint, payload, settings
-  } = params
+  const { method = "GET", endpoint, payload, settings } = params
   const isAdmin = Boolean(settings?.username && settings?.api_key);
   const dpFetch = await (isAdmin ? adminGenericProxyFetch : proxyFetch)(client);
   const isUsingOAuth2 = (await client.getUserState<boolean>(IS_USING_OAUTH2))[0]?.data;

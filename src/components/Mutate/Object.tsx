@@ -19,7 +19,6 @@ import { getSchema, JiraIssueSchema } from "../../schema/schema";
 import {
   jiraIssueToFormValues,
   errorToStringWithoutBraces,
-  parseJsonErrorMessage,
   getLayout,
   getFormValuesToData,
 } from "../../utils";
@@ -35,6 +34,7 @@ import { transformFieldMeta } from "@/api/utils";
 import { getLabels } from "@/api/labels";
 import { getIssueCreateMeta } from "@/api/issues/createMeta";
 import { getProjectCreateMeta } from "@/api/projects";
+import { extractErrorMessages } from "@/api/jiraRequest";
 
 type Props = {
   objectId?: string;
@@ -337,72 +337,71 @@ export const MutateObject = ({ objectId }: Props) => {
       })}
       style={{ width: "100%", minHeight: "400px" }}
     >
-      <Stack vertical style={{ width: "100%" }} gap={6}>
-        {Object.keys(errors).length > 0 && (
-          <ErrorBlock
-            text={Object.keys(errors).reduce((acc, curr) => {
-              const field = usableFields.find(({ key }) => key === curr);
-              acc.push(`${field?.name ?? curr}: ${errors[curr]?.message as string}`);
-              return acc;
-            }, [] as string[])}
-          />
-        )}
-        {(submitMutation.error && submitMutation.error instanceof InvalidRequestResponseError) ? (
-          <ErrorBlock
-            text={`
+      <Stack vertical style={{ width: "100%" }} gap={12}>
+        <Stack vertical style={{ width: "100%" }} gap={6}>
+          {Object.keys(errors).length > 0 && (
+            <ErrorBlock
+              text={Object.keys(errors).reduce((acc, curr) => {
+                const field = usableFields.find(({ key }) => key === curr);
+                acc.push(`${field?.name ?? curr}: ${errors[curr]?.message as string}`);
+                return acc;
+              }, [] as string[])}
+            />
+          )}
+          {(submitMutation.error && submitMutation.error instanceof InvalidRequestResponseError) ? (
+            <ErrorBlock
+              text={`
               ${submitMutation.error?._response?.errorMessages as unknown as string}
               \n
               ${errorToStringWithoutBraces(submitMutation.error?._response?.errors ?? {}, metaMap)}
             `}
-          />
-        ) : null}
-        <FormMapping
-          errors={errors}
-          values={values}
-          usableFields={usableFields}
-          dropdownFields={{
-            project: projectOptions,
-            user: userOptions,
-            labels: buildLabelOptions(),
-            issuetypes,
-          }}
-          type={isEditMode ? "update" : "create"}
-          setValue={setValue}
-          createMeta={createMetaQuery.data}
-        />
-        {values.project?.id && values.issuetype?.id && (
-          <Stack style={{ width: "100%", justifyContent: "space-between" }}>
-            <Button
-              type="submit"
-              data-testid="button-submit"
-              text={objectId ? "Save" : "Create"}
-              loading={submitMutation.isLoading}
-              disabled={submitMutation.isLoading}
-              intent="primary"
             />
-            {isEditMode && (
+          ) : null}
+          <FormMapping
+            errors={errors}
+            values={values}
+            usableFields={usableFields}
+            dropdownFields={{
+              project: projectOptions,
+              user: userOptions,
+              labels: buildLabelOptions(),
+              issuetypes,
+            }}
+            type={isEditMode ? "update" : "create"}
+            setValue={setValue}
+            createMeta={createMetaQuery.data}
+          />
+          {values.project?.id && values.issuetype?.id && (
+            <Stack style={{ width: "100%", justifyContent: "space-between" }}>
               <Button
-                text="Cancel"
-                onClick={() => navigate(-1)}
-                intent="secondary"
+                type="submit"
+                data-testid="button-submit"
+                text={objectId ? "Save" : "Create"}
+                loading={submitMutation.isLoading}
+                disabled={submitMutation.isLoading}
+                intent="primary"
               />
-            )}
-            {!isEditMode && (
-              <Button
-                text="Reset"
-                onClick={() => reset()}
-                intent="secondary"
-              />
-            )}
-          </Stack>
-        )}
-      </Stack>
-      <H1>
-        {!!submitMutation.error &&
-          parseJsonErrorMessage(
-            (submitMutation.error as { message: string }).message,
+              {isEditMode && (
+                <Button
+                  text="Cancel"
+                  onClick={() => navigate(-1)}
+                  intent="secondary"
+                />
+              )}
+              {!isEditMode && (
+                <Button
+                  text="Reset"
+                  onClick={() => reset()}
+                  intent="secondary"
+                />
+              )}
+            </Stack>
           )}
-      </H1>
+        </Stack>
+        <H1>
+          {Boolean(submitMutation.error) && (extractErrorMessages(submitMutation.error) ?? "An unknown error occurred.")}
+        </H1>
+      </Stack>
     </form>
   );
 };
