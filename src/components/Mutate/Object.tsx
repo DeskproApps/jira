@@ -96,9 +96,13 @@ export const MutateObject = ({ objectId }: Props) => {
 
     createIssueRemoteLink(
       client,
-      { issueKey: submitMutation.data.key, deskproTicket }
+      { issueKey: submitMutation?.data?.key?? "", deskproTicket }
     ).then(() => {
-      linkIssues([submitMutation?.data?.id]);
+      if(!submitMutation?.data?.id){
+        return
+      }
+      
+      linkIssues([submitMutation?.data?.id ]);
     });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
