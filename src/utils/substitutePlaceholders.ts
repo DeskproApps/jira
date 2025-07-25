@@ -1,10 +1,11 @@
 import { isPrimitive } from "./isPrimitive";
-import { Settings } from "../types";
 import { IssueItem } from "../api/types/types";
+import { ContextSettings } from '@/types/deskpro';
+
 
 const substitutePlaceholders = (
   string: string,
-  obj: Pick<Settings, "domain"|"username"|"api_key"> & Partial<IssueItem>,
+  obj: Pick<ContextSettings, "domain"|"username"|"api_key"> & Partial<IssueItem>,
 ): string => {
   if (!obj) return string;
 

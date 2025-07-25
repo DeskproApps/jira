@@ -6,17 +6,17 @@ import {
   useDeskproAppTheme,
   useDeskproLatestAppContext,
 } from "@deskpro/app-sdk";
-import { H1, H3, Icon, Stack } from "@deskpro/deskpro-ui";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
-import { Link as RouterLink, useNavigate } from "react-router-dom";
-import { FieldMeta, IssueFieldsMetaResponse, IssueItem } from "../../api/types/types";
-import { getLayout, substitutePlaceholders } from "../../utils/utils";
 import { AppLogo } from "../AppLogo/AppLogo";
+import { ContextData, ContextSettings } from "@/types/deskpro";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { FieldMeta, IssueFieldsMetaResponse, IssueItem } from "../../api/types/types";
+import { getIssueFields } from "@/api/issues/fields";
+import { getLayout, substitutePlaceholders } from "../../utils/utils";
+import { H1, H3, Icon, Stack } from "@deskpro/deskpro-ui";
 import { HorizontalDivider } from "../HorizontalDivider/HorizontalDivider";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { MapFieldValues } from "../MapFieldValues/MapFieldValues";
-import { TicketData, Settings } from "../../types";
 import { useEffect, useRef, useState } from "react";
-import { getIssueFields } from "../../api/api";
 import IssueJson from "../../mapping/issue.json";
 
 
@@ -48,7 +48,7 @@ export const FieldMapping = ({
 }: Props) => {
   const { theme } = useDeskproAppTheme();
   const navigate = useNavigate();
-  const { context } = useDeskproLatestAppContext<TicketData, Settings>();
+  const { context } = useDeskproLatestAppContext<ContextData, ContextSettings>();
   const { client } = useDeskproAppClient();
   const [hasMappedFields, setHasMappedFields] = useState<boolean | undefined>(
     undefined,

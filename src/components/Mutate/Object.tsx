@@ -12,17 +12,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { ZodTypeAny } from "zod";
-import {
-  addRemoteLink,
-  createIssue,
-  getCreateMeta,
-  getIssueByKey,
-  getLabels,
-  getUsers,
-  updateIssue,
-  getProjectCreateMeta,
-  transformFieldMeta,
-} from "../../api/api";
 import { FieldMeta, IssueFormData, InvalidRequestResponseError } from "../../api/types/types";
 import IssueJson from "../../mapping/issue.json";
 import { useLinkIssues } from "../../hooks/hooks";
@@ -30,7 +19,6 @@ import { getSchema, JiraIssueSchema } from "../../schema/schema";
 import {
   jiraIssueToFormValues,
   errorToStringWithoutBraces,
-  parseJsonErrorMessage,
   getLayout,
   getFormValuesToData,
 } from "../../utils";
@@ -38,7 +26,15 @@ import { ErrorBlock } from "../Error/ErrorBlock";
 import { FormMapping } from "../FormMapping/FormMapping";
 import { LoadingSpinnerCenter } from "../LoadingSpinnerCenter/LoadingSpinnerCenter";
 import { JiraProject, JiraUser } from "./types";
-import { TicketData, Settings } from "../../types";
+import { createIssue, getIssueByKey, updateIssue } from "@/api/issues";
+import { ContextData, ContextSettings } from "@/types/deskpro";
+import { createIssueRemoteLink } from "@/api/issues/remoteLinks";
+import { getUsers } from "@/api/users";
+import { transformFieldMeta } from "@/api/utils";
+import { getLabels } from "@/api/labels";
+import { getIssueCreateMeta } from "@/api/issues/createMeta";
+import { getProjectCreateMeta } from "@/api/projects";
+import { extractErrorMessages } from "@/api/jiraRequest";
 
 type Props = {
   objectId?: string;
@@ -49,10 +45,12 @@ export const MutateObject = ({ objectId }: Props) => {
   const { client } = useDeskproAppClient();
   const [schema, setSchema] = useState<ZodTypeAny | null>(null);
   const [mappedFields, setMappedFields] = useState<string[]>([]);
-  const { context } = useDeskproLatestAppContext<TicketData, Settings>();
+  const { context } = useDeskproLatestAppContext<ContextData, ContextSettings>();
   const { linkIssues } = useLinkIssues();
 
   const isEditMode = !!objectId;
+
+  const deskproTicket = context?.data?.ticket
 
   const {
     formState: { errors },
@@ -74,19 +72,21 @@ export const MutateObject = ({ objectId }: Props) => {
 
   const usersQuery = useQueryWithClient(["users"], getUsers);
 
-  const createMetaQuery = useQueryWithClient(["createMeta"], getCreateMeta);
+  const createMetaQuery = useQueryWithClient(["createMeta"], getIssueCreateMeta);
 
   const labelsQuery = useQueryWithClient(["labels"], getLabels);
 
   const submitMutation = useMutationWithClient((client, values: IssueFormData) => {
     const metaMap = usableFields.map(transformFieldMeta).reduce((acc, meta) => ({ ...acc, [meta.key]: meta }), {});
     return isEditMode
-      ? updateIssue(client, objectId, getFormValuesToData(values, metaMap))
+      ? updateIssue(client, { issueKey: objectId, issueData: getFormValuesToData(values, metaMap) })
       : createIssue(client, getFormValuesToData(values, metaMap));
   });
 
   useEffect(() => {
-    if (!submitMutation.isSuccess || !client || !context) return;
+    if (!submitMutation.isSuccess || !client || !deskproTicket) {
+      return
+    }
 
     if (isEditMode) {
       navigate("/view/single/" + objectId);
@@ -94,14 +94,15 @@ export const MutateObject = ({ objectId }: Props) => {
       return;
     }
 
-    addRemoteLink(
+    createIssueRemoteLink(
       client,
-      submitMutation.data.key,
-      context?.data?.ticket.id as string,
-      context?.data?.ticket.subject as string,
-      context?.data?.ticket.permalinkUrl as string,
+      { issueKey: submitMutation?.data?.key?? "", deskproTicket }
     ).then(() => {
-      linkIssues([submitMutation?.data?.id]);
+      if(!submitMutation?.data?.id){
+        return
+      }
+      
+      linkIssues([submitMutation?.data?.id ]);
     });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -111,7 +112,7 @@ export const MutateObject = ({ objectId }: Props) => {
     navigate,
     submitMutation.isSuccess,
     client,
-    context,
+    deskproTicket,
   ]);
 
   useEffect(() => {
@@ -228,7 +229,7 @@ export const MutateObject = ({ objectId }: Props) => {
 
   const fieldsProjectCreateMeta = useQueryWithClient(
     ["fields", values.project?.id, values.issuetype?.id],
-    (client) => getProjectCreateMeta(client, values.project?.id, values.issuetype?.id),
+    (client) => getProjectCreateMeta(client, { projectId: values.project?.id, issueTypeId: values.issuetype?.id }),
     { enabled: Boolean(values.project?.id) && Boolean(values.issuetype?.id) && !isEditMode },
   );
   const createFieldsMeta = useMemo(() => {
@@ -340,72 +341,71 @@ export const MutateObject = ({ objectId }: Props) => {
       })}
       style={{ width: "100%", minHeight: "400px" }}
     >
-      <Stack vertical style={{ width: "100%" }} gap={6}>
-        {Object.keys(errors).length > 0 && (
-          <ErrorBlock
-            text={Object.keys(errors).reduce((acc, curr) => {
-              const field = usableFields.find(({ key }) => key === curr);
-              acc.push(`${field?.name ?? curr}: ${errors[curr]?.message as string}`);
-              return acc;
-            }, [] as string[])}
-          />
-        )}
-        {(submitMutation.error && submitMutation.error instanceof InvalidRequestResponseError) ? (
-          <ErrorBlock
-            text={`
+      <Stack vertical style={{ width: "100%" }} gap={12}>
+        <Stack vertical style={{ width: "100%" }} gap={6}>
+          {Object.keys(errors).length > 0 && (
+            <ErrorBlock
+              text={Object.keys(errors).reduce((acc, curr) => {
+                const field = usableFields.find(({ key }) => key === curr);
+                acc.push(`${field?.name ?? curr}: ${errors[curr]?.message as string}`);
+                return acc;
+              }, [] as string[])}
+            />
+          )}
+          {(submitMutation.error && submitMutation.error instanceof InvalidRequestResponseError) ? (
+            <ErrorBlock
+              text={`
               ${submitMutation.error?._response?.errorMessages as unknown as string}
               \n
               ${errorToStringWithoutBraces(submitMutation.error?._response?.errors ?? {}, metaMap)}
             `}
-          />
-        ) : null}
-        <FormMapping
-          errors={errors}
-          values={values}
-          usableFields={usableFields}
-          dropdownFields={{
-            project: projectOptions,
-            user: userOptions,
-            labels: buildLabelOptions(),
-            issuetypes,
-          }}
-          type={isEditMode ? "update" : "create"}
-          setValue={setValue}
-          createMeta={createMetaQuery.data}
-        />
-        {values.project?.id && values.issuetype?.id && (
-          <Stack style={{ width: "100%", justifyContent: "space-between" }}>
-            <Button
-              type="submit"
-              data-testid="button-submit"
-              text={objectId ? "Save" : "Create"}
-              loading={submitMutation.isLoading}
-              disabled={submitMutation.isLoading}
-              intent="primary"
             />
-            {isEditMode && (
+          ) : null}
+          <FormMapping
+            errors={errors}
+            values={values}
+            usableFields={usableFields}
+            dropdownFields={{
+              project: projectOptions,
+              user: userOptions,
+              labels: buildLabelOptions(),
+              issuetypes,
+            }}
+            type={isEditMode ? "update" : "create"}
+            setValue={setValue}
+            createMeta={createMetaQuery.data}
+          />
+          {values.project?.id && values.issuetype?.id && (
+            <Stack style={{ width: "100%", justifyContent: "space-between" }}>
               <Button
-                text="Cancel"
-                onClick={() => navigate(-1)}
-                intent="secondary"
+                type="submit"
+                data-testid="button-submit"
+                text={objectId ? "Save" : "Create"}
+                loading={submitMutation.isLoading}
+                disabled={submitMutation.isLoading}
+                intent="primary"
               />
-            )}
-            {!isEditMode && (
-              <Button
-                text="Reset"
-                onClick={() => reset()}
-                intent="secondary"
-              />
-            )}
-          </Stack>
-        )}
-      </Stack>
-      <H1>
-        {!!submitMutation.error &&
-          parseJsonErrorMessage(
-            (submitMutation.error as { message: string }).message,
+              {isEditMode && (
+                <Button
+                  text="Cancel"
+                  onClick={() => navigate(-1)}
+                  intent="secondary"
+                />
+              )}
+              {!isEditMode && (
+                <Button
+                  text="Reset"
+                  onClick={() => reset()}
+                  intent="secondary"
+                />
+              )}
+            </Stack>
           )}
-      </H1>
+        </Stack>
+        <H1>
+          {Boolean(submitMutation.error) && (extractErrorMessages(submitMutation.error) ?? "An unknown error occurred.")}
+        </H1>
+      </Stack>
     </form>
   );
 };

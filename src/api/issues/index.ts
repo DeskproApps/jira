@@ -1,0 +1,5 @@
+export { default as createIssue } from "./createIssue"
+export { default as getIssueByKey } from "./getIssueByKey"
+export { default as listLinkedIssues } from "./listLinkedIssues"
+export { default as searchIssues } from "./searchIssues"
+export { default as updateIssue } from "./updateIssue"

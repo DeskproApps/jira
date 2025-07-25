@@ -15,11 +15,10 @@ import { faSearch, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { ChangeEvent, FC, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDebouncedCallback } from "use-debounce";
-import { addIssueComment, getFields } from "../api/api";
 import { FieldMapping } from "../components/FieldMapping/FieldMapping";
 import { useLoadLinkedIssues, useLogOut } from '../hooks/hooks';
 import IssueJson from "../mapping/issue.json";
-import { Payload, ReplyBoxSelection, TicketData, Settings, ReplyBoxOnReplyNote, ReplyBoxOnReplyEmail } from '../types';
+import { Payload, ReplyBoxSelection, ReplyBoxOnReplyNote, ReplyBoxOnReplyEmail } from '../types';
 import {
   registerReplyBoxEmailsAdditionsTargetAction,
   registerReplyBoxNotesAdditionsTargetAction,
@@ -29,6 +28,9 @@ import {
 } from "../utils/utils";
 import { Container } from "../components/Layout";
 import { IssueItem } from "../api/types/types";
+import { ContextData, ContextSettings } from "@/types/deskpro";
+import { addIssueComment } from "@/api/issues/comments";
+import { getFields } from "@/api/fields";
 
 export const Home: FC = () => {
   const navigate = useNavigate();
@@ -36,7 +38,7 @@ export const Home: FC = () => {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [hasMappedFields, setHasMappedFields] = useState<boolean | undefined>(undefined);
   const [mappedFields, setMappedFields] = useState<string[]>([]);
-  const { context } = useDeskproLatestAppContext<TicketData, Settings>();
+  const { context } = useDeskproLatestAppContext<ContextData, ContextSettings>();
   const [linkedCount, setLinkedCount] = useState<Record<string, number>>({});
   const [searchQuery, setSearchQuery] = useState<string>("");
   const { logOut } = useLogOut();
@@ -134,9 +136,9 @@ export const Home: FC = () => {
 
           if (context?.data?.ticket.id) {
             client?.setState(
-                ticketReplyEmailsSelectionStateKey(ticketId, selection.id),
-                { id: selection.id, selected: selection.selected },
-              )
+              ticketReplyEmailsSelectionStateKey(ticketId, selection.id),
+              { id: selection.id, selected: selection.selected },
+            )
               .then((result) => {
                 if (result.isSuccess && context?.data?.ticket?.id) {
                   registerReplyBoxEmailsAdditionsTargetAction(
@@ -170,7 +172,7 @@ export const Home: FC = () => {
 
             return Promise.all(
               issueIds.map((issueId) => {
-                return addIssueComment(client, issueId, note);
+                return addIssueComment(client, { issueKey: issueId, comment: note });
               }),
             );
           })
@@ -199,7 +201,7 @@ export const Home: FC = () => {
               .filter(({ data }) => data?.selected)
               .map<string>(({ data }) => `${data?.id}`);
             return Promise.all(
-              issueIds.map((issueId) => addIssueComment(client, issueId, email)),
+              issueIds.map((issueId) => addIssueComment(client, { issueKey: issueId, comment: email })),
             );
           })
           .then(() => loadLinkedIssues())
@@ -215,7 +217,7 @@ export const Home: FC = () => {
   }, [context]);
 
   useDeskproElements(({ deRegisterElement, registerElement }) => {
-    registerElement('addIssue', {type: 'plus_button'});
+    registerElement('addIssue', { type: 'plus_button' });
     deRegisterElement('menuButton');
     deRegisterElement('editButton');
     deRegisterElement('viewContextMenu');
@@ -322,7 +324,7 @@ export const Home: FC = () => {
       <Container>
         <Stack vertical gap={10}>
           <FieldMapping
-          shouldFetchIssueFields
+            shouldFetchIssueFields
             items={linkedIssues}
             metadata={usableFields}
             internalChildUrl={IssueJson.internalChildUrl}
