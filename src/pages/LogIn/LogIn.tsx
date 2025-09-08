@@ -1,12 +1,11 @@
-import { AnchorButton } from '@deskpro/deskpro-ui';
+import { AnchorButton, H3, Stack } from '@deskpro/deskpro-ui';
 import { CLOUD_ID_PATH, GLOBAL_CLIENT_ID, SCOPE } from '../../constants';
-import { Container } from '../../components/Layout';
 import { ContextData, ContextSettings } from '@/types/deskpro';
 import { createSearchParams, useNavigate } from 'react-router-dom';
 import { ErrorBlock } from '../../components/Error/ErrorBlock';
 import { getAccessibleSites } from '@/api/auth';
 import { getAccessToken } from '../../api/getAccessToken';
-import { IOAuth2, Title, useDeskproElements, useDeskproLatestAppContext, useInitialisedDeskproAppClient } from '@deskpro/app-sdk';
+import { IOAuth2, useDeskproElements, useDeskproLatestAppContext, useInitialisedDeskproAppClient } from '@deskpro/app-sdk';
 import { useCallback, useRef, useState } from 'react';
 import setAccessToken from '../../api/setAccessToken';
 
@@ -120,8 +119,8 @@ export function LogIn() {
     }, [setIsLoading, authorisationURL]);
 
     return (
-        <Container>
-            <Title title='Log into Jira' />
+        <Stack vertical gap={6} padding={12}>
+            <H3>Log into Jira</H3>
             <AnchorButton
                 text='Log In'
                 target='_blank'
@@ -131,6 +130,6 @@ export function LogIn() {
                 onClick={onLogIn}
             />
             {error && <ErrorBlock text={error} />}
-        </Container>
+        </Stack>
     );
 };
