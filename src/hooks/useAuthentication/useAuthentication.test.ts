@@ -10,6 +10,20 @@ describe("useAuthentication", () => {
   it("should return loading when query is loading", () => {
     (useQueryWithClient as jest.Mock).mockReturnValue({
       isLoading: true,
+      isFetching: true,
+      data: undefined,
+    });
+
+    const { result } = renderHook(() => useAuthentication({ isUsingOAuth: true }));
+
+    expect(result.current.isLoading).toBe(true);
+    expect(result.current.isAuthenticated).toBe(false);
+  });
+
+  it("should return loading when query is fetching but not loading", () => {
+    (useQueryWithClient as jest.Mock).mockReturnValue({
+      isLoading: false,
+      isFetching: true,
       data: undefined,
     });
 
@@ -22,6 +36,7 @@ describe("useAuthentication", () => {
   it("should return authenticated when query returns true", () => {
     (useQueryWithClient as jest.Mock).mockReturnValue({
       isLoading: false,
+      isFetching: false,
       data: true,
     });
 
@@ -34,6 +49,7 @@ describe("useAuthentication", () => {
   it("should return unauthenticated when query returns false", () => {
     (useQueryWithClient as jest.Mock).mockReturnValue({
       isLoading: false,
+      isFetching: false,
       data: false,
     });
 
