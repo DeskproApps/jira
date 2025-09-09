@@ -1,13 +1,13 @@
-import { useCallback, useRef, useState } from 'react';
-import { createSearchParams, useNavigate } from 'react-router-dom';
-import { IOAuth2, Title, useDeskproElements, useDeskproLatestAppContext, useInitialisedDeskproAppClient } from '@deskpro/app-sdk';
-import { AnchorButton } from '@deskpro/deskpro-ui';
-import { Container } from '../../components/Layout';
-import { ErrorBlock } from '../../components/Error/ErrorBlock';
-import { getAccessToken } from '../../api/getAccessToken';
-import setAccessToken from '../../api/setAccessToken';
-import { GLOBAL_CLIENT_ID, SCOPE } from '../../constants';
+import { AnchorButton, H3, Stack } from '@deskpro/deskpro-ui';
+import { CLOUD_ID_PATH, GLOBAL_CLIENT_ID, SCOPE } from '../../constants';
 import { ContextData, ContextSettings } from '@/types/deskpro';
+import { createSearchParams, useNavigate } from 'react-router-dom';
+import { ErrorBlock } from '../../components/Error/ErrorBlock';
+import { getAccessibleSites } from '@/api/auth';
+import { getAccessToken } from '../../api/getAccessToken';
+import { IOAuth2, useDeskproElements, useDeskproLatestAppContext, useInitialisedDeskproAppClient } from '@deskpro/app-sdk';
+import { useCallback, useRef, useState } from 'react';
+import setAccessToken from '../../api/setAccessToken';
 
 export function LogIn() {
     const { context } = useDeskproLatestAppContext<ContextData, ContextSettings>();
@@ -25,20 +25,25 @@ export function LogIn() {
         deRegisterElement('menu');
     });
 
+    const settings = context?.settings
+    const mode = settings?.use_advanced_connect ? 'local' : 'global';
+    const isUsingOAuth = settings?.use_advanced_connect === false || settings?.use_api_key === false;
+    const clientId = settings?.client_id;
+
     useInitialisedDeskproAppClient(async client => {
-        if (!context?.settings) {
+        if (!settings) {
             return;
         };
 
-        const isUsingOAuth2 = context?.settings.use_advanced_connect === false || context?.settings.use_api_key === false;
-        if (isUsingOAuth2 === false) {
+        if (isUsingOAuth === false) {
+            setError("Contact your admin to enable OAuth to access this page")
             return;
         };
 
-        const clientID = context.settings.client_id;
-        const mode = context?.settings.use_advanced_connect ? 'local' : 'global';
 
-        if (mode === 'local' && typeof clientID !== 'string') {
+        if (mode === 'local' && (typeof clientId !== 'string' || clientId.trim() === "")) {
+            // Local mode requires a clientId.
+            setError("No client id was provided while setting up the app, a client id is required when using advanced connect.")
             return;
         };
 
@@ -47,7 +52,7 @@ export function LogIn() {
                 callbackURLRef.current = callbackUrl;
 
                 return `https://auth.atlassian.com/authorize?${createSearchParams([
-                    ['client_id', clientID ?? ''],
+                    ['client_id', clientId ?? ''],
                     ['state', state],
                     ['audience', 'api.atlassian.com'],
                     ['scope', SCOPE],
@@ -70,7 +75,7 @@ export function LogIn() {
 
         setAuthorisationURL(oauth2Response.authorizationUrl);
         setOAuth2Context(oauth2Response);
-    }, [context]);
+    }, [isUsingOAuth, mode, clientId]);
 
     useInitialisedDeskproAppClient(client => {
         if (!oAuth2Context) {
@@ -80,12 +85,22 @@ export function LogIn() {
         const startPolling = async () => {
             try {
                 const pollResult = await oAuth2Context.poll();
-    
+
                 await setAccessToken({ client, token: pollResult.data.access_token });
-    
+
+                // Get the user's accessible sites and use the first available account to make 
+                // requests to the Jira API.
+                const accessibleSites = await getAccessibleSites(client)
+
+                if (accessibleSites.length < 1) {
+                    throw new Error("No Jira site for the authenticated user")
+                }
+
+                await client.setUserState(CLOUD_ID_PATH, accessibleSites[0].id);
+
                 navigate('/');
             } catch (error) {
-                setError(error instanceof Error ? error.message : 'error polling');
+                setError(error instanceof Error ? error.message : 'An unknown error occurred while authenticating.');
             } finally {
                 setIsPolling(false);
                 setIsLoading(false);
@@ -104,8 +119,8 @@ export function LogIn() {
     }, [setIsLoading, authorisationURL]);
 
     return (
-        <Container>
-            <Title title='Log into Jira' />
+        <Stack vertical gap={6} padding={12}>
+            <H3>Log into Jira</H3>
             <AnchorButton
                 text='Log In'
                 target='_blank'
@@ -115,6 +130,6 @@ export function LogIn() {
                 onClick={onLogIn}
             />
             {error && <ErrorBlock text={error} />}
-        </Container>
+        </Stack>
     );
 };
