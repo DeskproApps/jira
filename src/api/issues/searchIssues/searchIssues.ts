@@ -20,7 +20,7 @@ export default async function searchIssues(client: IDeskproClient, searchQuery: 
   const issueJql = encodeURIComponent(`issueKey IN (${keys.join(",")})`);
   const { issues: fullIssues } = await jiraRequest<SearchIssues>(
     client,
-    { endpoint: `/search?jql=${issueJql}&expand=editmeta` },
+    { endpoint: `/search/jql?jql=${issueJql}&expand=editmeta&fields=*all` },
   );
 
   const issues: Record<IssueBean["key"], IssueBean> = (fullIssues ?? []).reduce((list, issue) => ({
@@ -51,7 +51,7 @@ export default async function searchIssues(client: IDeskproClient, searchQuery: 
 
     const { issues: fullEpics } = await jiraRequest<SearchIssues>(
       client,
-      { endpoint: `/search?jql=${epicJql}` },
+      { endpoint: `/search/jql?jql=${epicJql}&fields=*all` },
     );
 
     epics = (fullEpics ?? []).reduce((list, issue) => ({
@@ -61,7 +61,7 @@ export default async function searchIssues(client: IDeskproClient, searchQuery: 
   }
 
   return (searchIssues ?? []).map((searchIssue) => {
-    const issueFields: IssueBean["fields"] = issues[searchIssue.key]?.fields;
+    const issueFields: IssueBean["fields"] | undefined = issues[searchIssue.key]?.fields;
     const epic: IssueBean | undefined = epics[epicKeys[searchIssue.key]];
 
     return {
@@ -71,12 +71,12 @@ export default async function searchIssues(client: IDeskproClient, searchQuery: 
       keyHtml: searchIssue.keyHtml,
       summary: searchIssue.summaryText,
       summaryHtml: searchIssue.summary,
-      status: issueFields.status?.name || "-",
-      projectKey: issueFields.project?.key ?? "",
-      projectName: issueFields.project?.name ?? "-",
-      reporterId: issueFields.reporter?.accountId ?? "",
-      reporterName: issueFields.reporter?.displayName ?? "-",
-      reporterAvatarUrl: (issueFields.reporter?.avatarUrls ?? {})["24x24"] ?? "",
+      status: issueFields?.status?.name || "-",
+      projectKey: issueFields?.project?.key ?? "",
+      projectName: issueFields?.project?.name ?? "-",
+      reporterId: issueFields?.reporter?.accountId ?? "",
+      reporterName: issueFields?.reporter?.displayName ?? "-",
+      reporterAvatarUrl: (issueFields?.reporter?.avatarUrls ?? {})["24x24"] ?? "",
       epicKey: epic?.key,
       epicName: epic?.fields?.summary,
     };
