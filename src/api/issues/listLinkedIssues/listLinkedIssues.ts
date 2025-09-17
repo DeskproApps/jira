@@ -5,18 +5,18 @@ import { findEpicLinkMeta, isCustomFieldKey, transformFieldMeta } from "@/api/ut
 import { FieldType } from "@/types";
 import { IDeskproClient } from "@deskpro/app-sdk";
 
-export default async function listLinkedIssues (
+export default async function listLinkedIssues(
   client: IDeskproClient,
-  keys: string[],
+  linkedIssueKeys: string[],
 ): Promise<IssueItem[]> {
-  if (!keys.length) {
+  if (!linkedIssueKeys.length) {
     return [];
   }
-  const issueJql = encodeURIComponent(`issueKey IN (${keys.join(",")})`);
+  const issueJql = encodeURIComponent(`issueKey IN (${linkedIssueKeys.join(",")})`);
 
   const { issues: fullIssues } = await jiraRequest<SearchIssues>(
     client,
-    {endpoint: `/search?jql=${issueJql}&expand=editmeta`},
+    { endpoint: `/search/jql?jql=${issueJql}&expand=editmeta&fields=*all` },
   )
 
   const epicKeys: Record<IssueBean["key"], FieldMeta["key"]> = (fullIssues ?? []).reduce((list, issue) => {
@@ -53,7 +53,7 @@ export default async function listLinkedIssues (
     );
     const { issues: fullEpics } = await jiraRequest<SearchIssues>(
       client,
-     {endpoint: `/search?jql=${epicJql}`}
+      { endpoint: `/search/jql?jql=${epicJql}` }
     );
 
     epics = (fullEpics ?? []).reduce((list, issue) => ({
