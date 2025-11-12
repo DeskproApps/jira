@@ -26,7 +26,7 @@ import {
   ParentFieldValue,
 } from "../../api/types/fieldsValue";
 import { FieldType, DateTime } from "../../types";
-import {ContextData, ContextSettings } from "@/types/deskpro";
+import { ContextData, ContextSettings } from "@/types/deskpro";
 
 export const MapFieldValues = ({
   issue,
@@ -148,8 +148,8 @@ export const MapFieldValues = ({
             break;
 
           case "array":
-            if ((fieldValue as []).length === 0) {
-              content = <H2>-</H2>;
+            if (!Array.isArray(fieldValue) || fieldValue.length < 1) {
+              content = <H2 data-testid="jira-app-array-mapping-empty">-</H2>;
               break;
             }
 
@@ -158,9 +158,9 @@ export const MapFieldValues = ({
               || field.schema.items === "version"
               || field.schema.items === "group"
             ) {
-              content = <H2>{(fieldValue as Components[]).map((e) => e.name).join(", ")}</H2>;
+              content = <H2>{(fieldValue as Components[]).map((e) => e.name ?? null).filter(Boolean).join(", ")}</H2>;
             } else if (field.schema.items === "option") {
-              content = <H2>{(fieldValue as Option[]).map((e) => e.value).join(", ")}</H2>;
+              content = <H2>{(fieldValue as Option[]).map((e) => e.value ?? null).filter(Boolean).join(", ")}</H2>;
             } else if (field.schema.items === "issuelinks") {
               content = (
                 <div>
