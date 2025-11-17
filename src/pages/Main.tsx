@@ -213,7 +213,7 @@ export const Home: FC = () => {
   }, 500);
 
   useInitialisedDeskproAppClient((client) => {
-    client.setTitle("JIRA Issues");
+    client.setTitle("Jira Issues");
   }, [context]);
 
   useDeskproElements(({ deRegisterElement, registerElement }) => {

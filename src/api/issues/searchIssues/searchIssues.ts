@@ -4,7 +4,7 @@ import { findEpicLinkMeta } from "@/api/utils";
 import { IDeskproClient } from "@deskpro/app-sdk";
 
 /**
- * Search JIRA issues
+ * Search Jira issues
  */
 export default async function searchIssues(client: IDeskproClient, searchQuery: string, params: SearchParams = {}): Promise<SearchIssueItem[]> {
   const endpoint = `/issue/picker?query=${searchQuery}&currentJQL=&showSubTasks=${params.withSubtask ? "true" : "false"

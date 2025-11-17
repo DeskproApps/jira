@@ -1,6 +1,6 @@
 {
   "name": "@deskpro-apps/jira",
-  "title": "JIRA",
+  "title": "Jira",
   "description": "View Jira issues linked with Deskpro tickets to streamline communication with users",
   "appStoreUrl": "https://www.deskpro.com/product-embed/apps/jira",
   "version": "1.0.62",
@@ -17,8 +17,8 @@
         "actions": {
           "linkTicket": {
             "type": "ticket_addition",
-            "title": "JIRA Issue",
-            "description": "Link ticket to JIRA issue"
+            "title": "Jira Issue",
+            "description": "Link ticket to Jira issue"
           }
         }
       }
@@ -26,7 +26,7 @@
   ],
   "entityAssociations": {
     "linkedJiraIssues": {
-      "title": "Linked JIRA Issues",
+      "title": "Linked Jira Issues",
       "entity": "ticket",
       "type": "external_id"
     }
@@ -61,7 +61,7 @@
     },
     "username": {
       "title": "Email/Username",
-      "description": "JIRA user email address or username",
+      "description": "Jira user email address or username",
       "type": "string",
       "isRequired": true,
       "isBackendOnly": true,
@@ -69,7 +69,7 @@
     },
     "api_key": {
       "title": "API Key",
-      "description": "JIRA user's API key, please follow the app setup guide to get this",
+      "description": "Jira user's API key, please follow the app setup guide to get this",
       "type": "string",
       "isRequired": false,
       "isBackendOnly": true,
