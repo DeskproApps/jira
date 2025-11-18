@@ -9,7 +9,7 @@ export const backlinkCommentDoc = (ticketId: string, url: string) => ({
       content: [
         {
           type: "text",
-          text: `Deskpro JIRA app linked Deskpro ticket #${ticketId} at `,
+          text: `Deskpro Jira app linked Deskpro ticket #${ticketId} at `,
         },
         {
           type: "text",
@@ -41,7 +41,7 @@ export const removeBacklinkCommentDoc = (ticketId: string, url: string) => ({
       content: [
         {
           type: "text",
-          text: `Deskpro JIRA app unlinked Deskpro ticket #${ticketId} at `,
+          text: `Deskpro Jira app unlinked Deskpro ticket #${ticketId} at `,
         },
         {
           type: "text",
