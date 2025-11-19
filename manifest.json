@@ -156,7 +156,7 @@
           "client_secret": {
             "body": ["client_secret"]
           },
-          "api_token": {
+          "api_key": {
             "header": ["Authorization"]
           }
         }
