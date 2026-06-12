@@ -26,7 +26,7 @@ const registerReplyBoxEmailsAdditionsTargetAction = async (
       "jiraReplyBoxEmailAdditions",
       "reply_box_email_item_selection",
       {
-        title: "Add to JIRA",
+        title: "Add to Jira",
         payload: (linkedIssues ?? []).map((issue, idx) => ({
           id: issue.id,
           title: issue.key,

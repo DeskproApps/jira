@@ -1,4 +1,4 @@
-# JIRA App
+# Jira App
 
 **_Create Jira issues:_** Use the app to create Jira issues from Deskpro tickets without having to leave your ticket.
 

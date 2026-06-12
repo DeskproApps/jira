@@ -32,7 +32,7 @@ export function Initial() {
                     style={{ width: "100%" }}
                     accent="red"
                 >
-                    The JIRA API credentials provided during the app setup process are invalid or expired. Please contact your admin to verify your credentials and try again.
+                    The Jira API credentials provided during the app setup process are invalid or expired. Please contact your admin to verify your credentials and try again.
                 </Callout>
             </Stack>
         )

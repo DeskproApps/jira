@@ -1,10 +1,10 @@
-# JIRA App Setup
+# Jira App Setup
 
 ## Installation
 
-To install JIRA, choose between OAuth2 or API Key. Find instructions for each below.
+To install Jira, choose between OAuth2 or API Key. Find instructions for each below.
 
-To configure who can see and use the JIRA app, head to the "Permissions" tab and select those users and/or groups you'd like to have access.
+To configure who can see and use the Jira app, head to the "Permissions" tab and select those users and/or groups you'd like to have access.
 
 When you're happy, click "Install".
 
@@ -45,8 +45,8 @@ Finally, go to the "Settings" tab and copy your client ID and secret into a safe
 
 From this screen, enter the following details:
 
-- **Domain Prefix** - this is your company name found in your JIRA URL, e.g. this will be `mycompany` if your JIRA URL is `https://mycompany.atlassian.net`
-- **Email/Username** - Your JIRA user's email address or username
+- **Domain Prefix** - this is your company name found in your Jira URL, e.g. this will be `mycompany` if your Jira URL is `https://mycompany.atlassian.net`
+- **Email/Username** - Your Jira user's email address or username
 - **Client ID** - this is the ID you copied from the "Settings" tab in your Atlassian Developer Console
 - **Client Secret** - this is the secret you copied from the "Settings" tab in your Atlassian Developer Console
 
@@ -54,7 +54,7 @@ From this screen, enter the following details:
 
 ### API Key
 
-Head over your JIRA cloud account, the URL will look something
+Head over your Jira cloud account, the URL will look something
 like `https://<my_company>.atlassian.net/`.
 
 Once you've logged in, navigate to the "Account Settings" section.
@@ -74,7 +74,7 @@ In the "API Tokens" section, click the "Create API token" button.
 [![](/docs/assets/setup/jira-setup-04.png)](/docs/assets/setup/jira-setup-04.png)
 
 Enter a label for the new API key (this can be anything you like). In the following example we've
-labelled it "Deskpro JIRA App"
+labelled it "Deskpro Jira App"
 
 [![](/docs/assets/setup/jira-setup-05.png)](/docs/assets/setup/jira-setup-05.png)
 
@@ -82,20 +82,20 @@ After creating the API token, reveal it by clicking the "eye" icon. Copy the API
 
 [![](/docs/assets/setup/jira-setup-06.png)](/docs/assets/setup/jira-setup-06.png)
 
-Ok, now head back to Deskpro and navigate to the "Settings" tab of the JIRA app.
+Ok, now head back to Deskpro and navigate to the "Settings" tab of the Jira app.
 
 [![](/docs/assets/setup/jira-setup-07.png)](/docs/assets/setup/jira-setup-07.png)
 
 From this screen, enter the following details:
 
-- **Domain Prefix** - this is your company name found in your JIRA URL, e.g. this will be `mycompany` if your JIRA URL is `https://mycompany.atlassian.net`
+- **Domain Prefix** - this is your company name found in your Jira URL, e.g. this will be `mycompany` if your Jira URL is `https://mycompany.atlassian.net`
 - **API Key** - this is the key you created in the previous steps
-- **Email/Username** - Your JIRA user's email address or username
+- **Email/Username** - Your Jira user's email address or username
 
 ## Permissions
 
-When you first view the JIRA app alongside a ticket, it's best to check that you have configured the correct permissions
-in JIRA itself. To help you do this, we provide a utility that shows which permissions are necessary for the app to operate correctly.
+When you first view the Jira app alongside a ticket, it's best to check that you have configured the correct permissions
+in Jira itself. To help you do this, we provide a utility that shows which permissions are necessary for the app to operate correctly.
 Open the app alongside a ticket in Deskpro, and go to the home screen by clicking the "house" icon at the top of the app.
 
 Next, click the context menu (it has three vertical dots) at the top right of the home screen, then click "View Permissions".
@@ -104,8 +104,8 @@ You should then see the following screen:
 
 [![](/docs/assets/setup/jira-setup-08.png)](/docs/assets/setup/jira-setup-08.png)
 
-This shows a list of JIRA permissions that you need to give to the user that owns the API key you generated during the app setup process.
+This shows a list of Jira permissions that you need to give to the user that owns the API key you generated during the app setup process.
 
-The green ticks show that permissions are granted, and the red crosses indicate permissions that are required but aren't yet granted in JIRA.
+The green ticks show that permissions are granted, and the red crosses indicate permissions that are required but aren't yet granted in Jira.
 
-If you see any red ticks, you must login to JIRA and follow their [permissions guide](https://support.atlassian.com/jira-work-management/docs/how-do-jira-permissions-work/) to grant the missing permissions.
+If you see any red ticks, you must login to Jira and follow their [permissions guide](https://support.atlassian.com/jira-work-management/docs/how-do-jira-permissions-work/) to grant the missing permissions.
