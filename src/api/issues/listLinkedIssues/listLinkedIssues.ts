@@ -53,7 +53,7 @@ export default async function listLinkedIssues(
     );
     const { issues: fullEpics } = await jiraRequest<SearchIssues>(
       client,
-      { endpoint: `/search/jql?jql=${epicJql}` }
+      { endpoint: `/search/jql?jql=${epicJql}&fields=summary` }
     );
 
     epics = (fullEpics ?? []).reduce((list, issue) => ({
@@ -75,7 +75,7 @@ export default async function listLinkedIssues(
       id: issue.id,
       key: issue.key,
       epicKey: epic?.key,
-      epicName: epic?.fields.summary,
+      epicName: epic?.fields?.summary,
       status: issue.fields.status?.name || "-",
       sprints: issueSprints,
       customFields: combineCustomFieldValueAndMeta(
