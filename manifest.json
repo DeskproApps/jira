@@ -76,6 +76,15 @@
       "condition": "settings.use_advanced_connect != false && settings.use_api_key != false",
       "order": 5
     },
+    "cloud_id": {
+      "title": "Cloud ID",
+      "description": "Only needed if the app cannot work this out itself. Find it at https://<your-domain>.atlassian.net/_edge/tenant_info",
+      "type": "string",
+      "isRequired": false,
+      "isBackendOnly": false,
+      "condition": "settings.use_advanced_connect != false && settings.use_api_key != false",
+      "order": 6
+    },
     "verify_settings": {
       "title": "",
       "type": "app_embedded",
@@ -83,7 +92,7 @@
       "isRequired": false,
       "isBackendOnly": false,
       "condition": "settings.use_advanced_connect != false && settings.use_api_key != false",
-      "order": 6
+      "order": 7
     },
     "client_id": {
       "title": "Client ID",
@@ -91,7 +100,7 @@
       "isRequired": false,
       "isBackendOnly": false,
       "condition": "settings.use_advanced_connect != false && settings.use_api_key == false",
-      "order": 7
+      "order": 8
     },
     "client_secret": {
       "title": "Client Secret",
@@ -99,7 +108,7 @@
       "isRequired": false,
       "isBackendOnly": true,
       "condition": "settings.use_advanced_connect != false && settings.use_api_key == false",
-      "order": 8
+      "order": 9
     },
     "callback_url": {
       "title": "Callback URL",
@@ -108,7 +117,7 @@
       "isRequired": false,
       "isBackendOnly": true,
       "condition": "settings.use_advanced_connect != false && settings.use_api_key == false",
-      "order": 9
+      "order": 10
     },
     "default_comment_on_ticket_reply": {
       "title": "Ticket reply as Jira comment?",
@@ -116,7 +125,7 @@
       "type": "boolean",
       "isRequired": false,
       "isBackendOnly": false,
-      "order": 10
+      "order": 11
     },
     "default_comment_on_ticket_note": {
       "title": "Ticket note as Jira comment?",
@@ -124,7 +133,7 @@
       "type": "boolean",
       "isRequired": false,
       "isBackendOnly": false,
-      "order": 11
+      "order": 12
     },
     "ticket_subject_as_issue_summary": {
       "title": "Use ticket ID and subject as summary",
@@ -132,7 +141,7 @@
       "type": "boolean",
       "isRequired": false,
       "isBackendOnly": false,
-      "order": 12
+      "order": 13
     },
     "mapping": {
       "title": "",
@@ -140,7 +149,7 @@
       "options": { "entrypoint": "#/admin_mapping" },
       "isRequired": false,
       "isBackendOnly": false,
-      "order": 13
+      "order": 14
     }
   },
   "proxy": {
@@ -156,8 +165,13 @@
         "timeout": 50
       },
       {
-        "url": "https://api\\.atlassian\\.com/.*",
-        "methods": ["GET", "POST", "DELETE"],
+        "url": "https://api\\.atlassian\\.com/ex/jira/[0-9a-fA-F-]+/.*",
+        "methods": ["GET", "POST", "PUT", "DELETE"],
+        "timeout": 50
+      },
+      {
+        "url": "https://api\\.atlassian\\.com/oauth/token/accessible-resources",
+        "methods": ["GET"],
         "timeout": 50
       }
     ]

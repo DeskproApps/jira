@@ -92,6 +92,25 @@ From this screen, enter the following details:
 - **API Key** - this is the key you created in the previous steps
 - **Email/Username** - Your Jira user's email address or username
 
+### Using a service account
+
+An Atlassian service account can be used instead of a person's account. Set the app up exactly as
+above, entering the service account's email address and its API token.
+
+Service accounts can only create API tokens **with scopes**, so when you create the token you must
+select these three:
+
+- `read:jira-work`
+- `write:jira-work`
+- `read:jira-user`
+
+Scopes and Jira permissions are separate, and the app needs both. A token carrying the right scopes
+on an account with no access to your projects will still be refused — see "Permissions" below.
+
+If the app reports that it cannot determine your Cloud ID, open
+`https://<your-domain>.atlassian.net/_edge/tenant_info` in a browser and paste the `cloudId` value
+it returns into the app's **Cloud ID** setting. Leave that setting empty otherwise.
+
 ## Permissions
 
 When you first view the Jira app alongside a ticket, it's best to check that you have configured the correct permissions

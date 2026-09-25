@@ -8,28 +8,37 @@ import {
   useDeskproLatestAppContext,
 } from "@deskpro/app-sdk";
 import { User } from "../../api/types/types";
+import { getCloudId } from "@/api/auth";
 import { ContextData, ContextSettings } from "@/types/deskpro";
 
 export const preInstalledRequest = async (
   client: IDeskproClient,
-  settings: Required<Pick<ContextSettings, "domain" | "username" | "api_key">>,
+  settings: Required<Pick<ContextSettings, "domain" | "username" | "api_key">> & { cloud_id?: string },
 ): Promise<User | null> => {
-  const { domain, username, api_key } = settings;
+  const { username, api_key } = settings;
   const auth = `${username}:${api_key}`;
 
   const dpFetch = await adminGenericProxyFetch(client);
 
-  const res = await dpFetch(
-    `https://${domain}.atlassian.net/rest/api/3/myself`,
-    {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization: `Basic ${btoa(auth)}`,
-      },
+  const call = (baseURL: string) => dpFetch(`${baseURL}/rest/api/3/myself`, {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: `Basic ${btoa(auth)}`,
     },
-  );
+  });
+
+  let res = await call(`https://${settings.domain}.atlassian.net`);
+
+  // A scoped token — the only kind a service account can hold — is refused by the site host and
+  // only accepted by the platform gateway. Verification has to agree with the app, which probes
+  // the same two hosts in the same order.
+  if (res.status === 401) {
+    const cloudID = await getCloudId(client, settings);
+
+    res = await call(`https://api.atlassian.com/ex/jira/${cloudID}`);
+  }
 
   if (res.status !== 200) {
     throw new Error(`Request failed: [${res.status}] ${await res.text()}`);
@@ -74,6 +83,7 @@ const VerifySettings: FC = () => {
       domain: settings.domain,
       username: settings.username,
       api_key: settings.api_key,
+      cloud_id: settings.cloud_id,
     })
       .then(setCurrentUser)
       .catch(() => setError(errorMessage))
