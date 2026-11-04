@@ -33,29 +33,46 @@ describe("useAuthentication", () => {
     expect(result.current.isAuthenticated).toBe(false);
   });
 
-  it("should return authenticated when query returns true", () => {
+  it("should return authenticated when the query reports success", () => {
     (useQueryWithClient as jest.Mock).mockReturnValue({
       isLoading: false,
       isFetching: false,
-      data: true,
+      data: { isAuthenticated: true },
     });
 
     const { result } = renderHook(() => useAuthentication({ isUsingOAuth: false }));
 
     expect(result.current.isLoading).toBe(false);
     expect(result.current.isAuthenticated).toBe(true);
+    expect(result.current.failure).toBeUndefined();
   });
 
-  it("should return unauthenticated when query returns false", () => {
+  it("should return unauthenticated when the query reports failure", () => {
     (useQueryWithClient as jest.Mock).mockReturnValue({
       isLoading: false,
       isFetching: false,
-      data: false,
+      data: { isAuthenticated: false, failure: "credentials" },
     });
 
     const { result } = renderHook(() => useAuthentication({ isUsingOAuth: false }));
 
     expect(result.current.isLoading).toBe(false);
     expect(result.current.isAuthenticated).toBe(false);
+  });
+
+  it.each([
+    ["credentials"],
+    ["permissions"],
+    ["site"],
+  ])("should surface the %s failure so the page can explain it", (failure) => {
+    (useQueryWithClient as jest.Mock).mockReturnValue({
+      isLoading: false,
+      isFetching: false,
+      data: { isAuthenticated: false, failure },
+    });
+
+    const { result } = renderHook(() => useAuthentication({ isUsingOAuth: false }));
+
+    expect(result.current.failure).toBe(failure);
   });
 });

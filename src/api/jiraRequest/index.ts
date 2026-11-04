@@ -1,3 +1,5 @@
 export { default, JiraError } from "./jiraRequest"
 export { default as isJiraErrorWithData } from "./isJiraErrorWithData"
 export { default as extractErrorMessages } from "./extractErrorMessages"
+export { default as resolveTransport, DEFAULT_CREDENTIAL_MODE } from "./resolveTransport"
+export type { CredentialMode, Transport } from "./resolveTransport"

@@ -1,39 +1,50 @@
 import { adminGenericProxyFetch, IDeskproClient, proxyFetch } from "@deskpro/app-sdk";
 import { ApiRequestMethod } from "@/types";
-import { CLOUD_ID_PATH, IS_USING_OAUTH2, OAUTH2_ACCESS_TOKEN_PATH } from "@/constants";
+import { CLOUD_ID_PATH, CREDENTIAL_MODE_PATH, IS_USING_OAUTH2 } from "@/constants";
 import { ContextSettings } from "@/types/deskpro";
+import resolveTransport, { CredentialMode, DEFAULT_CREDENTIAL_MODE } from "./resolveTransport";
 
 interface JiraRequestParams {
   method?: ApiRequestMethod,
   endpoint: string
   payload?: unknown
   settings?: ContextSettings
+  /** Forces the host to use, instead of the stored one. Set by the authentication probe. */
+  credentialMode?: CredentialMode
+  /** Supplies the cloud id before one has been cached, for the same reason. */
+  cloudID?: string
+}
+
+async function storedCredentialMode(client: IDeskproClient): Promise<CredentialMode> {
+  return (await client.getUserState<CredentialMode>(CREDENTIAL_MODE_PATH))[0]?.data
+    ?? DEFAULT_CREDENTIAL_MODE;
 }
 
 /**
  * Wrapper fetch function for requests to the Jira API.
  *
  * @template T - The type of the response data.
- * 
+ *
  * @throws {JiraError} If the HTTP status code indicates a failed request (not 2xx or 3xx).
  */
 export default async function jiraRequest<T>(client: IDeskproClient, params: Readonly<JiraRequestParams>): Promise<T> {
   const { method = "GET", endpoint, payload, settings } = params
   const isAdmin = Boolean(settings?.username && settings?.api_key);
   const dpFetch = await (isAdmin ? adminGenericProxyFetch : proxyFetch)(client);
-  const isUsingOAuth2 = (await client.getUserState<boolean>(IS_USING_OAUTH2))[0]?.data;
-  const cloudID = (await client.getUserState<string>(CLOUD_ID_PATH))[0]?.data;
+  const isUsingOAuth2 = Boolean((await client.getUserState<boolean>(IS_USING_OAUTH2))[0]?.data);
+  const cloudID = params.cloudID ?? (await client.getUserState<string>(CLOUD_ID_PATH))[0]?.data ?? undefined;
+  // Only the API-key path has a host to choose, so OAuth traffic skips the lookup.
+  const credentialMode = isUsingOAuth2
+    ? DEFAULT_CREDENTIAL_MODE
+    : params.credentialMode ?? await storedCredentialMode(client);
 
-  const baseURL = isUsingOAuth2 ? `https://api.atlassian.com/ex/jira/${cloudID}/rest/api/3`
-    : isAdmin
-      ? `https://${settings?.domain}.atlassian.net/rest/api/3`
-      : `https://__domain__.atlassian.net/rest/api/3`;
+  const { baseURL, authorization: auth } = resolveTransport({
+    isUsingOAuth2,
+    credentialMode,
+    cloudID,
+    settings,
+  });
   const url = baseURL + endpoint;
-
-  const auth = isUsingOAuth2 ? `Bearer [user[${OAUTH2_ACCESS_TOKEN_PATH}]]`
-    : isAdmin
-      ? `Basic ${btoa(`${settings?.username}:${settings?.api_key}`)}`
-      : "Basic __username+':'+api_key.base64__";
 
   let body = undefined;
 

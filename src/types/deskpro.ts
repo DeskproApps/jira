@@ -136,6 +136,7 @@ export type ContextSettings = {
   use_advanced_connect?: boolean;
   use_api_key?: boolean;
   domain?: string;
+  cloud_id?: string;
   username?: string;
   api_key?: string;
   verify_settings?: string;

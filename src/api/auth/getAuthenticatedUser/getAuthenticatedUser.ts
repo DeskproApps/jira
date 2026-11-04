@@ -1,9 +1,20 @@
 import { IDeskproClient } from "@deskpro/app-sdk";
 import { User } from "@/api/types/types";
-import jiraRequest from "@/api/jiraRequest";
+import jiraRequest, { CredentialMode } from "@/api/jiraRequest";
+import { ContextSettings } from "@/types/deskpro";
 
-export default async function getAuthenticatedUser(client: IDeskproClient){
+interface GetAuthenticatedUserParams {
+  credentialMode?: CredentialMode
+  cloudID?: string
+  settings?: ContextSettings
+}
+
+export default async function getAuthenticatedUser(
+  client: IDeskproClient,
+  params: Readonly<GetAuthenticatedUserParams> = {},
+){
   return await jiraRequest<User>(client, {
-    endpoint: "/myself"
+    endpoint: "/myself",
+    ...params,
   })
 }
